@@ -1,0 +1,5 @@
+rm -rf dist build hiwenet.egg-info 
+python setup.py sdist bdist_wheel
+
+twine upload dist/*
+

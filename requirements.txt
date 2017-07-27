@@ -1,0 +1,6 @@
+numpy
+nibabel
+pyradigm
+medpy
+networkx
+matplotlib
