@@ -1,4 +1,4 @@
-rm -rf dist build hiwenet.egg-info 
+rm -rf dist build graynet.egg-info 
 python setup.py sdist bdist_wheel
 
 twine upload dist/*
