@@ -6,15 +6,7 @@ import socket
 import numpy as np
 import nibabel as nib
 
-
-if socket.gethostname().startswith('SQuark'):
-    fs_subjects_dir = '/mnt/opt/freesurfer/subjects'
-else:
-    fs_subjects_dir = '/mnt/opt/freesurfer/subjects'
-
-atlas_name = 'fsaverage'
-atlas_dir = pjoin(fs_subjects_dir, atlas_name)
-hemi_list = ['lh', 'rh']
+atlas_list = ['FSAVERAGE', 'GLASSER2016']
 
 def get_atlas_annot(atlas_name=None):
     "High level wrapper to get all the info just by using a name."
@@ -34,7 +26,8 @@ def get_atlas_annot(atlas_name=None):
         raise NotImplementedError('Requested atlas is not implemented or unreadable.')
 
     annot = read_atlas_annot(atlas_path)
-    return annot
+
+    return annot, atlas_path
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):
