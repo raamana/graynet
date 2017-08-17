@@ -8,6 +8,10 @@ import nibabel as nib
 
 atlas_list = ['FSAVERAGE', 'GLASSER2016']
 
+# roi labelled ?? in Glasser parcellation has label 16777215
+background = { 'GLASSER2016': 16777215 , 'FSAVERAGE': 0}
+null_roi_index = 0
+
 def get_atlas_annot(atlas_name=None):
     "High level wrapper to get all the info just by using a name."
 
@@ -28,6 +32,18 @@ def get_atlas_annot(atlas_name=None):
     annot = read_atlas_annot(atlas_path)
 
     return annot, atlas_path
+
+
+def freesurfer_roi_labels(atlas_name):
+    "Returns just the vertex-wise indices for grouping the vertices into ROIs. Order:  left followed by right."
+
+    annot, _ = get_atlas_annot(atlas_name)
+
+    roi_labels = np.hstack((annot['lh']['labels'], annot['rh']['labels']))
+
+    roi_labels[roi_labels==background[atlas_name]] = null_roi_index
+
+    return roi_labels, annot
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):
@@ -93,5 +109,3 @@ def subdivide_cortex(atlas_dir):
 
         mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label, assume_unique=True)
 
-
-print('lets do something')

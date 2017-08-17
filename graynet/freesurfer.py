@@ -1,16 +1,12 @@
 
-import sys
-import os
 from os.path import join as pjoin, exists as pexists
 import collections
 import nibabel
 import warnings
-import networkx as nx
 import numpy as np
-import hiwenet
-from . import parcellate
 
-def import_features(fs_dir, subject_list, base_feature= 'thickness'):
+
+def import_features(fs_dir, subject_list, base_feature= 'thickness', fwhm=10, atlas='fsaverage'):
     "Ensure subjects are provided and their data exist."
 
     if isinstance(subject_list, collections.Iterable):
@@ -28,21 +24,21 @@ def import_features(fs_dir, subject_list, base_feature= 'thickness'):
     features= dict()
     for subject_id in subjects_list:
         try:
-            features[subject_id] = __get_data(fs_dir, subject_id, base_feature)
+            features[subject_id] = __get_data(fs_dir, subject_id, base_feature, fwhm, atlas)
         except:
-            raise ValueError('data for {} could not be read: {}'.format(subject_id))
+            raise ValueError('{} data for {} could not be read!'.format(base_feature, subject_id))
 
-    return
+    return features
 
 
-def __get_data(fs_dir, subject_id, base_feature):
+def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
     "Ensures all data exists for a given subject"
 
     _base_feature_list = ['thickness', 'curv', 'sulc']
     if base_feature.lower() in _base_feature_list:
         left  = read_morph_feature(_thickness_path(fs_dir, subject_id, 'lh'))
         right = read_morph_feature(_thickness_path(fs_dir, subject_id, 'rh'))
-        whole = np.vstack((left, right))
+        whole = np.hstack((left, right))
     else:
         raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
 
@@ -62,12 +58,16 @@ def __all_data_exists(fs_dir, subject_id, base_feature):
     return data_exists
 
 
-def _thickness_path(fsd, sid, hemi):
-    return pjoin(fsd, sid, '{}.thickness'.format(hemi))
+def _thickness_path(fsd, sid, hemi, fwhm=10, atlas='fsaverage'):
+    "Using a smoothed version"
+    return pjoin(fsd, sid, 'surf', '{}.thickness.fwhm{}.{}.mgh'.format(hemi, fwhm, atlas))
 
 
 def read_morph_feature(tpath):
-    return nibabel.freesurfer.io.read_morph_data(tpath)
+    "Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"
+    vec = nibabel.load(tpath).get_data() # typically of shape: (163842, 1, 1)
+
+    return np.squeeze(vec) # becomes (163842, )
 
 
 def __read_data(fs_dir, subject_list, base_feature):

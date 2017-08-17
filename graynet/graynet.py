@@ -1,56 +1,60 @@
-
-import sys
-import os
-from os.path import join as pjoin, exists as pexists
 import collections
-import nibabel
 import warnings
-import networkx as nx
-import numpy as np
+from os.path import join as pjoin, exists as pexists
+
 import hiwenet
-from . import parcellate
-from . import freesurfer
+import nibabel
+import numpy as np
 
-_base_feature_list = ['thickness', 'gmdensity']
+import freesurfer
+import parcellate
 
-default_weight_method = 'manhattan'
-default_num_bins = 25
-default_trim_percentile = 5
+__base_feature_list = ['thickness', 'gmdensity']
+
+__default_weight_method = 'manhattan'
+__default_num_bins = 25
+__default_trim_percentile = 5
 
 
-def extract(subject_id_list, out_dir, fs_dir,
-            base_feature='thickness', atlas ='GLASSER2016',
-            fwhm = 10, size = None):
+def extract(subject_id_list, fs_dir,
+            base_feature='thickness',
+            atlas ='GLASSER2016',
+            fwhm = 10, size = None,
+            out_dir=None):
     """Extracts weighted networks from gray matters features based on Freesurfer processing. Subject_id_list must be a file or list containing one id,path for each subject. """
 
     __parameter_check(base_feature, fs_dir, atlas, fwhm, size)
     subject_id_list = __subject_check(subject_id_list)
     num_subjects = len(subject_id_list)
 
-    ctx_parc = parcellate.get_atlas_annot(atlas)
-    num_nodes = __num_nodes(ctx_parc)
+    roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
+    uniq_rois, roi_size, num_nodes = __roi_info(roi_labels)
 
     features = freesurfer.import_features(fs_dir, subject_id_list, base_feature)
 
-    ewmat = np.zeros([num_subjects, num_nodes])
-    for subject in subject_id_list:
-        out_weights_path= pjoin(out_dir,subject, 'graynet.csv')
+    edge_weights_all = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
+    for ss, subject in enumerate(subject_id_list):
+
         try:
-            edge_weights = hiwenet.extract(features[subject], ctx_parc,
-                                           weight_method= default_weight_method,
-                                           num_bins=default_num_bins, trim_outliers=True,
-                                           trim_percentile=default_trim_percentile)
-            weights_array = edge_weights[ np.triu_indices_from(edge_weights, 1) ]
+            data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_index)
+            edge_weights = hiwenet.extract(data, rois, weight_method= __default_weight_method)
+            weight_vec = edge_weights[ np.triu_indices_from(edge_weights, 1) ]
         except:
             raise ValueError('Unable to extract covariance features for {}'.format(subject))
 
-        try:
-            np.save(weights_array, out_weights_path)
-        except:
-            raise IOError('unable to save extracted features to {}'.format(out_weights_path))
+        if out_dir is not None:
+            # TODO get outpath returned from hiwenet, based on dist name and all other parameters
+            # choose out_dir name  based on dist name and all other parameters
+            out_weights_path = pjoin(out_dir, subject, 'graynet.csv')
+            try:
+                np.save(weight_vec, out_weights_path)
+            except:
+                raise IOError('unable to save extracted features to {}'.format(out_weights_path))
 
+        # accumulating results across dataset
+        edge_weights_all[ss,:] = weight_vec
 
-    return ewmat
+    return edge_weights_all
 
 
 def __subject_check(subjects_info):
@@ -94,14 +98,32 @@ def __read_data(subject_list, base_feature):
     return features
 
 
-def __num_nodes(atlas_annot):
-    "Number of unique ROIs in a given atlas parcellation"
+def __remove_background_roi(data,labels, ignore_label):
+    "Returns everything but specified label"
+
+    mask = labels != ignore_label
+
+    return data[mask], labels[mask]
+
+
+def __roi_info(roi_labels):
+    "Unique ROIs in a given atlas parcellation, count and size. Excludes the background"
+
+    uniq_rois_temp, roi_size = np.unique(roi_labels, return_counts=True)
+
+    # removing the background label
+    background_labels = [ parcellate.null_roi_index, ]
+    uniq_rois = np.delete(uniq_rois_temp, background_labels)
+
+    num_nodes = len(uniq_rois)
+
+    return uniq_rois, roi_size, num_nodes
 
 
 def __parameter_check(base_feature, fs_dir, atlas, fwhm, size):
     """"""
 
-    if base_feature not in _base_feature_list:
+    if base_feature not in __base_feature_list:
         raise NotImplementedError('Choice {} is invalid or not implemented'.format(base_feature))
 
     if atlas.upper() not in parcellate.atlas_list:
@@ -115,11 +137,11 @@ def __parameter_check(base_feature, fs_dir, atlas, fwhm, size):
     return
 
 
-def cli_run():
+def __cli_run():
     "command line interface!"
 
     raise NotImplementedError('command line interface not implemented yet.')
 
 
 if __name__ == '__main__':
-    cli_run()
+    __cli_run()
