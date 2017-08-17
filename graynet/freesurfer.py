@@ -1,0 +1,90 @@
+
+import sys
+import os
+from os.path import join as pjoin, exists as pexists
+import collections
+import nibabel
+import warnings
+import networkx as nx
+import numpy as np
+import hiwenet
+from . import parcellate
+
+def import_features(fs_dir, subject_list, base_feature= 'thickness'):
+    "Ensure subjects are provided and their data exist."
+
+    if isinstance(subject_list, collections.Iterable):
+        if len(subject_list) < 1:
+            raise ValueError('Empty subject list.')
+        subjects_list = subject_list
+    elif isinstance(subject_list, str):
+        if not pexists(subject_list):
+            raise IOError('path to subject list does not exist: {}'.format(subject_list))
+        subjects_list = np.loadtxt(subject_list, dtype=str)
+    else:
+        raise ValueError('Invalid value provided for subject list. \n '
+                         'Must be a list of paths, or path to file containing list of paths, one for each subject.')
+
+    features= dict()
+    for subject_id in subjects_list:
+        try:
+            features[subject_id] = __get_data(fs_dir, subject_id, base_feature)
+        except:
+            raise ValueError('data for {} could not be read: {}'.format(subject_id))
+
+    return
+
+
+def __get_data(fs_dir, subject_id, base_feature):
+    "Ensures all data exists for a given subject"
+
+    _base_feature_list = ['thickness', 'curv', 'sulc']
+    if base_feature.lower() in _base_feature_list:
+        left  = read_morph_feature(_thickness_path(fs_dir, subject_id, 'lh'))
+        right = read_morph_feature(_thickness_path(fs_dir, subject_id, 'rh'))
+        whole = np.vstack((left, right))
+    else:
+        raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
+
+    return whole
+
+
+def __all_data_exists(fs_dir, subject_id, base_feature):
+    "Ensures all data exists for a given subject"
+
+    _base_feature_list = ['thickness', 'curv', 'sulc']
+    if base_feature.lower() in _base_feature_list:
+        data_exists = pexists(_thickness_path(fs_dir,subject_id,'lh')) and \
+                      pexists(_thickness_path(fs_dir,subject_id,'rh'))
+    else:
+        raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
+
+    return data_exists
+
+
+def _thickness_path(fsd, sid, hemi):
+    return pjoin(fsd, sid, '{}.thickness'.format(hemi))
+
+
+def read_morph_feature(tpath):
+    return nibabel.freesurfer.io.read_morph_data(tpath)
+
+
+def __read_data(fs_dir, subject_list, base_feature):
+    "Returns the location of the source of subject-wise features: /path/subject/surf/?h.thickness or nifti image"
+
+    def read_gmdensity(gmpath):
+        return nibabel.load(gmpath)
+
+    reader = {'gmdensity': read_gmdensity, 'thickness': read_morph_feature}
+
+    features = dict()
+    for subj_info in subject_list:
+        subj_id, subj_data_path = subj_info.split(',')
+        try:
+            features[subj_id] = reader[base_feature](subj_data_path)
+        except:
+            warnings.warn('data for {} could not be read from:\n{}'.format(subj_id, subj_data_path))
+            raise
+
+    return features

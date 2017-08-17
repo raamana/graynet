@@ -9,23 +9,51 @@ import networkx as nx
 import numpy as np
 import hiwenet
 from . import parcellate
+from . import freesurfer
 
 _base_feature_list = ['thickness', 'gmdensity']
 
-def extract(subject_id_list, base_feature, atlas ='GLASSER2016', fwhm = 10, size = None):
-    """Extracts weighted networks from gray matters features based on Freesurfer processing."""
+default_weight_method = 'manhattan'
+default_num_bins = 25
+default_trim_percentile = 5
 
-    __parameter_check(base_feature, atlas, fwhm, size)
 
-    __subject_check(subject_id_list, base_feature)
+def extract(subject_id_list, out_dir, fs_dir,
+            base_feature='thickness', atlas ='GLASSER2016',
+            fwhm = 10, size = None):
+    """Extracts weighted networks from gray matters features based on Freesurfer processing. Subject_id_list must be a file or list containing one id,path for each subject. """
 
-    num_nodes = 10
-    ewmat = np.zeros([num_nodes, num_nodes])
+    __parameter_check(base_feature, fs_dir, atlas, fwhm, size)
+    subject_id_list = __subject_check(subject_id_list)
+    num_subjects = len(subject_id_list)
+
+    ctx_parc = parcellate.get_atlas_annot(atlas)
+    num_nodes = __num_nodes(ctx_parc)
+
+    features = freesurfer.import_features(fs_dir, subject_id_list, base_feature)
+
+    ewmat = np.zeros([num_subjects, num_nodes])
+    for subject in subject_id_list:
+        out_weights_path= pjoin(out_dir,subject, 'graynet.csv')
+        try:
+            edge_weights = hiwenet.extract(features[subject], ctx_parc,
+                                           weight_method= default_weight_method,
+                                           num_bins=default_num_bins, trim_outliers=True,
+                                           trim_percentile=default_trim_percentile)
+            weights_array = edge_weights[ np.triu_indices_from(edge_weights, 1) ]
+        except:
+            raise ValueError('Unable to extract covariance features for {}'.format(subject))
+
+        try:
+            np.save(weights_array, out_weights_path)
+        except:
+            raise IOError('unable to save extracted features to {}'.format(out_weights_path))
+
 
     return ewmat
 
 
-def __subject_check(subjects_info, base_feature):
+def __subject_check(subjects_info):
     "Ensure subjects are provided and their data exist."
 
     if isinstance(subjects_info, collections.Iterable):
@@ -40,12 +68,7 @@ def __subject_check(subjects_info, base_feature):
         raise ValueError('Invalid value provided for subject list. \n '
                          'Must be a list of paths, or path to file containing list of paths, one for each subject.')
 
-    nonexisting_subjects = [ data_path for data_path in subjects_list if not pexists(data_path)]
-    if len(nonexisting_subjects) > 0:
-        raise ValueError('Following {} subjects do not exist:\n {}'.format(
-            len(nonexisting_subjects), '\n'.join(nonexisting_subjects)))
-
-    return
+    return subjects_list
 
 
 def __read_data(subject_list, base_feature):
@@ -71,7 +94,11 @@ def __read_data(subject_list, base_feature):
     return features
 
 
-def __parameter_check(base_feature, atlas, fwhm, size):
+def __num_nodes(atlas_annot):
+    "Number of unique ROIs in a given atlas parcellation"
+
+
+def __parameter_check(base_feature, fs_dir, atlas, fwhm, size):
     """"""
 
     if base_feature not in _base_feature_list:
@@ -79,6 +106,9 @@ def __parameter_check(base_feature, atlas, fwhm, size):
 
     if atlas.upper() not in parcellate.atlas_list:
         raise ValueError('Invalid atlas choice. Use one of {}'.format(parcellate.atlas_list))
+
+    if not pexists(fs_dir):
+        raise IOError('Freesurfer directory at {} does not exist.'.format(fs_dir))
 
     # no checks on subdivison size yet, as its not implemented
 
