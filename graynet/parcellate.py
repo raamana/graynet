@@ -9,8 +9,15 @@ import nibabel as nib
 atlas_list = ['FSAVERAGE', 'GLASSER2016']
 
 # roi labelled ?? in Glasser parcellation has label 16777215
-background = { 'GLASSER2016': 16777215 , 'FSAVERAGE': 0}
+# fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
+ignore_roi_labels = {'GLASSER2016': [16777215, ], 'FSAVERAGE': [1639705, 3294840]}
+ignore_roi_names = { 'GLASSER2016': ['??', '???', 'lh_???', 'rh_???', 'lh_???', 'rh_???'],
+                     'FSAVERAGE': [   'unknown',    'corpuscallosum',
+                                   'lh_unknown', 'lh_corpuscallosum',
+                                   'rh_unknown', 'rh_corpuscallosum']}
+
 null_roi_index = 0
+null_roi_name = 'null_roi_ignore'
 
 def get_atlas_annot(atlas_name=None):
     "High level wrapper to get all the info just by using a name."
@@ -38,12 +45,41 @@ def freesurfer_roi_labels(atlas_name):
     "Returns just the vertex-wise indices for grouping the vertices into ROIs. Order:  left followed by right."
 
     annot, _ = get_atlas_annot(atlas_name)
-
-    roi_labels = np.hstack((annot['lh']['labels'], annot['rh']['labels']))
-
-    roi_labels[roi_labels==background[atlas_name]] = null_roi_index
+    roi_labels = __combine_annotations(annot, atlas_name)
 
     return roi_labels, annot
+
+
+def __combine_annotations(annot, atlas_name):
+    "Combines named labels from two hemisphers, ignoring non-cortex"
+
+    ignore_list = list()
+    max_len = 1 + max(max(map(len, annot['lh']['names']+annot['rh']['names'])), len(null_roi_name))
+    str_dtype = np.dtype('S{}'.format(max_len))
+
+    named_labels = dict()
+    for hemi in ['lh', 'rh']:
+        named_labels[hemi] = np.empty( annot[hemi]['labels'].shape, str_dtype)
+        uniq_labels  = np.unique(annot[hemi]['labels'])
+        for label in uniq_labels:
+            if not ( label == null_roi_index or label in ignore_roi_labels[atlas_name] ): # to be ignored
+                idx_roi = np.nonzero(annot[hemi]['ctab'][:,4]==label)[0][0]
+                mask_label = annot[hemi]['labels'] == label
+                named_labels[hemi][mask_label] = '{}_{}'.format(hemi,annot[hemi]['names'][idx_roi])
+
+        # setting the non-accessed vertices (part of non-cortex) to specific label to ignore later
+        null_mask = named_labels[hemi] == ''
+        named_labels[hemi][null_mask] = null_roi_name
+
+    wholebrain_named_labels = np.hstack((named_labels['lh'], named_labels['rh']))
+
+    for ignore_label in ignore_roi_names[atlas_name]:
+        wholebrain_named_labels[wholebrain_named_labels == ignore_label] = null_roi_name
+
+    # # original implementation for glasser2016, with labels in different hemi coded differently
+    # roi_labels = np.hstack((annot['lh']['labels'], annot['rh']['labels']))
+
+    return wholebrain_named_labels
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):

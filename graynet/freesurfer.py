@@ -34,10 +34,10 @@ def import_features(fs_dir, subject_list, base_feature= 'thickness', fwhm=10, at
 def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
     "Ensures all data exists for a given subject"
 
-    _base_feature_list = ['thickness', 'curv', 'sulc']
+    _base_feature_list = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
     if base_feature.lower() in _base_feature_list:
-        left  = read_morph_feature(_thickness_path(fs_dir, subject_id, 'lh'))
-        right = read_morph_feature(_thickness_path(fs_dir, subject_id, 'rh'))
+        left  = __read_morph_feature(_thickness_path(fs_dir, subject_id, 'lh'))
+        right = __read_morph_feature(_thickness_path(fs_dir, subject_id, 'rh'))
         whole = np.hstack((left, right))
     else:
         raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
@@ -63,7 +63,7 @@ def _thickness_path(fsd, sid, hemi, fwhm=10, atlas='fsaverage'):
     return pjoin(fsd, sid, 'surf', '{}.thickness.fwhm{}.{}.mgh'.format(hemi, fwhm, atlas))
 
 
-def read_morph_feature(tpath):
+def __read_morph_feature(tpath):
     "Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"
     vec = nibabel.load(tpath).get_data() # typically of shape: (163842, 1, 1)
 
@@ -76,7 +76,7 @@ def __read_data(fs_dir, subject_list, base_feature):
     def read_gmdensity(gmpath):
         return nibabel.load(gmpath)
 
-    reader = {'gmdensity': read_gmdensity, 'thickness': read_morph_feature}
+    reader = {'gmdensity': read_gmdensity, 'thickness': __read_morph_feature}
 
     features = dict()
     for subj_info in subject_list:

@@ -12,10 +12,12 @@ if not pexists(out_dir):
     os.mkdir(out_dir)
 
 fs_dir = pjoin(base_dir, 'freesurfer')
-base_feature = 'thickness'
-atlas ='GLASSER2016'
+base_feature = 'freesurfer_thickness'
+atlas = 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
-num_roi_wholebrain = 360
+
+num_roi_atlas = {'FSAVERAGE':68, 'GLASSER2016':360}
+num_roi_wholebrain = num_roi_atlas[atlas]
 num_links = num_roi_wholebrain*(num_roi_wholebrain-1)/2
 
 weight_method = 'manhattan' # 'minowski' # 'manhattan'
@@ -27,3 +29,4 @@ def test_run_no_IO():
     assert ew_shape[0] == len(subject_id_list)
     assert ew_shape[1] == num_links
 
+test_run_no_IO()
