@@ -1,23 +1,28 @@
 import collections
 import warnings
+import os
 from os.path import join as pjoin, exists as pexists
 
 import hiwenet
 import nibabel
 import numpy as np
+import traceback
 
 import freesurfer
 import parcellate
 
+np.seterr(divide='ignore', invalid='ignore')
+
 __base_feature_list = ['thickness', 'gmdensity']
 
-__default_weight_method = 'manhattan'
+__default_weight_method = 'minowski' # 'manhattan'
 __default_num_bins = 25
 __default_trim_percentile = 5
 
 
 def extract(subject_id_list, fs_dir,
             base_feature='thickness',
+            weight_method= __default_weight_method,
             atlas ='GLASSER2016',
             fwhm = 10, size = None,
             out_dir=None):
@@ -35,26 +40,40 @@ def extract(subject_id_list, fs_dir,
     edge_weights_all = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
     for ss, subject in enumerate(subject_id_list):
 
+        print('Processing {} : {} / {}'.format(subject, ss+1, num_subjects))
+
         try:
             data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_index)
-            edge_weights = hiwenet.extract(data, rois, weight_method= __default_weight_method)
-            weight_vec = edge_weights[ np.triu_indices_from(edge_weights, 1) ]
+            edge_weights = hiwenet.extract(data, rois, weight_method)
+
+            weight_vec = __get_triu_handle_inf_nan(edge_weights)
+
+            __save(weight_vec, out_dir, subject)
+            edge_weights_all[ss, :] = weight_vec
+
+        except (RuntimeError, RuntimeWarning) as runexc:
+            print(runexc)
+            pass
         except:
-            raise ValueError('Unable to extract covariance features for {}'.format(subject))
-
-        if out_dir is not None:
-            # TODO get outpath returned from hiwenet, based on dist name and all other parameters
-            # choose out_dir name  based on dist name and all other parameters
-            out_weights_path = pjoin(out_dir, subject, 'graynet.csv')
-            try:
-                np.save(weight_vec, out_weights_path)
-            except:
-                raise IOError('unable to save extracted features to {}'.format(out_weights_path))
-
-        # accumulating results across dataset
-        edge_weights_all[ss,:] = weight_vec
+            print('Unable to extract covariance features for {}'.format(subject))
+            traceback.print_exc()
 
     return edge_weights_all
+
+
+def __get_triu_handle_inf_nan(weights_matrix):
+    "Issue a warning when NaNs or Inf are found."
+
+    if weights_matrix is None:
+        raise ValueError('Computation failed.')
+
+    upper_tri_vec = weights_matrix[np.triu_indices_from(weights_matrix, 1)]
+
+    num_nonfinite = np.count_nonzero(np.logical_not(np.isfinite(upper_tri_vec)))
+    if num_nonfinite > 0:
+        warnings.warn(' {} non-finite values are found.'.format(num_nonfinite))
+
+    return upper_tri_vec
 
 
 def __subject_check(subjects_info):
@@ -118,6 +137,27 @@ def __roi_info(roi_labels):
     num_nodes = len(uniq_rois)
 
     return uniq_rois, roi_size, num_nodes
+
+
+def __save(weight_vec, out_dir, subject):
+    "Saves the features to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+        out_weights_path = pjoin(out_subject_dir, 'graynet.csv')
+
+        try:
+            np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
+            print('Saved the features to \n{}'.format(out_weights_path))
+        except:
+            print('unable to save extracted features to {}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
 
 
 def __parameter_check(base_feature, fs_dir, atlas, fwhm, size):
