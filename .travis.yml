@@ -1,0 +1,27 @@
+language: python
+cache: pip
+python:
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+install:
+  - pip install -r requirements.txt
+  - pip install pytest-cov
+
+script:
+  - pytest --cov=.
+
+after_success:
+- codecov
+
+deploy:
+  provider: pypi
+  user: "raamana"
+  password:
+    secure: "WZti6kctfJYoBoaObCdcvNnPUZvpJJx7+yI9dDLnuBNd2VN3I6SU/AJ7wr2Az8cGl7cN9UMYMiEpZw6+WaEVR0pTRik7y+qrqTHWzlwkq0GPULDcjdR5YItzd3Di6Qz/X4qVhJr3/j/QL+kB5IiVO0E98CPk8WTCbA7EPR0vOuf6rhU5XGwsU69WfIsna9TpHMJ42DxMG5elSnk2W0BDa2ARqNFIcG+WP3xR+i6Sh/GcQCzD0o760r42Awx6AVq1YxriwKmwxssLCDIeAw0YyYcYrP2WbzF5b4ZDPeDBEF37oJi//xpNHh2uTgASQkt3x8Sbq54c7OWT0BtDmCgNhgSyweMbbC34vtZb8cWjs8jPLmAp18SEHYnX8l480fShY95/MdTOPgt4tx10zufqWfoFrLkPD87fC0PhXuzMLxvpA32H7DQzHRzxGwKIcJK29cd4tk1gZ8DLuOdA6fy96fgswVX51upxRaLQY9pILQgiqtA/PHkyFRxmIOUOYE0FmI5XQUxnL4xa/GpR2NPPU6UxvUIAW1B3ihoJQJb5zfKiLlRyZiglwHImGFQEpNXUSqN0MKR0tYpFeF0pGGHdJsmBxDFLoIRMuj/uucNJPPVcord3vP0D7Abs6sH32LxAnVibeR2aPMJA/gM4xDQkH2YOpvFa0y3sWlpgo4YWhVE="
+  on:
+    tags: true

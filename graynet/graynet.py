@@ -1,12 +1,12 @@
 import collections
-import warnings
 import os
+import traceback
+import warnings
 from os.path import join as pjoin, exists as pexists
 
 import hiwenet
 import nibabel
 import numpy as np
-import traceback
 
 import freesurfer
 import parcellate

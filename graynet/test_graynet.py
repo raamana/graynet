@@ -20,9 +20,10 @@ num_links = num_roi_wholebrain*(num_roi_wholebrain-1)/2
 
 weight_method = 'manhattan' # 'minowski' # 'manhattan'
 
-edge_weights_all = extract(subject_id_list, fs_dir, base_feature, weight_method, atlas, fwhm, out_dir=out_dir)
+def test_run_no_IO():
+    edge_weights_all = extract(subject_id_list, fs_dir, base_feature, weight_method, atlas, fwhm)
 
-ew_shape = edge_weights_all.shape
-assert ew_shape[0] == len(subject_id_list)
-assert ew_shape[1] == num_links
+    ew_shape = edge_weights_all.shape
+    assert ew_shape[0] == len(subject_id_list)
+    assert ew_shape[1] == num_links
 
