@@ -21,11 +21,11 @@ def get_atlas_annot(atlas_name=None):
     atlas_name = atlas_name.upper()
 
     if atlas_name in ['GLASSER2016']:
-        atlas_path = '/data1/strother_lab/praamana/glasser2016/fsaverage_annot_figshare3498446'
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        atlas_path = os.path.realpath(pjoin(this_dir, '..', 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446'))
     elif atlas_name in ['FSAVERAGE']:
-        atlas_path = '/mnt/opt/freesurfer/subjects'
-        if not pexists(atlas_path):
-            atlas_path = '/opt/freesurfer/subjects'
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        atlas_path = os.path.realpath(pjoin(this_dir, '..', 'atlases', 'fsaverage'))
     else:
         raise NotImplementedError('Requested atlas is not implemented or unreadable.')
 
