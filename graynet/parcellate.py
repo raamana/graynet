@@ -121,12 +121,15 @@ def read_atlas(atlas_dir, hemi_list=None):
     return coords, faces, annot
 
 
-def subdivide_cortex(atlas_dir):
+def subdivide_cortex(atlas_dir, hemi_list=None):
     "Subdivides the given cortical parcellation (each label into smaller patches)"
 
     raise NotImplementedError('This function has not been implemented yet.')
 
     # noinspection PyUnreachableCode
+    if hemi_list is None:
+        hemi_list = ['lh', 'rh']
+
     coords, faces, annot = read_atlas(atlas_dir)
 
     labels_to_remove = ['corpuscallosum', 'unknown']
