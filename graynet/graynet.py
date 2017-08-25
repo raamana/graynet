@@ -1,5 +1,7 @@
 import collections
 import os
+import sys
+import argparse
 import traceback
 import warnings
 from os.path import join as pjoin, exists as pexists
@@ -22,9 +24,16 @@ __default_weight_method = 'minowski' # 'manhattan'
 __default_num_bins = 25
 __default_trim_percentile = 5
 
+__default_feature = 'freesurfer_thickness'
+__default_atlas = 'GLASSER2016'
+__default_smoothing_param = 10
+__default_node_size = None
 
-def extract(subject_id_list, input_dir, base_feature = 'thickness', weight_method = __default_weight_method,
-            atlas ='GLASSER2016', smoothing_param = 10, node_size = None, out_dir=None):
+def extract(subject_id_list, input_dir,
+            base_feature = __default_feature,
+            weight_method = __default_weight_method,
+            atlas = __default_atlas, smoothing_param = __default_smoothing_param,
+            node_size = __default_node_size, out_dir=None):
     """
     Extracts weighted networks from gray matters features based on Freesurfer processing.
     Subject_id_list must be a file or a list containing one id,path for each subject.
@@ -71,7 +80,7 @@ def extract(subject_id_list, input_dir, base_feature = 'thickness', weight_metho
 
     __parameter_check(base_feature, input_dir, atlas, smoothing_param, node_size)
     subject_id_list = __subject_check(subject_id_list)
-    num_subjects = len(subject_id_list)
+    num_subjects = subject_id_list.size
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = __roi_info(roi_labels)
@@ -143,14 +152,14 @@ def __get_triu_handle_inf_nan(weights_matrix):
 def __subject_check(subjects_info):
     "Ensure subjects are provided and their data exist."
 
-    if isinstance(subjects_info, collections.Iterable):
-        if len(subjects_info) < 1:
-            raise ValueError('Empty subject list.')
-        subjects_list = subjects_info
-    elif isinstance(subjects_info, str):
+    if isinstance(subjects_info, str):
         if not pexists(subjects_info):
             raise IOError('path to subject list does not exist: {}'.format(subjects_info))
         subjects_list = np.loadtxt(subjects_info, dtype=str)
+    elif isinstance(subjects_info, collections.Iterable):
+        if len(subjects_info) < 1:
+            raise ValueError('Empty subject list.')
+        subjects_list = subjects_info
     else:
         raise ValueError('Invalid value provided for subject list. \n '
                          'Must be a list of paths, or path to file containing list of paths, one for each subject.')
@@ -218,10 +227,93 @@ def __parameter_check(base_feature, in_dir, atlas, smoothing_param, node_size):
     return
 
 
+def __read_features_and_groups(features_path, groups_path):
+    "Reader for data and groups"
+
+    try:
+        features = np.loadtxt(features_path)
+        groups = np.loadtxt(groups_path)
+    except:
+        raise IOError('error reading the specified features and/or groups.')
+
+    assert len(features) == len(groups), "lengths of features and groups do not match!"
+
+    return features, groups
+
+
 def __cli_run():
     "command line interface!"
 
-    raise NotImplementedError('command line interface not implemented yet.')
+    subject_ids_path, input_dir, base_feature, weight_method, \
+        atlas, out_dir, node_size, smoothing_param = __parse_args()
+
+    extract(subject_ids_path, input_dir, base_feature, weight_method,
+            atlas, smoothing_param, node_size, out_dir)
+
+    return
+
+
+def __parse_args():
+    """Parser/validator for the cmd line args."""
+
+    parser = argparse.ArgumentParser(prog="graynet")
+
+    parser.add_argument("-s", "--subject_ids_path", action="store", dest="subject_ids_path",
+                        required=True,
+                        help="Abs. path to file containing features for a given subject")
+
+    parser.add_argument("-i", "--input_dir", action="store", dest="input_dir",
+                        required=True,
+                        help="path to a folder containing input data e.g. Freesurfer SUBJECTS_DIR.")
+
+    parser.add_argument("-f", "--feature", action="store", dest="feature",
+                        default=__default_feature, required=False,
+                        help="Atlas to use to define nodes/ROIs. Default: {}".format(__default_feature))
+
+    parser.add_argument("-w", "--weight_method", action="store", dest="weight_method",
+                        default=__default_weight_method, required=False,
+                        help="Method used to estimate the weight between the pair of nodes. Default : {}".format(
+                            __default_weight_method))
+
+    parser.add_argument("-a", "--atlas", action="store", dest="atlas",
+                        default=__default_atlas, required=False,
+                        help="Atlas to use to define nodes/ROIs. Default: {}".format(__default_atlas))
+
+    parser.add_argument("-o", "--out_dir", action="store", dest="out_dir",
+                        default=None, required=False,
+                        help="Where to save the extracted features. ")
+
+    parser.add_argument("-n", "--node_size", action="store", dest="node_size",
+                        default=__default_node_size, required=False,
+                        help="Parameter defining the size of individual node for the atlas parcellation. Default : {}".format(__default_node_size))
+
+    parser.add_argument("-p", "--smoothing_param", action="store", dest="smoothing_param",
+                        default=__default_smoothing_param, required=False,
+                        help="Small value specifying the percentile of outliers to trim. "
+                             "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(__default_smoothing_param))
+
+    if len(sys.argv) < 2:
+        parser.print_help()
+        warnings.warn('Too few arguments!', UserWarning)
+        parser.exit(1)
+
+    # parsing
+    try:
+        params = parser.parse_args()
+    except Exception as exc:
+        print(exc)
+        raise ValueError('Unable to parse command-line arguments.')
+
+    subject_ids_path = os.path.abspath(params.subject_ids_path)
+    if not os.path.exists(subject_ids_path):
+        raise IOError("Given subject IDs file doesn't exist.")
+
+    input_dir = os.path.abspath(params.input_dir)
+    if not os.path.exists(input_dir):
+        raise IOError("Given input directory doesn't exist.")
+
+    return subject_ids_path, input_dir, params.feature, params.weight_method, \
+           params.atlas, params.out_dir, params.node_size, params.smoothing_param
 
 
 if __name__ == '__main__':

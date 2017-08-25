@@ -1,8 +1,6 @@
 
 import os
 from os.path import join as pjoin, exists as pexists
-import sys
-import socket
 import numpy as np
 import nibabel as nib
 
