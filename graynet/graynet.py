@@ -87,6 +87,8 @@ def extract(subject_id_list, input_dir,
 
     features = import_features(input_dir, subject_id_list, base_feature)
 
+    expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
+
     edge_weights_all = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
     for ss, subject in enumerate(subject_id_list):
 
@@ -98,7 +100,7 @@ def extract(subject_id_list, input_dir,
 
             weight_vec = __get_triu_handle_inf_nan(edge_weights)
 
-            __save(weight_vec, out_dir, subject)
+            __save(weight_vec, out_dir, subject, expt_id)
             edge_weights_all[ss, :] = weight_vec
 
         except (RuntimeError, RuntimeWarning) as runexc:
@@ -164,7 +166,7 @@ def __subject_check(subjects_info):
         raise ValueError('Invalid value provided for subject list. \n '
                          'Must be a list of paths, or path to file containing list of paths, one for each subject.')
 
-    return subjects_list
+    return np.atleast_1d(subjects_list)
 
 
 def __remove_background_roi(data,labels, ignore_label):
@@ -189,7 +191,7 @@ def __roi_info(roi_labels):
     return uniq_rois, roi_size, num_nodes
 
 
-def __save(weight_vec, out_dir, subject):
+def __save(weight_vec, out_dir, subject, str_suffix = None):
     "Saves the features to disk."
 
     if out_dir is not None:
@@ -198,7 +200,13 @@ def __save(weight_vec, out_dir, subject):
         out_subject_dir = pjoin(out_dir, subject)
         if not pexists(out_subject_dir):
             os.mkdir(out_subject_dir)
-        out_weights_path = pjoin(out_subject_dir, 'graynet.csv')
+
+        if str_suffix is not None:
+            out_file_name = '{}_graynet.csv'.format(str_suffix)
+        else:
+            out_file_name = 'graynet.csv'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
 
         try:
             np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
@@ -208,6 +216,15 @@ def __save(weight_vec, out_dir, subject):
             traceback.print_exc()
 
     return
+
+
+def __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method):
+    "Constructs a string to uniquely identify a given feature extraction method."
+
+    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
+    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}'.format(base_feature, atlas, smoothing_param, node_size, weight_method)
+
+    return expt_id
 
 
 def __parameter_check(base_feature, in_dir, atlas, smoothing_param, node_size):
@@ -272,7 +289,7 @@ def __parse_args():
 
     parser.add_argument("-w", "--weight_method", action="store", dest="weight_method",
                         default=__default_weight_method, required=False,
-                        help="Method used to estimate the weight between the pair of nodes. Default : {}".format(
+                        help="Method used to estimate the weight of the edge between the pair of nodes. Default : {}".format(
                             __default_weight_method))
 
     parser.add_argument("-a", "--atlas", action="store", dest="atlas",
@@ -289,8 +306,8 @@ def __parse_args():
 
     parser.add_argument("-p", "--smoothing_param", action="store", dest="smoothing_param",
                         default=__default_smoothing_param, required=False,
-                        help="Small value specifying the percentile of outliers to trim. "
-                             "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(__default_smoothing_param))
+                        help="Smoothing parameter for feature. "
+                             "Default: FWHM of {} for Freesurfer thickness".format(__default_smoothing_param))
 
     if len(sys.argv) < 2:
         parser.print_help()
@@ -312,8 +329,13 @@ def __parse_args():
     if not os.path.exists(input_dir):
         raise IOError("Given input directory doesn't exist.")
 
+    out_dir = params.out_dir
+    if out_dir is not None:
+        if not pexists(out_dir):
+            os.mkdir(out_dir)
+
     return subject_ids_path, input_dir, params.feature, params.weight_method, \
-           params.atlas, params.out_dir, params.node_size, params.smoothing_param
+           params.atlas, out_dir, params.node_size, params.smoothing_param
 
 
 if __name__ == '__main__':
