@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='graynet',
-      version='0.1',
+      version='0.2',
       description='Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density. ',
       long_description='Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density; graynet',
       author='Pradeep Reddy Raamana',
@@ -26,6 +26,9 @@ setup(name='graynet',
           "console_scripts": [
               "graynet=graynet.__main__:main",
           ]
-      }
+      },
+      package_dir ={'graynet':'graynet'},
+      package_data={'graynet':'atlases/*'},
+      include_package_data=True
 
      )
