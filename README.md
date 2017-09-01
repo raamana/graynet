@@ -5,7 +5,7 @@ Individualized single-subject (covariance) networks from T1 mri features such as
 Applicable for biomarker development for the detection of many brain disorders such as Alzheimer's, Parkinson's, Schizophrenia and the like - see below.
 
 ## References
-Few publications outlining one use case is here:
+The following publications outline typical use cases:
  * Raamana, P.R. and Strother, S.C., 2017, Impact of spatial scale and edge weight on predictive power of cortical thickness networks bioRxiv 170381 http://www.biorxiv.org/content/early/2017/07/31/170381. doi: https://doi.org/10.1101/170381
  * Tijms, B. M., Seriès, P., Willshaw, D. J., & Lawrie, S. M. (2012). Similarity-based extraction of individual networks from gray matter MRI scans. Cerebral Cortex, 22(7), 1530-1541.
  * Palaniyappan, L., Park, B., Balain, V., Dangi, R., & Liddle, P. (2015). Abnormalities in structural covariance of cortical gyrification in schizophrenia. Brain Structure and Function, 220(4), 2059-2071.
