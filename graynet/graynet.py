@@ -97,13 +97,13 @@ def extract(subject_id_list, input_dir,
     edge_weights_all = dict()
     num_weights = len(weight_method_list)
     for ww, weight_method in enumerate(weight_method_list):
-        print('Processing {} -  {} / {}'.format(weight_method, ww+1, num_weights))
         expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
 
         edge_weights_all[weight_method] = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
         for ss, subject in enumerate(subject_id_list):
 
-            print('Processing {} : {} / {}'.format(subject, ss+1, num_subjects))
+            print('Processing weight {} - {}/{} -- id {} : {}/{}'.format(weight_method, ww+1, num_weights,
+                                                               subject, ss+1, num_subjects))
 
             try:
                 # reading only one subject at a time reduces the memory foot-print
@@ -115,7 +115,7 @@ def extract(subject_id_list, input_dir,
                 weight_vec = __get_triu_handle_inf_nan(edge_weights)
 
                 __save(weight_vec, out_dir, subject, expt_id)
-                edge_weights_all[ss, :] = weight_vec
+                edge_weights_all[weight_method][ss, :] = weight_vec
 
             except (RuntimeError, RuntimeWarning) as runexc:
                 print(runexc)
