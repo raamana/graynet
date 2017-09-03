@@ -36,13 +36,13 @@ def specify_hpc_resources(mem, queue, job_dir, cluster_type='SGE'):
 
     lines = list()
     if cluster_type.upper() in ['SGE', 'SUNGRIDENGINE']:
-        lines.append('#$ -l mf={} -q {}\n'.format(mem, queue))
+        lines.append('#$ -l mf={} -q {}'.format(mem, queue))
         lines.append('cd {}\n'.format(job_dir))
         # add other lines below accommodating to your own HPC
     else:
         raise TypeError
 
-    return lines
+    return '\n'.join(lines)
 
 
 #---------------------------------
@@ -84,6 +84,8 @@ def make_job(subject_id_list, freesurfer_dir,
     num_subjects = len(sub_list)
     walltime = int(np.round(walltime_per_subject*num_subjects, 0))
 
+    str_list_weight_method = ' '.join(weight_method)
+
     job_file = pjoin(job_dir, '{}.job'.format(job_name))
     if pexists(job_file):
         os.remove(job_file)
@@ -91,7 +93,7 @@ def make_job(subject_id_list, freesurfer_dir,
         jf.write('#!/bin/bash\n')
         jf.write(specify_hpc_resources(mem, queue, job_dir, cluster_type))
         jf.write(make_cli_call(cli_name,realpath(subject_id_list), base_feature, realpath(freesurfer_dir),
-            weight_method, atlas, fwhm, realpath(out_proc_dir)))
+            str_list_weight_method, atlas, fwhm, realpath(out_proc_dir)))
 
     st = os.stat(job_file)
     os.chmod(job_file, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -109,8 +111,8 @@ histogram_dist = np.array([
     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
     'relative_bin_deviation', 'relative_deviation'])
 
-num_splits_samples = 10.0
-num_splits_weights = 5.0
+num_splits_samples = 3.0 # 10.0
+num_splits_weights = 3.0
 
 job_dir = pjoin(out_dir, 'PBS')
 make_dirs([job_dir, ])
@@ -122,16 +124,26 @@ num_samples = len(id_list)
 num_samples_per_job = max(1,np.int64(np.ceil(num_samples/num_splits_samples)))
 num_weights_per_job = max(1,np.int64(np.ceil(num_weights/num_splits_weights)))
 
-for ww in range(num_weights_per_job):
-    w_done = ww*num_weights_per_job
-    subset_weights = histogram_dist[w_done:w_done+num_weights_per_job]
+wt_count = 0
+for ww in range(int(num_splits_weights)):
+    subset_weights = histogram_dist[wt_count:min(wt_count+num_weights_per_job, num_weights)]
+    wt_count = wt_count + num_weights_per_job
 
-    for ss in range(num_samples_per_job):
-        s_done = ss*num_samples_per_job
-        subset_samples = id_list[s_done:s_done+num_samples_per_job]
+    print(' {} \n {}'.format(ww, subset_weights))
 
-        job_name = '_'.join(subset_weights)
-        job_file = make_job(subject_id_list, freesurfer_dir,
+    sub_count = 0
+    for ss in range(int(num_splits_samples)):
+        subset_samples = id_list[sub_count:min(sub_count+num_samples_per_job,num_samples)]
+        sub_count = sub_count + num_samples_per_job
+
+        print(' {} \n {}'.format(ss, subset_samples))
+
+        subset_list_path = pjoin(out_dir,'split{}_samples.txt'.format(ss))
+        with open(subset_list_path, 'w') as sf:
+            sf.write('\n'.join(subset_samples))
+
+        job_name = 'split{}{}_{}'.format(ww,ss,'_'.join(subset_weights))
+        job_file = make_job(subset_list_path, freesurfer_dir,
                             base_feature, subset_weights,
                             atlas, fwhm, out_dir, job_dir, job_name)
 
