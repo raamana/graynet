@@ -21,13 +21,25 @@ freesurfer_dir = pjoin(proc_dir, 'freesurfer')
 target_list_dir = pjoin(proc_dir, 'target_lists')
 
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
-print('test run with 5 subjects only')
 
 base_feature = 'freesurfer_thickness'
 atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
 
 out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
+
+histogram_dist = np.array([
+    'chebyshev', 'chebyshev_neg', 'chi_square',
+    'correlate', 'correlate_1',
+    'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
+    'euclidean', 'fidelity_based',
+    'histogram_intersection', 'histogram_intersection_1',
+    'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
+    'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
+    'relative_bin_deviation', 'relative_deviation'])
+
+num_splits_samples = 8.0 # 10.0
+num_splits_weights = 6.0
 
 cluster_type = 'SGE'
 
@@ -77,7 +89,7 @@ def make_job(subject_id_list, freesurfer_dir,
 
     queue = 'abaqus.q'
     mem='4G'
-    walltime_per_subject = 0.25 # in hours -> 15 mins
+    walltime_per_subject = 0.5 # in hours -> 15 mins
     cli_name = 'graynet'
 
     sub_list = np.atleast_1d(np.genfromtxt(subject_id_list))
@@ -101,19 +113,6 @@ def make_job(subject_id_list, freesurfer_dir,
     return job_file
 
 
-histogram_dist = np.array([
-    'chebyshev', 'chebyshev_neg', 'chi_square',
-    'correlate', 'correlate_1',
-    'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
-    'euclidean', 'fidelity_based',
-    'histogram_intersection', 'histogram_intersection_1',
-    'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
-    'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-    'relative_bin_deviation', 'relative_deviation'])
-
-num_splits_samples = 3.0 # 10.0
-num_splits_weights = 3.0
-
 job_dir = pjoin(out_dir, 'PBS')
 make_dirs([job_dir, ])
 
@@ -121,22 +120,28 @@ num_weights = len(histogram_dist)
 id_list = np.atleast_1d(np.loadtxt(subject_id_list, dtype=str))
 num_samples = len(id_list)
 
+print('{} samples and {} weights'.format(num_samples, num_weights))
+
 num_samples_per_job = max(1,np.int64(np.ceil(num_samples/num_splits_samples)))
 num_weights_per_job = max(1,np.int64(np.ceil(num_weights/num_splits_weights)))
 
+print('{} samples/job and {} weights/job'.format(num_samples_per_job, num_weights_per_job))
+
 wt_count = 0
 for ww in range(int(num_splits_weights)):
-    subset_weights = histogram_dist[wt_count:min(wt_count+num_weights_per_job, num_weights)]
-    wt_count = wt_count + num_weights_per_job
+    end_idx = min(wt_count+num_weights_per_job, num_weights)
+    subset_weights = histogram_dist[wt_count:end_idx]
+    wt_count = end_idx
 
-    print(' {} \n {}'.format(ww, subset_weights))
+    print(' {} {}'.format(ww, wt_count))
 
     sub_count = 0
     for ss in range(int(num_splits_samples)):
-        subset_samples = id_list[sub_count:min(sub_count+num_samples_per_job,num_samples)]
-        sub_count = sub_count + num_samples_per_job
+        end_idx = min(sub_count+num_samples_per_job+1,num_samples)
+        subset_samples = id_list[sub_count:end_idx]
+        sub_count = end_idx
 
-        print(' {} \n {}'.format(ss, subset_samples))
+        print(' {} {}'.format(ss, sub_count))
 
         subset_list_path = pjoin(out_dir,'split{}_samples.txt'.format(ss))
         with open(subset_list_path, 'w') as sf:
