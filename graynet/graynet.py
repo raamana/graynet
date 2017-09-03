@@ -20,7 +20,16 @@ __features_fsl = ['gmdensity', ]
 
 __base_feature_list = __features_freesurfer + __features_fsl
 
-__default_weight_method = 'minowski' # 'manhattan'
+__default_weight_method = [ 'minowski', 'manhattan' ]
+__accepted_weight_list = [
+    'chebyshev', 'chebyshev_neg', 'chi_square',
+    'correlate', 'correlate_1',
+    'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
+    'euclidean', 'fidelity_based',
+    'histogram_intersection', 'histogram_intersection_1',
+    'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
+    'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
+    'relative_bin_deviation', 'relative_deviation']
 __default_num_bins = 25
 __default_trim_percentile = 5
 
@@ -31,12 +40,11 @@ __default_node_size = None
 
 def extract(subject_id_list, input_dir,
             base_feature = __default_feature,
-            weight_method = __default_weight_method,
+            weight_method_list = __default_weight_method,
             atlas = __default_atlas, smoothing_param = __default_smoothing_param,
             node_size = __default_node_size, out_dir=None):
     """
     Extracts weighted networks from gray matters features based on Freesurfer processing.
-    Subject_id_list must be a file or a list containing one id,path for each subject.
 
     Parameters
     ----------
@@ -48,8 +56,9 @@ def extract(subject_id_list, input_dir,
         Or another directory with a structure that graynet can parse.
     base_feature : str
         Specific type of feature to read for each subject from the input directory.
-    weight_method : str
-        Name of covariance metric to use to compute weights. Currently those supported by hiwenet, which can be one of:
+    weight_method_list : list of str
+        Names of covariance metrics to use to compute weights.
+        Currently only those supported by hiwenet, which can be one of:
         [ 'chebyshev', 'chebyshev_neg', 'chi_square', 'correlate', 'correlate_1',
         'cosine', 'cosine_1', 'cosine_2', 'cosine_alt', 'euclidean', 'fidelity_based',
         'histogram_intersection', 'histogram_intersection_1', 'jensen_shannon', 'kullback_leibler',
@@ -85,36 +94,46 @@ def extract(subject_id_list, input_dir,
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = __roi_info(roi_labels)
 
-    features = import_features(input_dir, subject_id_list, base_feature)
+    edge_weights_all = dict()
+    num_weights = len(weight_method_list)
+    for ww, weight_method in enumerate(weight_method_list):
+        print('Processing {} -  {} / {}'.format(weight_method, ww+1, num_weights))
+        expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
 
-    expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
+        edge_weights_all[weight_method] = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
+        for ss, subject in enumerate(subject_id_list):
 
-    edge_weights_all = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
-    for ss, subject in enumerate(subject_id_list):
+            print('Processing {} : {} / {}'.format(subject, ss+1, num_subjects))
 
-        print('Processing {} : {} / {}'.format(subject, ss+1, num_subjects))
+            try:
+                # reading only one subject at a time reduces the memory foot-print
+                features = import_features(input_dir, [subject, ], base_feature)
 
-        try:
-            data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
-            edge_weights = hiwenet.extract(data, rois, weight_method)
+                data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+                edge_weights = hiwenet.extract(data, rois, weight_method)
 
-            weight_vec = __get_triu_handle_inf_nan(edge_weights)
+                weight_vec = __get_triu_handle_inf_nan(edge_weights)
 
-            __save(weight_vec, out_dir, subject, expt_id)
-            edge_weights_all[ss, :] = weight_vec
+                __save(weight_vec, out_dir, subject, expt_id)
+                edge_weights_all[ss, :] = weight_vec
 
-        except (RuntimeError, RuntimeWarning) as runexc:
-            print(runexc)
-            pass
-        except:
-            print('Unable to extract covariance features for {}'.format(subject))
-            traceback.print_exc()
+            except (RuntimeError, RuntimeWarning) as runexc:
+                print(runexc)
+                pass
+            except:
+                print('Unable to extract covariance features for {}'.format(subject))
+                traceback.print_exc()
+
+        sys.stdout.write('Done.\n')
 
     return edge_weights_all
 
 
 def import_features(input_dir, subject_id_list, base_feature):
     "Wrapper to support input data of multiple types and multiple packages."
+
+    if isinstance(subject_id_list, basestring):
+        subject_id_list = [subject_id_list, ]
 
     base_feature = base_feature.lower()
     if base_feature in __features_freesurfer:
@@ -283,12 +302,15 @@ def __parse_args():
                         required=True,
                         help="path to a folder containing input data e.g. Freesurfer SUBJECTS_DIR.")
 
+    # TODO let users specify multiple features comma separated
     parser.add_argument("-f", "--feature", action="store", dest="feature",
                         default=__default_feature, required=False,
                         help="Atlas to use to define nodes/ROIs. Default: {}".format(__default_feature))
 
+    # TODO let users specify multiple weight methods comma separated
     parser.add_argument("-w", "--weight_method", action="store", dest="weight_method",
                         default=__default_weight_method, required=False,
+                        nargs = '*', choices = __accepted_weight_list,
                         help="Method used to estimate the weight of the edge between the pair of nodes. Default : {}".format(
                             __default_weight_method))
 
