@@ -1,4 +1,6 @@
 
-from graynet import extract
+from graynet import parcellate, freesurfer
+from graynet.graynet import extract
+from graynet.parcellate import read_atlas
 
-all = ['graynet', 'extract']
+__all__ = ['graynet', 'extract', 'parcellate', 'freesurfer', 'read_atlas']

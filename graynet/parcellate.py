@@ -1,4 +1,6 @@
 
+__all__ = ['read_atlas', 'freesurfer_roi_labels', 'null_roi_name', 'atlas_list']
+
 import os
 from os.path import join as pjoin, exists as pexists
 import numpy as np
@@ -53,7 +55,7 @@ def __combine_annotations(annot, atlas_name):
 
     ignore_list = list()
     max_len = 1 + max(max(map(len, annot['lh']['names']+annot['rh']['names'])), len(null_roi_name))
-    str_dtype = np.dtype('S{}'.format(max_len))
+    str_dtype = np.dtype('U{}'.format(max_len))
 
     named_labels = dict()
     for hemi in ['lh', 'rh']:
@@ -92,6 +94,10 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
         annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
         annot[hemi]['labels'], annot[hemi]['ctab'], annot[hemi]['names'] = nib.freesurfer.io.read_annot(annot_path, orig_ids=True)
 
+        # ensuring names are plainstring
+        if isinstance(annot[hemi]['names'][0], np.bytes_):
+            annot[hemi]['names'] = [ bytestr.decode('UTF-8') for bytestr in annot[hemi]['names']]
+
     return annot
 
 
@@ -104,7 +110,7 @@ def read_atlas(atlas_dir, hemi_list=None):
     coords, faces, info = dict(), dict(), dict()
 
     for hemi in hemi_list:
-        hemi_path = os.path.join(atlas_dir,'surf','lh.orig')
+        hemi_path = os.path.join(atlas_dir,'surf','{}.orig'.format(hemi))
         coords[hemi], faces[hemi], info[hemi] = nib.freesurfer.io.read_geometry(hemi_path, read_metadata=True)
 
     num_vertices_left_hemi = coords['lh'].shape[0]

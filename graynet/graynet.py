@@ -1,3 +1,6 @@
+
+__all__ = ['extract', 'roi_info']
+
 import collections
 import os
 import sys
@@ -10,8 +13,8 @@ import hiwenet
 import nibabel
 import numpy as np
 
-import freesurfer
-import parcellate
+from . import freesurfer
+from . import parcellate
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -92,7 +95,7 @@ def extract(subject_id_list, input_dir,
     num_subjects = subject_id_list.size
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
-    uniq_rois, roi_size, num_nodes = __roi_info(roi_labels)
+    uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
 
     edge_weights_all = dict()
     num_weights = len(weight_method_list)
@@ -123,7 +126,7 @@ def extract(subject_id_list, input_dir,
             except KeyboardInterrupt:
                 print('Exiting on keyborad interrupt! \n'
                       'Abandoning the remaining processing for {} weights:\n'
-                      '{}.'.format(num_weights-ww, weight_method_list[ww+1:]))
+                      '{}.'.format(num_weights-ww, weight_method_list[ww:]))
                 sys.exit(1)
             except:
                 print('Unable to extract covariance features for {}'.format(subject))
@@ -201,14 +204,15 @@ def __remove_background_roi(data,labels, ignore_label):
     return data[mask], labels[mask]
 
 
-def __roi_info(roi_labels):
+def roi_info(roi_labels):
     "Unique ROIs in a given atlas parcellation, count and size. Excludes the background"
 
-    uniq_rois_temp, roi_size = np.unique(roi_labels, return_counts=True)
+    uniq_rois_temp, roi_size_temp = np.unique(roi_labels, return_counts=True)
 
     # removing the background label
     index_bkgnd = np.argwhere(uniq_rois_temp==parcellate.null_roi_name)[0]
     uniq_rois = np.delete(uniq_rois_temp, index_bkgnd)
+    roi_size  = np.delete(roi_size_temp, index_bkgnd)
 
     num_nodes = len(uniq_rois)
 
