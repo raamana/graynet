@@ -22,9 +22,12 @@ target_list_dir = pjoin(proc_dir, 'target_lists')
 
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 
-base_feature = 'freesurfer_thickness'
+base_feature = 'freesurfer_thickness' # 'freesurfer_curv' # 'freesurfer_thickness'
 atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
+
+num_splits_samples = 8.0 # 10.0
+num_splits_weights = 3.0
 
 out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
 
@@ -38,17 +41,14 @@ histogram_dist = np.array([
     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
     'relative_bin_deviation', 'relative_deviation'])
 
-num_splits_samples = 8.0 # 10.0
-num_splits_weights = 6.0
-
 cluster_type = 'SGE'
 
-def specify_hpc_resources(mem, queue, job_dir, cluster_type='SGE'):
+def specify_hpc_resources(mem, queue, job_dir, job_log, cluster_type='SGE'):
     "returns lines to include in job scripts to specify resources"
 
     lines = list()
     if cluster_type.upper() in ['SGE', 'SUNGRIDENGINE']:
-        lines.append('#$ -l mf={} -q {}'.format(mem, queue))
+        lines.append('#$ -l mf={} -q {} -wd {} -j yes -o {}'.format(mem, queue, job_dir, job_log))
         lines.append('cd {}\n'.format(job_dir))
         # add other lines below accommodating to your own HPC
     else:
@@ -99,11 +99,12 @@ def make_job(subject_id_list, freesurfer_dir,
     str_list_weight_method = ' '.join(weight_method)
 
     job_file = pjoin(job_dir, '{}.job'.format(job_name))
+    job_log  = pjoin(job_dir, '{}.log'.format(job_name))
     if pexists(job_file):
         os.remove(job_file)
     with open(job_file, 'w') as jf:
         jf.write('#!/bin/bash\n')
-        jf.write(specify_hpc_resources(mem, queue, job_dir, cluster_type))
+        jf.write(specify_hpc_resources(mem, queue, job_dir, job_log))
         jf.write(make_cli_call(cli_name,realpath(subject_id_list), base_feature, realpath(freesurfer_dir),
             str_list_weight_method, atlas, fwhm, realpath(out_proc_dir)))
 
