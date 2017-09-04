@@ -35,9 +35,11 @@ def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
     "Ensures all data exists for a given subject"
 
     _base_feature_list = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
-    if base_feature.lower() in _base_feature_list:
-        left  = __read_morph_feature(_thickness_path(fs_dir, subject_id, 'lh'))
-        right = __read_morph_feature(_thickness_path(fs_dir, subject_id, 'rh'))
+    feat_name = base_feature.lower()
+    if feat_name in _base_feature_list:
+        bare_name_feature = feat_name.replace('freesurfer_','')
+        left  = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='lh', feature=bare_name_feature))
+        right = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='rh', feature=bare_name_feature))
         whole = np.hstack((left, right))
     else:
         raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
@@ -50,17 +52,18 @@ def __all_data_exists(fs_dir, subject_id, base_feature):
 
     _base_feature_list = ['thickness', 'curv', 'sulc']
     if base_feature.lower() in _base_feature_list:
-        data_exists = pexists(_thickness_path(fs_dir,subject_id,'lh')) and \
-                      pexists(_thickness_path(fs_dir,subject_id,'rh'))
+        data_exists = pexists(_surf_data_path(fs_dir, subject_id, 'lh')) and \
+                      pexists(_surf_data_path(fs_dir, subject_id, 'rh'))
     else:
         raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
 
     return data_exists
 
 
-def _thickness_path(fsd, sid, hemi, fwhm=10, atlas='fsaverage'):
-    "Using a smoothed version"
-    return pjoin(fsd, sid, 'surf', '{}.thickness.fwhm{}.{}.mgh'.format(hemi, fwhm, atlas))
+def _surf_data_path(fsd, sid, hemi='lh', fwhm=10, atlas='fsaverage', feature = 'thickness'):
+    "Returning the path to surface features. Using a smoothed version"
+
+    return pjoin(fsd, sid, 'surf', '{}.{}.fwhm{}.{}.mgh'.format(hemi, feature, fwhm, atlas))
 
 
 def __read_morph_feature(tpath):

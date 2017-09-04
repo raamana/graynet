@@ -15,7 +15,7 @@ import parcellate
 
 np.seterr(divide='ignore', invalid='ignore')
 
-__features_freesurfer = ['freesurfer_thickness', ]
+__features_freesurfer = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
 __features_fsl = ['gmdensity', ]
 
 __base_feature_list = __features_freesurfer + __features_fsl
@@ -102,7 +102,7 @@ def extract(subject_id_list, input_dir,
         edge_weights_all[weight_method] = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
         for ss, subject in enumerate(subject_id_list):
 
-            print('Processing weight {} - {}/{} -- id {} : {}/{}'.format(weight_method, ww+1, num_weights,
+            print('Processing weight {} ({}/{}) -- id {} ({}/{})'.format(weight_method, ww+1, num_weights,
                                                                subject, ss+1, num_subjects))
 
             try:
@@ -120,6 +120,11 @@ def extract(subject_id_list, input_dir,
             except (RuntimeError, RuntimeWarning) as runexc:
                 print(runexc)
                 pass
+            except KeyboardInterrupt:
+                print('Exiting on keyborad interrupt! \n'
+                      'Abandoning the remaining processing for {} weights:\n'
+                      '{}.'.format(num_weights-ww, weight_method_list[ww+1:]))
+                sys.exit(1)
             except:
                 print('Unable to extract covariance features for {}'.format(subject))
                 traceback.print_exc()
