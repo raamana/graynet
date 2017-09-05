@@ -23,7 +23,7 @@ __features_fsl = ['gmdensity', ]
 
 __base_feature_list = __features_freesurfer + __features_fsl
 
-__default_weight_method = [ 'minowski', 'manhattan' ]
+__default_weight_method = ( 'minowski', 'manhattan' )
 __accepted_weight_list = [
     'chebyshev', 'chebyshev_neg', 'chi_square',
     'correlate', 'correlate_1',
@@ -122,7 +122,6 @@ def extract(subject_id_list, input_dir,
 
             except (RuntimeError, RuntimeWarning) as runexc:
                 print(runexc)
-                pass
             except KeyboardInterrupt:
                 print('Exiting on keyborad interrupt! \n'
                       'Abandoning the remaining processing for {} weights:\n'
