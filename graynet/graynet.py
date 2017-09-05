@@ -1,5 +1,5 @@
 
-__all__ = ['extract', 'roi_info']
+__all__ = ['extract', 'roi_info', 'cli_run']
 
 import collections
 import os
@@ -13,8 +13,17 @@ import hiwenet
 import nibabel
 import numpy as np
 
-from . import freesurfer
-from . import parcellate
+from sys import version_info
+
+if version_info.major==2 and version_info.minor==7 and version_info.micro==13:
+    import freesurfer
+    import parcellate
+elif version_info.major > 2:
+    from . import freesurfer
+    from . import parcellate
+else:
+    raise NotImplementedError('hiwenet supports only 2.7.13 or 3+. Upgrade to Python 3+ is recommended.')
+
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -102,7 +111,7 @@ def extract(subject_id_list, input_dir,
     for ww, weight_method in enumerate(weight_method_list):
         expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
 
-        edge_weights_all[weight_method] = np.zeros([num_subjects, num_nodes*(num_nodes-1)/2])
+        edge_weights_all[weight_method] = np.zeros([num_subjects, np.int64(num_nodes*(num_nodes-1)/2)])
         for ss, subject in enumerate(subject_id_list):
 
             print('Processing weight {} ({}/{}) -- id {} ({}/{})'.format(weight_method, ww+1, num_weights,
@@ -139,7 +148,7 @@ def extract(subject_id_list, input_dir,
 def import_features(input_dir, subject_id_list, base_feature):
     "Wrapper to support input data of multiple types and multiple packages."
 
-    if isinstance(subject_id_list, basestring):
+    if isinstance(subject_id_list, str):
         subject_id_list = [subject_id_list, ]
 
     base_feature = base_feature.lower()
@@ -280,12 +289,13 @@ def __read_features_and_groups(features_path, groups_path):
     except:
         raise IOError('error reading the specified features and/or groups.')
 
-    assert len(features) == len(groups), "lengths of features and groups do not match!"
+    if len(features) != len(groups):
+        raise ValueError("lengths of features and groups do not match!")
 
     return features, groups
 
 
-def __cli_run():
+def cli_run():
     "command line interface!"
 
     subject_ids_path, input_dir, base_feature, weight_method, \
@@ -369,4 +379,4 @@ def __parse_args():
 
 
 if __name__ == '__main__':
-    __cli_run()
+    cli_run()

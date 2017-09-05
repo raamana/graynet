@@ -28,7 +28,7 @@ def test_run_no_IO():
     for wm in weight_method:
         for sub in subject_id_list:
             ew_shape = edge_weights_all[wm].shape
-            assert ew_shape[0] == len(subject_id_list)
-            assert ew_shape[1] == num_links
-
-test_run_no_IO()
+            if  ew_shape[0] != len(subject_id_list):
+                raise ValueError('invalid results : # subjects')
+            if ew_shape[1] != num_links:
+                raise ValueError('invalid results : # links')
