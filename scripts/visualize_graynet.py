@@ -96,8 +96,9 @@ saved_path = pjoin(out_dir,'adj_matrices_all_subjects_weights.pkl')
 try:
     if pexists(saved_path):
         print('reloading data')
-        with open(saved_path,'r') as sf:
-            adj_mat_all = pickle.load(sf)
+        with open(saved_path,'rb') as sf:
+            data_list = pickle.load(sf)
+            adj_mat_all = data_list[0]
     else:
         raise IOError('saved data doesnt exist')
 except:
@@ -115,29 +116,49 @@ except:
             except:
                 print('data for pair-wise dist {} for subject {} not available'.format(weight, sid))
 
-    with open(saved_path,'w') as sf:
-        pickle.dump(sf, [adj_mat_all, ])
+    with open(saved_path,'wb') as sf:
+        pickle.dump([adj_mat_all, ], sf)
 
-num_rows = 4
-num_cols = 6
+vis_out_dir = pjoin(out_dir, 'vis')
+if not pexists(vis_out_dir):
+    os.mkdir(vis_out_dir)
+
+num_rows = 6
+num_cols = 4
+figsize = [ 14, 18]
 for ww, weight in enumerate(histogram_dist):
-    plt.subplots(num_rows, num_cols)
-    print('visualizing {} pair-wise dist for subject {}'.format(weight, sid))
+    fig, ax = plt.subplots(num_rows, num_cols, figsize=figsize)
+    print('visualizing {} pair-wise dist'.format(weight))
+
+    out_fig_path = pjoin(vis_out_dir, '{}_24_subjects.pdf'.format(weight))
+
+    all_subjects_data = np.squeeze(adj_mat_all[:, ww, :, :]).flatten()
+    clim_max = np.percentile(all_subjects_data, 99.5)
+    clim_min = np.percentile(all_subjects_data, 0.1)
+
     for ss in range(24):
         sid = id_list[ss]
         try:
             adj_mat = np.squeeze(adj_mat_all[ss, ww, :, :])
             ax = plt.subplot(num_rows, num_cols, ss + 1)
-            plt.imshow(adj_mat)
-            plt.title('{}:{}'.format(sid, weight))
+
+            img = ax.imshow(adj_mat, vmin=clim_min, vmax=clim_max)
+
+            plt.title('{}'.format(sid))
+            ax.xaxis.set_ticklabels([])
+
             # plot_connectome(adj_mat[:50,:50], mean_coords[:50,:])
             # edge_thr = np.percentile(adj_mat.flatten(), 99)
             # plot_connectome(adj_mat, mean_coords,edge_threshold='99.99%', node_size=5)
         except:
             print('data for pair-wise dist {} for subject {} not available'.format(weight, sid))
-            pass
 
-    plt.show()
-    # print('')
+    cax = fig.add_axes([0.93, 0.2, 0.02, 0.6])
+    fig.colorbar(img, cax=cax)
+    plt.suptitle(weight, fontsize=20)
+    plt.savefig(out_fig_path, dpi=200)
+    # plt.show()
+    plt.close()
 
-adj_mat_avg = np.mean(adj_mat_all)
+print('')
+
