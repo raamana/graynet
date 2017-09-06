@@ -16,7 +16,7 @@ def import_features(fs_dir, subject_list, base_feature= 'thickness', fwhm=10, at
     elif isinstance(subject_list, str):
         if not pexists(subject_list):
             raise IOError('path to subject list does not exist: {}'.format(subject_list))
-        subjects_list = np.loadtxt(subject_list, dtype=str)
+        subjects_list = np.atleast_1d(np.genfromtxt(subject_list, dtype=str).astype(str))
     else:
         raise ValueError('Invalid value provided for subject list. \n '
                          'Must be a list of paths, or path to file containing list of paths, one for each subject.')

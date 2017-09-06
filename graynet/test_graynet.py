@@ -23,12 +23,14 @@ num_links = num_roi_wholebrain*(num_roi_wholebrain-1)/2
 weight_method = [ 'manhattan', 'minowski' ]
 
 def test_run_no_IO():
-    edge_weights_all = graynet.extract(subject_id_list, fs_dir, base_feature, weight_method, atlas, fwhm)
+    edge_weights_all = graynet.extract(subject_id_list, fs_dir, base_feature, weight_method, atlas, fwhm,
+                                       out_dir=None, return_results=True)
+    num_combinations = len(list(edge_weights_all))
+
+    if num_combinations != len(subject_id_list)*len(weight_method):
+        raise ValueError('invalid results : # subjects')
 
     for wm in weight_method:
         for sub in subject_id_list:
-            ew_shape = edge_weights_all[wm].shape
-            if  ew_shape[0] != len(subject_id_list):
-                raise ValueError('invalid results : # subjects')
-            if ew_shape[1] != num_links:
+            if edge_weights_all[(wm, sub)].size != num_links:
                 raise ValueError('invalid results : # links')

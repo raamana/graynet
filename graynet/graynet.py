@@ -6,7 +6,7 @@ import os
 import sys
 import argparse
 import traceback
-import warnings
+import logging
 from os.path import join as pjoin, exists as pexists
 
 import hiwenet
@@ -54,7 +54,7 @@ def extract(subject_id_list, input_dir,
             base_feature = __default_feature,
             weight_method_list = __default_weight_method,
             atlas = __default_atlas, smoothing_param = __default_smoothing_param,
-            node_size = __default_node_size, out_dir=None):
+            node_size = __default_node_size, out_dir=None, return_results = False):
     """
     Extracts weighted networks from gray matters features based on Freesurfer processing.
 
@@ -90,44 +90,60 @@ def extract(subject_id_list, input_dir,
     out_dir : str, optional
         Path to output directory to store results.
         Default: None, results are returned, but not saved to disk.
+        If this is None, return_results must be true.
+    return_results : bool
+        Flag to indicating whether to keep the results to be returned to caller method.
+        Helps to save memory (as it doesn't retain results all subjects and weight combinations),
+        when running from commmand line interface (or HPC). Default: False
+        If this is False, out_dir must be specified to save the results to disk.
 
     Returns
     -------
-    edge_weights_all : ndarray
-        Numpy array of size n x p, where n = number of subjects and p = k*(k-1)/2,
-        where k = number of nodes in the atlas parcellation.
-
+    edge_weights_all : dict, None
+        If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+        The value of each edge_weights_all[(weight method, subject_ID)] is
+        a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
+        If return_results is False, this will be None, which is the default.
     """
 
-    __parameter_check(base_feature, input_dir, atlas, smoothing_param, node_size)
-    subject_id_list = __subject_check(subject_id_list)
-    num_subjects = subject_id_list.size
+    __parameter_check(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
+    subject_id_list, num_subjects, max_id_width, nd_id = __subject_check(subject_id_list)
+    weight_method_list, num_weights, max_wtname_width, nd_wm = __weight_check(weight_method_list)
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
 
-    edge_weights_all = dict()
-    num_weights = len(weight_method_list)
-    for ww, weight_method in enumerate(weight_method_list):
-        expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
+    print('\nProcessing {} features resampled to {} atlas,'
+          ' smoothed at {} with node size {}'.format(base_feature, atlas, smoothing_param, node_size))
 
-        edge_weights_all[weight_method] = np.zeros([num_subjects, np.int64(num_nodes*(num_nodes-1)/2)])
-        for ss, subject in enumerate(subject_id_list):
+    if return_results:
+        edge_weights_all = dict()
+    else:
+        edge_weights_all = None
 
-            print('Processing weight {} ({}/{}) -- id {} ({}/{})'.format(weight_method, ww+1, num_weights,
-                                                               subject, ss+1, num_subjects))
+    # edge_weights_all[weight_method] = dict() # np.zeros([num_subjects, np.int64(num_nodes*(num_nodes-1)/2)])
+    for ss, subject in enumerate(subject_id_list):
 
+        try:
+            features = import_features(input_dir, [subject, ], base_feature)
+        except:
+            raise IOError('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
+            continue
+
+        data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+
+        for ww, weight_method in enumerate(weight_method_list):
+            # unique stamp for each subject and weight
+            expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
+            sys.stdout.write('\nProcessing id {:{id_width}} ({:{nd_id}}/{:{nd_id}}) -- '
+                             'weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
+                             ' :'.format(subject, ss+1, num_subjects, weight_method, ww+1, num_weights,
+                                         id_width=max_id_width, wtname_width=max_wtname_width,
+                                         nd_id=nd_id, nd_wm=nd_wm)) # controlling for number of digits
+
+            # actual computation of pair-wise features
             try:
-                # reading only one subject at a time reduces the memory foot-print
-                features = import_features(input_dir, [subject, ], base_feature)
-
-                data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
                 edge_weights = hiwenet.extract(data, rois, weight_method)
-
-                weight_vec = __get_triu_handle_inf_nan(edge_weights)
-
-                __save(weight_vec, out_dir, subject, expt_id)
-                edge_weights_all[weight_method][ss, :] = weight_vec
 
             except (RuntimeError, RuntimeWarning) as runexc:
                 print(runexc)
@@ -137,10 +153,21 @@ def extract(subject_id_list, input_dir,
                       '{}.'.format(num_weights-ww, weight_method_list[ww:]))
                 sys.exit(1)
             except:
-                print('Unable to extract covariance features for {}'.format(subject))
+                print('Unable to extract {} features for {}'.format(weight_method, subject))
                 traceback.print_exc()
 
-        sys.stdout.write('Done.\n')
+            # saving to disk
+            try:
+                weight_vec = __get_triu_handle_inf_nan(edge_weights)
+                __save(weight_vec, out_dir, subject, expt_id)
+            except:
+                raise IOError('Unable to save the vectorized features to:\n{}'.format(out_dir))
+
+            # saving the results to memory only if needed.
+            if return_results:
+                edge_weights_all[(weight_method, subject)] = weight_vec
+
+            sys.stdout.write('Done.')
 
     return edge_weights_all
 
@@ -157,7 +184,8 @@ def import_features(input_dir, subject_id_list, base_feature):
     elif base_feature in __features_fsl:
         features = fsl_import(input_dir, subject_id_list, base_feature)
     else:
-        raise ValueError('Invalid choice. Choose one of \n {}'.format(__base_feature_list))
+        raise NotImplementedError('Invalid or choice not implemented!\n'
+                                  'Choose one of \n {}'.format(__base_feature_list))
 
     return features
 
@@ -181,7 +209,7 @@ def __get_triu_handle_inf_nan(weights_matrix):
 
     num_nonfinite = np.count_nonzero(np.logical_not(np.isfinite(upper_tri_vec)))
     if num_nonfinite > 0:
-        warnings.warn(' {} non-finite values are found.'.format(num_nonfinite))
+        logging.warning(' {} non-finite values are found.'.format(num_nonfinite))
 
     return upper_tri_vec
 
@@ -192,7 +220,7 @@ def __subject_check(subjects_info):
     if isinstance(subjects_info, str):
         if not pexists(subjects_info):
             raise IOError('path to subject list does not exist: {}'.format(subjects_info))
-        subjects_list = np.loadtxt(subjects_info, dtype=str)
+        subjects_list = np.genfromtxt(subjects_info, dtype=str)
     elif isinstance(subjects_info, collections.Iterable):
         if len(subjects_info) < 1:
             raise ValueError('Empty subject list.')
@@ -201,7 +229,36 @@ def __subject_check(subjects_info):
         raise ValueError('Invalid value provided for subject list. \n '
                          'Must be a list of paths, or path to file containing list of paths, one for each subject.')
 
-    return np.atleast_1d(subjects_list)
+    subject_id_list = np.atleast_1d(subjects_list)
+    num_subjects = subject_id_list.size
+    num_digits_id_size = len(str(num_subjects))
+    max_id_width = max(map(len, subject_id_list))
+
+    return subject_id_list, num_subjects, max_id_width, num_digits_id_size
+
+
+def __weight_check(weight_method_list):
+    "Ensures weights are implemented and atleast one choice is given."
+
+    if isinstance(weight_method_list, str):
+        weight_method_list = [weight_method_list, ]
+
+    if isinstance(weight_method_list, collections.Iterable):
+        if len(weight_method_list) < 1:
+            raise ValueError('Empty weight list. Atleast one weight must be provided.')
+    else:
+        raise ValueError('Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
+
+    for weight in weight_method_list:
+        if weight not in __accepted_weight_list:
+            raise NotImplementedError('Method {} not implemented. '
+                                      'Choose one of : \n {}'.format(weight, __accepted_weight_list))
+
+    num_weights = len(weight_method_list)
+    num_digits_wm_size = len(str(num_weights))
+    max_wtname_width = max(map(len, weight_method_list))
+
+    return weight_method_list, num_weights, max_wtname_width, num_digits_wm_size
 
 
 def __remove_background_roi(data,labels, ignore_label):
@@ -263,7 +320,7 @@ def __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_m
     return expt_id
 
 
-def __parameter_check(base_feature, in_dir, atlas, smoothing_param, node_size):
+def __parameter_check(base_feature, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
     """"""
 
     if base_feature not in __base_feature_list:
@@ -274,6 +331,13 @@ def __parameter_check(base_feature, in_dir, atlas, smoothing_param, node_size):
 
     if not pexists(in_dir):
         raise IOError('Input directory at {} does not exist.'.format(in_dir))
+
+    if out_dir is None and return_results is False:
+        raise ValueError('Results are neither saved to disk or being received when returned.\n'
+                         'Specify out_dir (not None) or make return_results=True')
+
+    if out_dir is not None and not pexists(out_dir):
+        os.mkdir(out_dir)
 
     # no checks on subdivison size yet, as its not implemented
 
@@ -301,8 +365,12 @@ def cli_run():
     subject_ids_path, input_dir, base_feature, weight_method, \
         atlas, out_dir, node_size, smoothing_param = __parse_args()
 
+    # when run from CLI, results will not be received
+    # so no point in wasting memory maintaining a very big array
+    return_results = False
+
     extract(subject_ids_path, input_dir, base_feature, weight_method,
-            atlas, smoothing_param, node_size, out_dir)
+            atlas, smoothing_param, node_size, out_dir, return_results)
 
     return
 
@@ -351,7 +419,7 @@ def __parse_args():
 
     if len(sys.argv) < 2:
         parser.print_help()
-        warnings.warn('Too few arguments!', UserWarning)
+        logging.warning('Too few arguments!')
         parser.exit(1)
 
     # parsing
