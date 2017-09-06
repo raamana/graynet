@@ -144,6 +144,17 @@ def extract(subject_id_list, input_dir,
             # actual computation of pair-wise features
             try:
                 edge_weights = hiwenet.extract(data, rois, weight_method)
+                weight_vec = __get_triu_handle_inf_nan(edge_weights)
+
+                # saving the results to memory only if needed.
+                if return_results:
+                    edge_weights_all[(weight_method, subject)] = weight_vec
+
+                # saving to disk
+                try:
+                    __save(weight_vec, out_dir, subject, expt_id)
+                except:
+                    raise IOError('Unable to save the computed and vectorized features to:\n{}'.format(out_dir))
 
             except (RuntimeError, RuntimeWarning) as runexc:
                 print(runexc)
@@ -155,17 +166,6 @@ def extract(subject_id_list, input_dir,
             except:
                 print('Unable to extract {} features for {}'.format(weight_method, subject))
                 traceback.print_exc()
-
-            # saving to disk
-            try:
-                weight_vec = __get_triu_handle_inf_nan(edge_weights)
-                __save(weight_vec, out_dir, subject, expt_id)
-            except:
-                raise IOError('Unable to save the vectorized features to:\n{}'.format(out_dir))
-
-            # saving the results to memory only if needed.
-            if return_results:
-                edge_weights_all[(weight_method, subject)] = weight_vec
 
             sys.stdout.write('Done.')
 
