@@ -1,4 +1,6 @@
 
+__all__ = ['import_features',]
+
 from os.path import join as pjoin, exists as pexists
 import collections
 import nibabel

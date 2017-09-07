@@ -6,6 +6,7 @@ from os.path import join as pjoin, exists as pexists, realpath
 import numpy as np
 from matplotlib import pyplot as plt
 import pickle
+import traceback
 
 from graynet import parcellate
 from graynet.graynet import roi_info
@@ -17,7 +18,7 @@ from nilearn.plotting import plot_connectome
 #---------------------------------
 
 base_dir = '/u1/work/hpc3194'
-dataset_name = '4RTNI' # 'PPMI' #
+dataset_name = 'PPMI' # '4RTNI' # 'PPMI' #
 
 # list_of_datasets = [ '4RTNI', 'PPMI', 'ADNI' ]
 # list_of_subject_lists = ['graynet.compute.list']*3
@@ -28,6 +29,8 @@ target_list_dir = pjoin(proc_dir, 'target_lists')
 
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 id_list = np.atleast_1d(np.genfromtxt(subject_id_list, dtype=str).astype(str))
+
+id_list = id_list[:49]
 num_subjects = len(id_list)
 
 base_feature =  'freesurfer_curv' # 'freesurfer_thickness' # 'freesurfer_thickness'
@@ -157,13 +160,13 @@ for ww, weight in enumerate(histogram_dist):
 
     for ss in range(num_subjects):
         sid = id_list[ss]
-
-        if ss > 0 and np.mod(ss, num_rows*num_cols) == 0:
+        rem = np.mod(ss, num_rows*num_cols)
+        if ss > 0 and rem == 0:
             fig, ax, fig_count = save_fig_get_new(fig, weight, fig_count, img)
 
         try:
             adj_mat = np.squeeze(adj_mat_all[ss, ww, :, :])
-            ax = plt.subplot(num_rows, num_cols, ss + 1)
+            ax = plt.subplot(num_rows, num_cols, rem + 1)
 
             img = ax.imshow(adj_mat, vmin=clim_min, vmax=clim_max)
 
@@ -174,7 +177,8 @@ for ww, weight in enumerate(histogram_dist):
             # edge_thr = np.percentile(adj_mat.flatten(), 99)
             # plot_connectome(adj_mat, mean_coords,edge_threshold='99.99%', node_size=5)
         except:
-            print('data for pair-wise dist {} for subject {} not available'.format(weight, sid))
+            print('unable to visualize data for pair-wise dist {} for subject {}'.format(weight, sid))
+            traceback.print_exc()
 
     # plt.show(block=False)
     fig, ax, fig_count = save_fig_get_new(fig, weight, fig_count, img)

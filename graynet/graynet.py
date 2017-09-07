@@ -15,7 +15,7 @@ import numpy as np
 
 from sys import version_info
 
-if version_info.major==2 and version_info.minor==7 and version_info.micro==13:
+if version_info.major==2 and version_info.minor==7:
     import freesurfer
     import parcellate
 elif version_info.major > 2:
@@ -68,14 +68,72 @@ def extract(subject_id_list, input_dir,
         Or another directory with a structure that graynet can parse.
     base_feature : str
         Specific type of feature to read for each subject from the input directory.
-    weight_method_list : list of str
-        Names of covariance metrics to use to compute weights.
-        Currently only those supported by hiwenet, which can be one of:
-        [ 'chebyshev', 'chebyshev_neg', 'chi_square', 'correlate', 'correlate_1',
-        'cosine', 'cosine_1', 'cosine_2', 'cosine_alt', 'euclidean', 'fidelity_based',
-        'histogram_intersection', 'histogram_intersection_1', 'jensen_shannon', 'kullback_leibler',
-        'manhattan', 'minowski', 'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-        'relative_bin_deviation', 'relative_deviation']
+
+    weight_method : string, optional
+        Type of distance (or metric) to compute between the pair of histograms.
+
+        It must be one of the following methods:
+
+        - 'chebyshev'
+        - 'chebyshev_neg'
+        - 'chi_square'
+        - 'correlate'
+        - 'correlate_1'
+        - 'cosine'
+        - 'cosine_1'
+        - 'cosine_2'
+        - 'cosine_alt'
+        - 'euclidean'
+        - 'fidelity_based'
+        - 'histogram_intersection'
+        - 'histogram_intersection_1'
+        - 'jensen_shannon'
+        - 'kullback_leibler'
+        - 'manhattan'
+        - 'minowski'
+        - 'noelle_1'
+        - 'noelle_2'
+        - 'noelle_3'
+        - 'noelle_4'
+        - 'noelle_5'
+        - 'relative_bin_deviation'
+        - 'relative_deviation'
+
+        Note only the following are *metrics*:
+
+        - 'manhattan'
+        - 'minowski'
+        - 'euclidean'
+        - 'noelle_2'
+        - 'noelle_4'
+        - 'noelle_5'
+
+        The following are *semi- or quasi-metrics*:
+
+        - 'kullback_leibler'
+        - 'jensen_shannon'
+        - 'chi_square'
+        - 'chebyshev'
+        - 'cosine_1'
+        - 'chebyshev_neg'
+        - 'correlate_1'
+        - 'histogram_intersection_1'
+        - 'relative_deviation'
+        - 'relative_bin_deviation'
+        - 'noelle_1'
+        - 'noelle_3'
+
+        The following are  classified to be similarity functions:
+
+        - 'histogram_intersection'
+        - 'correlate'
+        - 'cosine'
+        - 'cosine_2'
+        - 'cosine_alt'
+        - 'fidelity_based'
+
+        *Default* choice: 'minowski'.
+
     atlas : str
         Name of the atlas whose parcellation to be used.
         Choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'], which are primary cortical.
@@ -375,8 +433,8 @@ def cli_run():
     return
 
 
-def __parse_args():
-    """Parser/validator for the cmd line args."""
+def __get_parser():
+    "Method to specify arguments and defaults. "
 
     parser = argparse.ArgumentParser(prog="graynet")
 
@@ -416,6 +474,14 @@ def __parse_args():
                         default=__default_smoothing_param, required=False,
                         help="Smoothing parameter for feature. "
                              "Default: FWHM of {} for Freesurfer thickness".format(__default_smoothing_param))
+
+    return parser
+
+
+def __parse_args():
+    """Parser/validator for the cmd line args."""
+
+    parser = __get_parser()
 
     if len(sys.argv) < 2:
         parser.print_help()
