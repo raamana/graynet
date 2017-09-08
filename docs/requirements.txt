@@ -1,0 +1,6 @@
+sphinx-argparse
+numpydoc
+numpy
+nibabel
+medpy
+hiwenet

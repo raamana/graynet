@@ -1,5 +1,5 @@
 
-__all__ = ['extract', 'roi_info', 'cli_run']
+__all__ = ['extract', 'roi_info', 'cli_run', 'implemented_weights']
 
 import collections
 import os
@@ -33,7 +33,7 @@ __features_fsl = ['gmdensity', ]
 __base_feature_list = __features_freesurfer + __features_fsl
 
 __default_weight_method = ( 'minowski', 'manhattan' )
-__accepted_weight_list = [
+implemented_weights = [
     'chebyshev', 'chebyshev_neg', 'chi_square',
     'correlate', 'correlate_1',
     'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
@@ -308,9 +308,9 @@ def __weight_check(weight_method_list):
         raise ValueError('Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
 
     for weight in weight_method_list:
-        if weight not in __accepted_weight_list:
+        if weight not in implemented_weights:
             raise NotImplementedError('Method {} not implemented. '
-                                      'Choose one of : \n {}'.format(weight, __accepted_weight_list))
+                                      'Choose one of : \n {}'.format(weight, implemented_weights))
 
     num_weights = len(weight_method_list)
     num_digits_wm_size = len(str(num_weights))
@@ -454,7 +454,7 @@ def __get_parser():
     # TODO let users specify multiple weight methods comma separated
     parser.add_argument("-w", "--weight_method", action="store", dest="weight_method",
                         default=__default_weight_method, required=False,
-                        nargs = '*', choices = __accepted_weight_list,
+                        nargs = '*', choices = implemented_weights,
                         help="Method used to estimate the weight of the edge between the pair of nodes. Default : {}".format(
                             __default_weight_method))
 
