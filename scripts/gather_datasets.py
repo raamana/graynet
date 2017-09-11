@@ -14,12 +14,11 @@ from pyradigm import MLDataset
 
 base_dir = '/u1/work/hpc3194'
 dataset_list = ['PPMI', '4RTNI']
-dataset_name = '4RTNI' # 'PPMI' #
 
 # freesurfer_dir = pjoin(proc_dir, 'freesurfer')
-
-
 # subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
+
+numeric_labels = {'CN' : 1, 'PARK' : 2, 'CBS' : 3, 'PSP': 4}
 
 base_feature_list = [ 'freesurfer_thickness', 'freesurfer_curv' ] #  'freesurfer_thickness'
 atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
@@ -76,7 +75,7 @@ for base_feature in base_feature_list:
                         comb_nan_values[base_feature][weight_method][ds_name].append(sample)
                         # print('NaNs found for {} {} {}'.format(ds_name, weight_method, sample))
                     elif len(data) >= num_links_expected:
-                        dataset.add_sample(sample, data, classes[sample], class_id=classes[sample])
+                        dataset.add_sample(sample, data, numeric_labels[classes[sample]], class_id=classes[sample])
                     else:
                         flag_unexpected = True
                         incomplete_processing[base_feature][weight_method][ds_name].append(sample)
@@ -90,7 +89,7 @@ for base_feature in base_feature_list:
             # print('{:20} {:25} - processing unusable; totally skipping it.'.format(base_feature, weight_method))
         else:
             print('{:20} {:5} {:25} - fully usable.'.format(base_feature, ds_name, weight_method))
-            dataset.description = 'weight {}'.format(weight_method)
+            dataset.description = '{}'.format(weight_method)
             out_path = pjoin(out_dir,'{}.MLDataset.pkl'.format(weight_method))
             dataset.save(out_path)
 
@@ -102,9 +101,12 @@ for base_feature in base_feature_list:
     with open(pjoin(out_dir, 'incomplete_unusable_processing.pkl'), 'rb') as ipf:
         incomplete_processing, comb_nan_values = pickle.load(ipf)
 
-    # results
+
+
+# results
+for base_feature in base_feature_list:
     for ds_name in dataset_list:
-        for wm in histogram_dist:
-            print('{:20} {:5} {:25} {:5} {:5}'.format(base_feature, ds_name, wm,
+        for weight_method in histogram_dist:
+            print('{:20} {:5} {:25} {:5} {:5}'.format(base_feature, ds_name, weight_method,
                 len(incomplete_processing[base_feature][weight_method][ds_name]),
                 len(comb_nan_values[base_feature][weight_method][ds_name])))
