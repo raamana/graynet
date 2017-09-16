@@ -1,5 +1,5 @@
 
-__all__ = ['extract', 'roi_info', 'cli_run', 'implemented_weights']
+__all__ = ['extract', 'compute_roi_stats', 'roi_info', 'cli_run', 'implemented_weights']
 
 import collections
 import os
@@ -19,10 +19,10 @@ if version_info.major==2 and version_info.minor==7:
     import freesurfer
     import parcellate
 elif version_info.major > 2:
-    from . import freesurfer
-    from . import parcellate
+    from graynet import freesurfer
+    from graynet import parcellate
 else:
-    raise NotImplementedError('hiwenet supports only 2.7.13 or 3+. Upgrade to Python 3+ is recommended.')
+    raise NotImplementedError('hiwenet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
 
 np.seterr(divide='ignore', invalid='ignore')
@@ -50,11 +50,14 @@ __default_atlas = 'GLASSER2016'
 __default_smoothing_param = 10
 __default_node_size = None
 
+__default_roi_statistic = 'median'
+
 def extract(subject_id_list, input_dir,
             base_feature = __default_feature,
             weight_method_list = __default_weight_method,
             atlas = __default_atlas, smoothing_param = __default_smoothing_param,
-            node_size = __default_node_size, out_dir=None, return_results = False):
+            node_size = __default_node_size,
+            out_dir=None, return_results = False):
     """
     Extracts weighted networks from gray matters features based on Freesurfer processing.
 
@@ -144,14 +147,16 @@ def extract(subject_id_list, input_dir,
         Default: assumed as fwhm=10mm for the default feature choice 'thickness'
     node_size : scalar, optional
         Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-        Not implemented.
+        This feature is not implemented yet, just a placeholder and to enable default computation.
+
     out_dir : str, optional
         Path to output directory to store results.
         Default: None, results are returned, but not saved to disk.
         If this is None, return_results must be true.
     return_results : bool
-        Flag to indicating whether to keep the results to be returned to caller method.
-        Helps to save memory (as it doesn't retain results all subjects and weight combinations),
+        Flag to indicate whether to return the results to be returned.
+        This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
+        the number of subjects or weight methods are large, as it doesn't retain results for all combinations,
         when running from commmand line interface (or HPC). Default: False
         If this is False, out_dir must be specified to save the results to disk.
 
@@ -177,6 +182,10 @@ def extract(subject_id_list, input_dir,
     if return_results:
         edge_weights_all = dict()
     else:
+        if out_dir is None:
+            raise ValueError('When return_results=False, out_dir must be specified to be able to save the results.')
+        if not pexists(out_dir):
+            os.mkdir(out_dir)
         edge_weights_all = None
 
     # edge_weights_all[weight_method] = dict() # np.zeros([num_subjects, np.int64(num_nodes*(num_nodes-1)/2)])
@@ -190,9 +199,10 @@ def extract(subject_id_list, input_dir,
 
         data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
 
+        # computing networks whe
         for ww, weight_method in enumerate(weight_method_list):
             # unique stamp for each subject and weight
-            expt_id = __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method)
+            expt_id = __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
             sys.stdout.write('\nProcessing id {:{id_width}} ({:{nd_id}}/{:{nd_id}}) -- '
                              'weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
                              ' :'.format(subject, ss+1, num_subjects, weight_method, ww+1, num_weights,
@@ -227,7 +237,170 @@ def extract(subject_id_list, input_dir,
 
             sys.stdout.write('Done.')
 
+    print('\ngraynet computation done.')
     return edge_weights_all
+
+
+def compute_roi_stats(subject_id_list, input_dir,
+                      base_feature = __default_feature,
+                      chosen_measure =__default_roi_statistic,
+                      atlas = __default_atlas, smoothing_param = __default_smoothing_param,
+                      node_size = __default_node_size,
+                      out_dir=None, return_results = False):
+    """
+    Computes the chosen summary statistics within each ROI.
+    These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.
+
+    Options for summary statistics include 'median', 'entropy', 'kurtosis' and
+    any other appropriate summary statistics listed under scipy.stats:
+    https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions
+
+    Parameters
+    ----------
+    subject_id_list : str or list
+         must be path to a file containing subject IDs, or a list of subject IDs
+
+    input_dir : str
+        Path to the input directory where features can be read.
+        For example, this can be Freesurfer's SUBJECTS_DIR, where output processing is stored.
+        Or another directory with a structure that graynet can parse.
+
+    base_feature : str
+        Specific type of feature to read for each subject from the input directory.
+
+    chosen_measure : str or callable, optional
+        If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
+        Default: 'median'. Supported summary statistics include 'median', 'mode', 'mean', 'std', 'gmean', 'hmean', 'variation',
+        'entropy', 'skew' and 'kurtosis'.
+
+        Other appropriate summary statistics listed under scipy.stats could used
+        by passing in a callable with their parameters encapsulated:
+        https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions
+        For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing ``third_kstat`` as in the argument:
+
+        .. code-block:: python
+
+            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
+            roi_medians = compute_roi_stats(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat,
+                atlas, fwhm, out_dir=None, return_results=True)
+
+        Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
+        .. code-block:: python
+            trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
+            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
+
+
+    atlas : str
+        Name of the atlas whose parcellation to be used.
+        Choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'], which are primary cortical.
+        Volumetric whole-brain atlases will be added soon.
+
+    smoothing_param : scalar
+        Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+        or another relevant for the chosen base_feature.
+        Default: assumed as fwhm=10mm for the default feature choice 'thickness'
+
+    node_size : scalar, optional
+        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+        Not implemented.
+
+    out_dir : str, optional
+        Path to output directory to store results.
+        Default: None, results are returned, but not saved to disk.
+        If this is None, return_results must be true.
+
+    return_results : bool
+        Flag to indicating whether to keep the results to be returned to caller method.
+        Helps to save memory (as it doesn't retain results all subjects and weight combinations),
+        when running from commmand line interface (or HPC). Default: False
+        If this is False, out_dir must be specified to save the results to disk.
+
+    Returns
+    -------
+    roi_stats_all : dict, None
+        If return_results is True, this will be a dictionary keyed in by subject_ID
+        The value of each key roi_summary_all[subject] is
+        a numpy array of length k, with k = number of nodes in the atlas parcellation.
+        If return_results is False, this will be None, which is the default.
+    """
+
+
+    __parameter_check(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
+    subject_id_list, num_subjects, max_id_width, nd_id = __subject_check(subject_id_list)
+
+    summary_method = __check_summary_measure(chosen_measure)
+
+    roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
+    uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
+
+    print('\nProcessing {} features resampled to {} atlas,'
+          ' smoothed at {} with node size {}'.format(base_feature, atlas, smoothing_param, node_size))
+
+    if return_results:
+        roi_stats_all = dict()
+    else:
+        roi_stats_all = None
+        if out_dir is None:
+            raise ValueError('When return_results=False, out_dir must be specified to be able to save the results.')
+        if not pexists(out_dir):
+            os.mkdir(out_dir)
+
+    for ss, subject in enumerate(subject_id_list):
+
+        sys.stdout.write('\nProcessing {:{id_width}} ({:{nd_id}}/{:{nd_id}}) : '.format(subject, ss + 1, num_subjects,
+                                                                            id_width=max_id_width, nd_id=nd_id))
+        try:
+            features = import_features(input_dir, [subject, ], base_feature)
+        except:
+            raise IOError('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
+            continue
+
+        data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+        roi_medians = __roi_statistics(data, rois, uniq_rois)
+
+        expt_id_no_network = __stamp_experiment(base_feature, atlas, smoothing_param, node_size)
+        save_summary_stats(roi_medians, out_dir, subject, expt_id_no_network)
+        sys.stdout.write('Done.')
+
+        if return_results:
+            roi_stats_all[subject] = roi_medians
+
+    return roi_stats_all
+
+
+def __check_summary_measure(chosen_measure=None):
+    "Validates the choice and returns a callable to compute summaries."
+
+    from scipy import stats as sp_stats
+
+    if chosen_measure is None:
+        summary_callable = np.median
+    elif isinstance(chosen_measure, str):
+        chosen_measure = chosen_measure.lower()
+        if chosen_measure in ['median', 'mean', 'std', 'var']:
+            summary_callable = getattr(np, chosen_measure)
+        else:
+            try:
+                summary_callable = getattr(sp_stats, chosen_measure)
+            except AttributeError:
+                raise AttributeError('Chosen measure is not a member of scipy.stats.')
+    elif callable(chosen_measure):
+        summary_callable = chosen_measure
+    else:
+        raise ValueError('summary measure chosen must be a string or a callable.')
+
+    return summary_callable
+
+
+def __roi_statistics(data, rois, uniq_rois, given_callable=np.median):
+    "Returns the requested ROI statistics."
+
+    num_rois = len(uniq_rois)
+    roi_stats = np.full([num_rois,1], np.nan)
+    for rr in range(num_rois):
+        roi_stats[rr] = given_callable(data[rois==uniq_rois[rr]])
+
+    return roi_stats
 
 
 def import_features(input_dir, subject_id_list, base_feature):
@@ -342,6 +515,33 @@ def roi_info(roi_labels):
     return uniq_rois, roi_size, num_nodes
 
 
+def save_summary_stats(data_vec, out_dir, subject, str_suffix = None):
+    "Saves the ROI medians to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_roi_medians.csv'.format(str_suffix)
+        else:
+            out_file_name = 'roi_medians.csv'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            np.savetxt(out_weights_path, data_vec, fmt='%.5f')
+            print('Saved roi stats to \n{}'.format(out_weights_path))
+        except:
+            print('unable to save extracted features to {}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
+
+
 def __save(weight_vec, out_dir, subject, str_suffix = None):
     "Saves the features to disk."
 
@@ -361,15 +561,24 @@ def __save(weight_vec, out_dir, subject, str_suffix = None):
 
         try:
             np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
-            print('Saved the features to \n{}'.format(out_weights_path))
+            print('\nSaved the features to \n{}'.format(out_weights_path))
         except:
-            print('unable to save extracted features to {}'.format(out_weights_path))
+            print('\nUnable to save extracted features to {}'.format(out_weights_path))
             traceback.print_exc()
 
     return
 
 
-def __stamp_experiment(base_feature, atlas, smoothing_param, node_size, weight_method):
+def __stamp_experiment(base_feature, atlas, smoothing_param, node_size):
+    "Constructs a string to uniquely identify a given feature extraction method."
+
+    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
+    expt_id = '{}_{}_smoothing{}_size{}'.format(base_feature, atlas, smoothing_param, node_size)
+
+    return expt_id
+
+
+def __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, weight_method):
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
@@ -421,14 +630,18 @@ def cli_run():
     "command line interface!"
 
     subject_ids_path, input_dir, base_feature, weight_method, \
-        atlas, out_dir, node_size, smoothing_param = __parse_args()
+        atlas, out_dir, node_size, smoothing_param, roi_stats = __parse_args()
 
     # when run from CLI, results will not be received
     # so no point in wasting memory maintaining a very big array
     return_results = False
 
-    extract(subject_ids_path, input_dir, base_feature, weight_method,
-            atlas, smoothing_param, node_size, out_dir, return_results)
+    if weight_method is not None:
+        extract(subject_ids_path, input_dir, base_feature, weight_method,
+                atlas, smoothing_param, node_size, out_dir, return_results)
+    else:
+        print('ROI summary stats computation requested -- skipping computation of network weights.')
+        compute_roi_stats(subject_ids_path, input_dir, base_feature, roi_stats, atlas, smoothing_param, node_size, out_dir, return_results)
 
     return
 
@@ -436,44 +649,58 @@ def cli_run():
 def __get_parser():
     "Method to specify arguments and defaults. "
 
+    help_text_subject_ids = "Path to file containing list of subject IDs (one per line)"
+    help_text_input_dir = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
+    help_text_feature = "Atlas to use to define nodes/ROIs. Default: '{}'".format(__default_feature)
+    help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes." # .format(__default_weight_method)
+
+    help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include 'median', 'entropy', 'kurtosis' and any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . "
+
+    help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. Default: '{}'".format(__default_atlas)
+    help_text_parc_size = "Size of individual node for the atlas parcellation. Default : {}".format(__default_node_size)
+
+    help_text_smoothing = "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(__default_smoothing_param)
+
     parser = argparse.ArgumentParser(prog="graynet")
 
     parser.add_argument("-s", "--subject_ids_path", action="store", dest="subject_ids_path",
                         required=True,
-                        help="Abs. path to file containing features for a given subject")
+                        help=help_text_subject_ids)
 
     parser.add_argument("-i", "--input_dir", action="store", dest="input_dir",
-                        required=True,
-                        help="path to a folder containing input data e.g. Freesurfer SUBJECTS_DIR.")
+                        required=True, help=help_text_input_dir)
 
     # TODO let users specify multiple features comma separated
     parser.add_argument("-f", "--feature", action="store", dest="feature",
                         default=__default_feature, required=False,
-                        help="Atlas to use to define nodes/ROIs. Default: {}".format(__default_feature))
-
-    # TODO let users specify multiple weight methods comma separated
-    parser.add_argument("-w", "--weight_method", action="store", dest="weight_method",
-                        default=__default_weight_method, required=False,
-                        nargs = '*', choices = implemented_weights,
-                        help="Method used to estimate the weight of the edge between the pair of nodes. Default : {}".format(
-                            __default_weight_method))
-
-    parser.add_argument("-a", "--atlas", action="store", dest="atlas",
-                        default=__default_atlas, required=False,
-                        help="Atlas to use to define nodes/ROIs. Default: {}".format(__default_atlas))
+                        help=help_text_feature)
 
     parser.add_argument("-o", "--out_dir", action="store", dest="out_dir",
                         default=None, required=False,
                         help="Where to save the extracted features. ")
 
-    parser.add_argument("-n", "--node_size", action="store", dest="node_size",
-                        default=__default_node_size, required=False,
-                        help="Parameter defining the size of individual node for the atlas parcellation. Default : {}".format(__default_node_size))
+    # method_selector = parser.add_argument_group(title='Stats', description='Choose only one of the following processing choices to be done.')
+    method_selector = parser.add_mutually_exclusive_group(required=True)
+    method_selector.add_argument("-w", "--weight_method", action="store", dest="weight_method",
+                        default=None, required=False,
+                        nargs = '*',
+                        help=help_text_weight)
+    method_selector.add_argument("-r", "--roi_stats", action="store", dest="roi_stats",
+                        default=None,
+                        help=help_text_roi_stats)
 
-    parser.add_argument("-p", "--smoothing_param", action="store", dest="smoothing_param",
+    atlas_params = parser.add_argument_group(title='Atlas', description="Parameters describing the atlas, its parcellation and any smoothing of features.")
+    atlas_params.add_argument("-a", "--atlas", action="store", dest="atlas",
+                        default=__default_atlas, required=False,
+                        help=help_text_atlas)
+
+    atlas_params.add_argument("-n", "--node_size", action="store", dest="node_size",
+                        default=__default_node_size, required=False,
+                        help=help_text_parc_size)
+
+    atlas_params.add_argument("-p", "--smoothing_param", action="store", dest="smoothing_param",
                         default=__default_smoothing_param, required=False,
-                        help="Smoothing parameter for feature. "
-                             "Default: FWHM of {} for Freesurfer thickness".format(__default_smoothing_param))
+                        help=help_text_smoothing)
 
     return parser
 
@@ -508,8 +735,20 @@ def __parse_args():
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
-    return subject_ids_path, input_dir, params.feature, params.weight_method, \
-           params.atlas, out_dir, params.node_size, params.smoothing_param
+    # validating choices and doing only one of the two
+    weight_method = params.weight_method
+    roi_stats = params.roi_stats
+    if weight_method is not None:
+        weight_method_list, _, _, _ = __weight_check(weight_method)
+        roi_stats = None
+    elif roi_stats is not None:
+        roi_stats = __check_summary_measure(roi_stats)
+        weight_method_list = None
+    else:
+        raise ValueError('One of weight_method and roi_stats must be chosen.')
+
+    return subject_ids_path, input_dir, params.feature, weight_method_list, \
+           params.atlas, out_dir, params.node_size, params.smoothing_param, roi_stats
 
 
 if __name__ == '__main__':
