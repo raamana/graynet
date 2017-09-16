@@ -63,8 +63,8 @@ def test_run_roi_stats():
     summary_methods.extend([np.nanmedian, np.nanmean])
 
     for summary_method in summary_methods:
-        roi_medians = graynet.compute_roi_stats(subject_id_list, fs_dir, base_feature,
-                                                summary_method, atlas, fwhm, out_dir=None, return_results=True)
+        roi_medians = graynet.roiwise_stats_indiv(subject_id_list, fs_dir, base_feature,
+                                                  summary_method, atlas, fwhm, out_dir=None, return_results=True)
         for sub in subject_id_list:
             if roi_medians[sub].size != num_roi_wholebrain:
                 raise ValueError('invalid summary stats - #nodes do not match.')

@@ -1,5 +1,5 @@
 
-__all__ = ['extract', 'compute_roi_stats', 'roi_info', 'cli_run', 'implemented_weights']
+__all__ = ['extract', 'roiwise_stats_indiv', 'roi_info', 'cli_run', 'implemented_weights']
 
 import collections
 import os
@@ -59,7 +59,7 @@ def extract(subject_id_list, input_dir,
             node_size = __default_node_size,
             out_dir=None, return_results = False):
     """
-    Extracts weighted networks from gray matters features based on Freesurfer processing.
+    Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.
 
     Parameters
     ----------
@@ -169,9 +169,9 @@ def extract(subject_id_list, input_dir,
         If return_results is False, this will be None, which is the default.
     """
 
-    __parameter_check(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
-    subject_id_list, num_subjects, max_id_width, nd_id = __subject_check(subject_id_list)
-    weight_method_list, num_weights, max_wtname_width, nd_wm = __weight_check(weight_method_list)
+    __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
+    subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
+    weight_method_list, num_weights, max_wtname_width, nd_wm = __check_weights(weight_method_list)
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
@@ -241,12 +241,12 @@ def extract(subject_id_list, input_dir,
     return edge_weights_all
 
 
-def compute_roi_stats(subject_id_list, input_dir,
-                      base_feature = __default_feature,
-                      chosen_measure =__default_roi_statistic,
-                      atlas = __default_atlas, smoothing_param = __default_smoothing_param,
-                      node_size = __default_node_size,
-                      out_dir=None, return_results = False):
+def roiwise_stats_indiv(subject_id_list, input_dir,
+                        base_feature = __default_feature,
+                        chosen_measure =__default_roi_statistic,
+                        atlas = __default_atlas, smoothing_param = __default_smoothing_param,
+                        node_size = __default_node_size,
+                        out_dir=None, return_results = False):
     """
     Computes the chosen summary statistics within each ROI.
     These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.
@@ -281,7 +281,7 @@ def compute_roi_stats(subject_id_list, input_dir,
         .. code-block:: python
 
             third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
-            roi_medians = compute_roi_stats(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat,
+            roi_medians = roiwise_stats_indiv(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat,
                 atlas, fwhm, out_dir=None, return_results=True)
 
         Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
@@ -325,8 +325,8 @@ def compute_roi_stats(subject_id_list, input_dir,
     """
 
 
-    __parameter_check(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
-    subject_id_list, num_subjects, max_id_width, nd_id = __subject_check(subject_id_list)
+    __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
+    subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
 
     summary_method = __check_summary_measure(chosen_measure)
 
@@ -445,7 +445,7 @@ def __get_triu_handle_inf_nan(weights_matrix):
     return upper_tri_vec
 
 
-def __subject_check(subjects_info):
+def __check_subjects(subjects_info):
     "Ensure subjects are provided and their data exist."
 
     if isinstance(subjects_info, str):
@@ -468,7 +468,7 @@ def __subject_check(subjects_info):
     return subject_id_list, num_subjects, max_id_width, num_digits_id_size
 
 
-def __weight_check(weight_method_list):
+def __check_weights(weight_method_list):
     "Ensures weights are implemented and atleast one choice is given."
 
     if isinstance(weight_method_list, str):
@@ -587,7 +587,7 @@ def __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, w
     return expt_id
 
 
-def __parameter_check(base_feature, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
+def __check_parameters(base_feature, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
     """"""
 
     if base_feature not in __base_feature_list:
@@ -641,7 +641,7 @@ def cli_run():
                 atlas, smoothing_param, node_size, out_dir, return_results)
     else:
         print('ROI summary stats computation requested -- skipping computation of network weights.')
-        compute_roi_stats(subject_ids_path, input_dir, base_feature, roi_stats, atlas, smoothing_param, node_size, out_dir, return_results)
+        roiwise_stats_indiv(subject_ids_path, input_dir, base_feature, roi_stats, atlas, smoothing_param, node_size, out_dir, return_results)
 
     return
 
@@ -739,7 +739,7 @@ def __parse_args():
     weight_method = params.weight_method
     roi_stats = params.roi_stats
     if weight_method is not None:
-        weight_method_list, _, _, _ = __weight_check(weight_method)
+        weight_method_list, _, _, _ = __check_weights(weight_method)
         roi_stats = None
     elif roi_stats is not None:
         roi_stats = __check_summary_measure(roi_stats)
