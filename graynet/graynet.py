@@ -328,7 +328,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
     subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
 
-    summary_method = __check_summary_measure(chosen_measure)
+    summary_method, method_name = __check_summary_measure(chosen_measure)
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
@@ -356,9 +356,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             continue
 
         data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
-        roi_medians = __roi_statistics(data, rois, uniq_rois)
+        roi_medians = __roi_statistics(data, rois, uniq_rois, summary_method)
 
-        expt_id_no_network = __stamp_experiment(base_feature, atlas, smoothing_param, node_size)
+        expt_id_no_network = __stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size)
         save_summary_stats(roi_medians, out_dir, subject, expt_id_no_network)
         sys.stdout.write('Done.')
 
@@ -389,7 +389,9 @@ def __check_summary_measure(chosen_measure=None):
     else:
         raise ValueError('summary measure chosen must be a string or a callable.')
 
-    return summary_callable
+    method_name = summary_callable.__name__
+    method_name = method_name.replace(' ', '_')
+    return summary_callable, method_name
 
 
 def __roi_statistics(data, rois, uniq_rois, given_callable=np.median):
@@ -526,9 +528,9 @@ def save_summary_stats(data_vec, out_dir, subject, str_suffix = None):
             os.mkdir(out_subject_dir)
 
         if str_suffix is not None:
-            out_file_name = '{}_roi_medians.csv'.format(str_suffix)
+            out_file_name = '{}_roi_stats.csv'.format(str_suffix)
         else:
-            out_file_name = 'roi_medians.csv'
+            out_file_name = 'roi_stats.csv'
 
         out_weights_path = pjoin(out_subject_dir, out_file_name)
 
@@ -569,11 +571,11 @@ def __save(weight_vec, out_dir, subject, str_suffix = None):
     return
 
 
-def __stamp_experiment(base_feature, atlas, smoothing_param, node_size):
+def __stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size):
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
-    expt_id = '{}_{}_smoothing{}_size{}'.format(base_feature, atlas, smoothing_param, node_size)
+    expt_id = '{}_{}_{}_smoothing{}_size{}'.format(base_feature, method_name, atlas, smoothing_param, node_size)
 
     return expt_id
 
