@@ -3,9 +3,11 @@ import shlex
 import sys
 from os.path import join as pjoin, exists as pexists, abspath
 from sys import version_info
-
 import numpy as np
 import scipy.stats
+sys.dont_write_bytecode = True
+
+from pytest import raises, warns, set_trace
 
 if version_info.major==2 and version_info.minor==7:
     import graynet
@@ -38,6 +40,9 @@ num_links = num_roi_wholebrain*(num_roi_wholebrain-1)/2
 weight_methods = [ 'manhattan', 'minowski' ]
 
 cur_dir = os.path.dirname(abspath(__file__))
+example_dir = abspath(pjoin(cur_dir, '..', '..', 'example_data', 'freesurfer'))
+sub_list = pjoin(example_dir, 'subject_list.txt')
+out_dir = pjoin(example_dir, 'test_outputs')
 
 def test_run_no_IO():
     edge_weights_all = graynet.extract(subject_id_list, fs_dir, base_feature, weight_methods, atlas, fwhm,
@@ -73,10 +78,6 @@ def test_run_roi_stats():
 def test_CLI_weight():
     " ensures the CLI works. "
 
-    example_dir = abspath(pjoin(cur_dir, '..', '..', 'example_data', 'freesurfer'))
-    sub_list = pjoin(example_dir, 'subject_list.txt')
-    out_dir = pjoin(example_dir, 'test_outputs')
-
     sys.argv = shlex.split('graynet -s {} -i {} -w manhattan -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
 
     CLI()
@@ -84,9 +85,16 @@ def test_CLI_weight():
 def test_CLI_stats():
     " ensures the CLI works. "
 
-    example_dir = abspath(pjoin(cur_dir, '..', '..', 'example_data', 'freesurfer'))
-    out_dir = pjoin(example_dir, 'test_outputs')
-    sub_list = pjoin(example_dir, 'subject_list.txt')
-    sys.argv = shlex.split('graynet -s {} -i {} -r median -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+    sys.argv = shlex.split('graynet -s {} -i {} -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
 
     CLI()
+
+def test_CLI_only_weight_or_stats():
+    " ensures the CLI works. "
+
+    with warns(UserWarning):
+        sys.argv = shlex.split('graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+
+    CLI()
+
+test_CLI_stats()

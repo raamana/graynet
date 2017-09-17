@@ -5,6 +5,7 @@ import collections
 import os
 import sys
 import argparse
+import warnings
 import traceback
 import logging
 from os.path import join as pjoin, exists as pexists
@@ -243,7 +244,7 @@ def extract(subject_id_list, input_dir,
 
 def roiwise_stats_indiv(subject_id_list, input_dir,
                         base_feature = __default_feature,
-                        chosen_measure =__default_roi_statistic,
+                        chosen_roi_stats =__default_roi_statistic,
                         atlas = __default_atlas, smoothing_param = __default_smoothing_param,
                         node_size = __default_node_size,
                         out_dir=None, return_results = False):
@@ -268,7 +269,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     base_feature : str
         Specific type of feature to read for each subject from the input directory.
 
-    chosen_measure : str or callable, optional
+    chosen_roi_stats : list of str or callable
         If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
         Default: 'median'. Supported summary statistics include 'median', 'mode', 'mean', 'std', 'gmean', 'hmean', 'variation',
         'entropy', 'skew' and 'kurtosis'.
@@ -327,8 +328,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
     __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
     subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
-
-    summary_method, method_name = __check_summary_measure(chosen_measure)
+    stat_func_list, stat_func_names, num_stats, max_stat_width, nd_st = __check_stat_methods(chosen_roi_stats)
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
@@ -347,8 +347,6 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
     for ss, subject in enumerate(subject_id_list):
 
-        sys.stdout.write('\nProcessing {:{id_width}} ({:{nd_id}}/{:{nd_id}}) : '.format(subject, ss + 1, num_subjects,
-                                                                            id_width=max_id_width, nd_id=nd_id))
         try:
             features = import_features(input_dir, [subject, ], base_feature)
         except:
@@ -356,42 +354,67 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             continue
 
         data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
-        roi_medians = __roi_statistics(data, rois, uniq_rois, summary_method)
+        for ss, stat_func in enumerate(stat_func_list):
+            sys.stdout.write('\nProcessing id {:{id_width}} ({:{nd_id}}/{:{nd_id}}) -- '
+                             'statistic {:{stat_name_width}} ({:{nd_st}}/{:{nd_st}})'
+                             ' :'.format(subject, ss+1, num_subjects, stat_func_names[ss], ss+1, num_stats,
+                                         id_width=max_id_width, stat_name_width=max_stat_width, nd_id=nd_id, nd_st=nd_st))
 
-        expt_id_no_network = __stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size)
-        save_summary_stats(roi_medians, out_dir, subject, expt_id_no_network)
-        sys.stdout.write('Done.')
+            roi_stats = __roi_statistics(data, rois, uniq_rois, stat_func)
+            expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param, node_size)
+            save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
+            sys.stdout.write('Done.')
 
         if return_results:
-            roi_stats_all[subject] = roi_medians
+            roi_stats_all[subject] = roi_stats
 
     return roi_stats_all
 
 
-def __check_summary_measure(chosen_measure=None):
+def __check_stat_methods(stat_list=None):
     "Validates the choice and returns a callable to compute summaries."
 
     from scipy import stats as sp_stats
 
-    if chosen_measure is None:
-        summary_callable = np.median
-    elif isinstance(chosen_measure, str):
-        chosen_measure = chosen_measure.lower()
-        if chosen_measure in ['median', 'mean', 'std', 'var']:
-            summary_callable = getattr(np, chosen_measure)
-        else:
-            try:
-                summary_callable = getattr(sp_stats, chosen_measure)
-            except AttributeError:
-                raise AttributeError('Chosen measure is not a member of scipy.stats.')
-    elif callable(chosen_measure):
-        summary_callable = chosen_measure
-    else:
-        raise ValueError('summary measure chosen must be a string or a callable.')
+    if stat_list is None:
+        stat_list = [ np.median, ]
 
-    method_name = summary_callable.__name__
-    method_name = method_name.replace(' ', '_')
-    return summary_callable, method_name
+    if not isinstance(stat_list, collections.Iterable):
+        if isinstance(stat, str) or callable(stat):
+            stat_list = [stat_list, ]
+        else:
+            raise ValueError('Unrecognized stat method: must be a str or callable or a list of them.')
+
+    stat_callable_list = list()
+    for stat in stat_list:
+        if isinstance(stat, str):
+            stat = stat.lower()
+            if stat in ['median', 'mean', 'std', 'var']:
+                summary_callable = getattr(np, stat)
+            else:
+                try:
+                    summary_callable = getattr(sp_stats, stat)
+                except AttributeError:
+                    raise AttributeError('Chosen measure is not a member of scipy.stats.')
+        elif callable(stat):
+            summary_callable = stat
+        else:
+            raise ValueError('summary measure is not recognized.')
+
+        stat_callable_list.append(summary_callable)
+
+    # constructing names
+    names_callable = list()
+    for func in stat_callable_list:
+        method_name = func.__name__
+        method_name = method_name.replace(' ', '_')
+        names_callable.append(method_name)
+
+    num_stats = len(stat_callable_list)
+    num_digits_stat_size = len(str(num_stats))
+    max_wtname_width = max(map(len, names_callable))
+
+    return stat_callable_list, names_callable, num_stats, num_digits_stat_size, max_wtname_width
 
 
 def __roi_statistics(data, rois, uniq_rois, given_callable=np.median):
@@ -575,7 +598,7 @@ def __stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_s
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
-    expt_id = '{}_{}_{}_smoothing{}_size{}'.format(base_feature, method_name, atlas, smoothing_param, node_size)
+    expt_id = '{}_{}_{}_smoothing{}_size{}'.format(method_name, base_feature, atlas, smoothing_param, node_size)
 
     return expt_id
 
@@ -684,12 +707,10 @@ def __get_parser():
     # method_selector = parser.add_argument_group(title='Stats', description='Choose only one of the following processing choices to be done.')
     method_selector = parser.add_mutually_exclusive_group(required=True)
     method_selector.add_argument("-w", "--weight_method", action="store", dest="weight_method",
-                        default=None, required=False,
-                        nargs = '*',
-                        help=help_text_weight)
+                        nargs='*', default=None, required=False, help=help_text_weight)
+
     method_selector.add_argument("-r", "--roi_stats", action="store", dest="roi_stats",
-                        default=None,
-                        help=help_text_roi_stats)
+                        nargs='*', default=None, help=help_text_roi_stats)
 
     atlas_params = parser.add_argument_group(title='Atlas', description="Parameters describing the atlas, its parcellation and any smoothing of features.")
     atlas_params.add_argument("-a", "--atlas", action="store", dest="atlas",
@@ -742,9 +763,11 @@ def __parse_args():
     roi_stats = params.roi_stats
     if weight_method is not None:
         weight_method_list, _, _, _ = __check_weights(weight_method)
+        if roi_stats is not None:
+            warnings.warn('roi stats method specified while also requesting network weights computation. Skipping it.', UserWarning)
         roi_stats = None
     elif roi_stats is not None:
-        roi_stats = __check_summary_measure(roi_stats)
+        roi_stats, _, _, _, _ = __check_stat_methods(roi_stats)
         weight_method_list = None
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
