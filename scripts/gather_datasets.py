@@ -26,15 +26,18 @@ fwhm = 10
 node_size = None
 num_links_expected = 360*(360-1)/2
 
-histogram_dist = np.array([
-    'chebyshev', 'chebyshev_neg', 'chi_square',
-    'correlate', 'correlate_1',
-    'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
-    'euclidean', 'fidelity_based',
-    'histogram_intersection', 'histogram_intersection_1',
-    'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
-    'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-    'relative_bin_deviation', 'relative_deviation'])
+# histogram_dist = np.array([
+#     'chebyshev', 'chebyshev_neg', 'chi_square',
+#     'correlate', 'correlate_1',
+#     'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
+#     'euclidean', 'fidelity_based',
+#     'histogram_intersection', 'histogram_intersection_1',
+#     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
+#     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
+#     'relative_bin_deviation', 'relative_deviation'])
+
+histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean', 'fidelity_based',
+    'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski', 'relative_deviation'])
 
 incomplete_processing, comb_nan_values = dict(), dict()
 
@@ -97,11 +100,9 @@ for base_feature in base_feature_list:
     with open(pjoin(out_dir, 'incomplete_unusable_processing.pkl'), 'wb') as ipf:
         pickle.dump([incomplete_processing, comb_nan_values], ipf)
 
-    # reading
-    with open(pjoin(out_dir, 'incomplete_unusable_processing.pkl'), 'rb') as ipf:
-        incomplete_processing, comb_nan_values = pickle.load(ipf)
-
-
+# reading
+with open(pjoin(out_dir, 'incomplete_unusable_processing.pkl'), 'rb') as ipf:
+    incomplete_processing, comb_nan_values = pickle.load(ipf)
 
 # results
 for base_feature in base_feature_list:

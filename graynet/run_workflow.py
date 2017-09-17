@@ -293,6 +293,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
             third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
 
+        Notes: 'hmean' requires all values be positive.
 
     atlas : str
         Name of the atlas whose parcellation to be used.
@@ -369,6 +370,11 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                 expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param, node_size)
                 save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
                 sys.stdout.write('Done.')
+            except KeyboardInterrupt:
+                print('Exiting on keyborad interrupt! \n'
+                      'Abandoning the remaining processing for {} stats:\n'
+                      '{}.'.format(num_stats-ss, stat_func_names[ss:]))
+                sys.exit(1)
             except:
                 traceback.print_exc()
                 logging.debug('Error : unable to compute roi-wise {} for {}. Skipping it.'.format(stat_func_names[ss], subject))

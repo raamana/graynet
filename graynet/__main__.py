@@ -1,7 +1,7 @@
 
 from sys import version_info
 
-if version_info.major==2 and version_info.minor==7 and version_info.micro==13:
+if version_info.major==2 and version_info.minor==7:
     import run_workflow
 elif version_info.major > 2:
     from graynet import run_workflow

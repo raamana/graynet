@@ -9,7 +9,7 @@ import pickle
 import traceback
 
 from graynet import parcellate
-from graynet.graynet import roi_info
+from graynet.run_workflow import roi_info
 
 from nilearn.plotting import plot_connectome
 

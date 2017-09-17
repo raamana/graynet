@@ -129,17 +129,21 @@ num_weights_per_job = max(1,np.int64(np.ceil(num_weights/num_splits_weights)))
 
 print('{} samples/job and {} weights/job'.format(num_samples_per_job, num_weights_per_job))
 
-wt_count = 0
+wt_count, end_idx1 = 0, 0
 for ww in range(int(num_splits_weights)):
-    end_idx = min(wt_count+num_weights_per_job, num_weights)
-    subset_weights = histogram_dist[wt_count:end_idx]
-    wt_count = end_idx
+    if end_idx1 > num_weights:
+        break
+    end_idx1 = wt_count+num_weights_per_job
+    subset_weights = histogram_dist[wt_count:end_idx1]
+    wt_count = end_idx1
 
-    sub_count = 0
+    sub_count, end_idx2 = 0, 0
     for ss in range(int(num_splits_samples)):
-        end_idx = min(sub_count+num_samples_per_job+1,num_samples)
-        subset_samples = id_list[sub_count:end_idx]
-        sub_count = end_idx
+        if end_idx2 > num_samples:
+            break
+        end_idx2 = sub_count+num_samples_per_job+1
+        subset_samples = id_list[sub_count:end_idx2]
+        sub_count = end_idx2
 
         subset_list_path = pjoin(out_dir,'{}_{}th_split_samples.txt'.format(dataset_name.lower(),ss))
         with open(subset_list_path, 'w') as sf:
