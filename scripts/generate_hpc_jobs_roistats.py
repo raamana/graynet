@@ -22,7 +22,7 @@ target_list_dir = pjoin(proc_dir, 'target_lists')
 
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 
-base_feature = 'freesurfer_thickness' # 'freesurfer_curv' #  'freesurfer_thickness'
+base_feature = 'freesurfer_curv' # 'freesurfer_thickness' #  'freesurfer_thickness'
 atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
 
@@ -30,7 +30,7 @@ roi_statistic = 'median'
 compute_roi_statistic = True
 expt_name = 'roistats'
 
-num_splits_samples = 24 # 10.0
+num_splits_samples = 40 # 10.0
 num_splits_stats = 1
 
 out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
@@ -85,7 +85,7 @@ def make_job(subject_id_list, freesurfer_dir,
     "Creates graynet job for running on HPC"
 
     queue = 'abaqus.q'
-    mem='4G'
+    mem='2G'
     cli_name = 'graynet'
 
     roi_stat_list = ' '.join(roi_stat_list)
@@ -121,17 +121,25 @@ num_stats_per_job = max(1,np.int64(np.ceil(num_stats/num_splits_stats)))
 
 print('{} samples/job and {} stats/job'.format(num_samples_per_job, num_stats_per_job))
 
-stat_count = 0
+stat_count, end_idx1 = 0, 0
 for ww in range(int(num_splits_stats)):
-    end_idx = min(stat_count+num_stats_per_job, num_stats)
-    subset_stats = roi_stats_list[stat_count:end_idx]
-    stat_count = end_idx
+    if end_idx1 > num_stats:
+        break
+    end_idx1 = stat_count+num_stats_per_job
+    # print("stat {} {}".format(stat_count, end_idx1))
+    subset_stats = roi_stats_list[stat_count:end_idx1]
+    stat_count = end_idx1
 
-    sub_count = 0
+    sub_count, end_idx2 = 0, 0
     for ss in range(int(num_splits_samples)):
-        end_idx = min(sub_count+num_samples_per_job+1,num_samples)
-        subset_samples = id_list[sub_count:end_idx]
-        sub_count = end_idx
+        if end_idx2 > num_samples:
+            break
+
+        end_idx2 = sub_count+num_samples_per_job+1
+        # print("sub {} {}".format(sub_count, end_idx2))
+
+        subset_samples = id_list[sub_count:end_idx2]
+        sub_count = end_idx2
 
         subset_list_path = pjoin(job_dir,'{}_{}th_split_samples_{}.txt'.format(dataset_name.lower(),ss, expt_name))
         with open(subset_list_path, 'w') as sf:
@@ -143,4 +151,4 @@ for ww in range(int(num_splits_stats)):
                             base_feature, subset_stats,
                             atlas, fwhm, out_dir, job_dir, job_name)
 
-        print('generated jobs for {}'.format(job_name))
+        print('generated jobs for {} : {} samples and {} stats'.format(job_name, len(subset_samples), len(subset_stats)))
