@@ -28,9 +28,10 @@ fwhm = 10
 
 roi_statistic = 'median'
 compute_roi_statistic = True
+expt_name = 'roistats'
 
-num_splits_samples = 48.0 # 10.0
-num_splits_stats = 1.0
+num_splits_samples = 24 # 10.0
+num_splits_stats = 1
 
 out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
 
@@ -78,14 +79,16 @@ def make_cli_call_roistats(cli_name, subject_id_list, base_feature, freesurfer_d
 
 
 def make_job(subject_id_list, freesurfer_dir,
-             base_feature, roi_statistic,
+             base_feature, roi_stat_list,
              atlas, fwhm,
-             out_proc_dir, job_dir, job_name, roi_stat = roi_statistic):
+             out_proc_dir, job_dir, job_name):
     "Creates graynet job for running on HPC"
 
     queue = 'abaqus.q'
     mem='4G'
     cli_name = 'graynet'
+
+    roi_stat_list = ' '.join(roi_stat_list)
 
     job_file = pjoin(job_dir, '{}.job'.format(job_name))
     job_log  = pjoin(job_dir, '{}.log'.format(job_name))
@@ -94,7 +97,7 @@ def make_job(subject_id_list, freesurfer_dir,
     with open(job_file, 'w') as jf:
         jf.write('#!/bin/bash\n')
         jf.write(specify_hpc_resources(mem, queue, job_dir, job_log))
-        cli_call_line = make_cli_call_roistats(cli_name,realpath(subject_id_list), base_feature, realpath(freesurfer_dir), roi_statistic, atlas, fwhm, realpath(out_proc_dir))
+        cli_call_line = make_cli_call_roistats(cli_name,realpath(subject_id_list), base_feature, realpath(freesurfer_dir), roi_stat_list, atlas, fwhm, realpath(out_proc_dir))
         jf.write(cli_call_line)
 
     st = os.stat(job_file)
@@ -114,13 +117,13 @@ num_samples = len(id_list)
 print('{} samples and {} stats'.format(num_samples, num_stats))
 
 num_samples_per_job = max(1,np.int64(np.ceil(num_samples/num_splits_samples)))
-num_weights_per_job = max(1,np.int64(np.ceil(num_stats/num_splits_stats)))
+num_stats_per_job = max(1,np.int64(np.ceil(num_stats/num_splits_stats)))
 
-print('{} samples/job and {} stats/job'.format(num_samples_per_job, num_weights_per_job))
+print('{} samples/job and {} stats/job'.format(num_samples_per_job, num_stats_per_job))
 
 stat_count = 0
 for ww in range(int(num_splits_stats)):
-    end_idx = min(stat_count+num_weights_per_job, num_stats)
+    end_idx = min(stat_count+num_stats_per_job, num_stats)
     subset_stats = roi_stats_list[stat_count:end_idx]
     stat_count = end_idx
 
@@ -130,11 +133,11 @@ for ww in range(int(num_splits_stats)):
         subset_samples = id_list[sub_count:end_idx]
         sub_count = end_idx
 
-        subset_list_path = pjoin(out_dir,'{}_{}th_split_samples.txt'.format(dataset_name.lower(),ss))
+        subset_list_path = pjoin(job_dir,'{}_{}th_split_samples_{}.txt'.format(dataset_name.lower(),ss, expt_name))
         with open(subset_list_path, 'w') as sf:
             sf.write('\n'.join(subset_samples))
 
-        job_name = 'split{}{}_roistats_{}'.format(ww,ss,roi_statistic)
+        job_name = 'split{}{}_{}'.format(ww,ss, expt_name)
 
         job_file = make_job(subset_list_path, freesurfer_dir,
                             base_feature, subset_stats,

@@ -13,7 +13,7 @@ if version_info.major==2 and version_info.minor==7:
     import graynet
     from graynet import cli_run as CLI
 elif version_info.major > 2:
-    from graynet import graynet
+    from graynet import run_workflow
     from graynet import cli_run as CLI
 else:
     raise NotImplementedError('hiwenet supports only 2.7.13 or 3+. Upgrate to Python 3+ is recommended.')

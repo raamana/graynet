@@ -20,13 +20,16 @@ if version_info.major==2 and version_info.minor==7:
     import freesurfer
     import parcellate
 elif version_info.major > 2:
-    from graynet import freesurfer
     from graynet import parcellate
+    from graynet import freesurfer
 else:
     raise NotImplementedError('hiwenet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
 
 np.seterr(divide='ignore', invalid='ignore')
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
 
 __features_freesurfer = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
 __features_fsl = ['gmdensity', ]
@@ -345,7 +348,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
-    for ss, subject in enumerate(subject_id_list):
+    for sub_idx, subject in enumerate(subject_id_list):
 
         try:
             features = import_features(input_dir, [subject, ], base_feature)
@@ -355,15 +358,20 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
         data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
         for ss, stat_func in enumerate(stat_func_list):
-            sys.stdout.write('\nProcessing id {:{id_width}} ({:{nd_id}}/{:{nd_id}}) -- '
-                             'statistic {:{stat_name_width}} ({:{nd_st}}/{:{nd_st}})'
-                             ' :'.format(subject, ss+1, num_subjects, stat_func_names[ss], ss+1, num_stats,
+            sys.stdout.write('\nProcessing id {sid:{id_width}} ({sidnum:{nd_id}}/{numsub:{nd_id}}) -- '
+                             'statistic {stname:{stat_name_width}} ({statnum:{nd_st}}/{numst:{nd_st}})'
+                             ' :'.format(sid=subject, sidnum=sub_idx+1, numsub=num_subjects,
+                                         stname=stat_func_names[ss], statnum=ss+1, numst=num_stats,
                                          id_width=max_id_width, stat_name_width=max_stat_width, nd_id=nd_id, nd_st=nd_st))
 
-            roi_stats = __roi_statistics(data, rois, uniq_rois, stat_func)
-            expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param, node_size)
-            save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
-            sys.stdout.write('Done.')
+            try:
+                roi_stats = __roi_statistics(data, rois, uniq_rois, stat_func)
+                expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param, node_size)
+                save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
+                sys.stdout.write('Done.')
+            except:
+                traceback.print_exc()
+                logging.debug('Error : unable to compute roi-wise {} for {}. Skipping it.'.format(stat_func_names[ss], subject))
 
         if return_results:
             roi_stats_all[subject] = roi_stats
@@ -414,16 +422,13 @@ def __check_stat_methods(stat_list=None):
     num_digits_stat_size = len(str(num_stats))
     max_wtname_width = max(map(len, names_callable))
 
-    return stat_callable_list, names_callable, num_stats, num_digits_stat_size, max_wtname_width
+    return stat_callable_list, names_callable, num_stats, max_wtname_width, num_digits_stat_size
 
 
 def __roi_statistics(data, rois, uniq_rois, given_callable=np.median):
     "Returns the requested ROI statistics."
 
-    num_rois = len(uniq_rois)
-    roi_stats = np.full([num_rois,1], np.nan)
-    for rr in range(num_rois):
-        roi_stats[rr] = given_callable(data[rois==uniq_rois[rr]])
+    roi_stats = [given_callable(data[rois == roi]) for roi in uniq_rois]
 
     return roi_stats
 
@@ -559,9 +564,9 @@ def save_summary_stats(data_vec, out_dir, subject, str_suffix = None):
 
         try:
             np.savetxt(out_weights_path, data_vec, fmt='%.5f')
-            print('Saved roi stats to \n{}'.format(out_weights_path))
+            print('\nSaved roi stats to \n{}'.format(out_weights_path))
         except:
-            print('unable to save extracted features to {}'.format(out_weights_path))
+            print('\nUnable to save extracted features to {}'.format(out_weights_path))
             traceback.print_exc()
 
     return
