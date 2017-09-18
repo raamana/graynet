@@ -9,21 +9,21 @@ sys.dont_write_bytecode = True
 
 from pytest import raises, warns, set_trace
 
+if __name__ == '__main__' and __package__ is None:
+    parent_dir = dirname(dirname(abspath(__file__)))
+    pkg_dir = dirname(parent_dir)
+    sys.path.append(parent_dir)
+    sys.path.append(pkg_dir)
+
 if version_info.major==2 and version_info.minor==7:
     import graynet
-    import run_workflow as graynet
+    # import run_workflow as graynet
     from graynet import cli_run as CLI
 elif version_info.major > 2:
     from graynet import run_workflow as graynet
     from graynet import cli_run as CLI
 else:
     raise NotImplementedError('hiwenet supports only 2.7.13 or 3+. Upgrate to Python 3+ is recommended.')
-
-if __name__ == '__main__' and __package__ is None:
-    parent_dir = dirname(dirname(abspath(__file__)))
-    pkg_dir = dirname(parent_dir)
-    sys.path.append(parent_dir)
-    sys.path.append(pkg_dir)
 
 test_dir = dirname(os.path.realpath(__file__))
 base_dir = realpath( pjoin(test_dir, '..', '..', 'example_data') )
@@ -63,7 +63,7 @@ def test_run_no_IO():
             if edge_weights_all[(wm, sub)].size != num_links:
                 raise ValueError('invalid results : # links')
 
-def test_run_roi_stats():
+def test_run_roi_stats_via_API():
     "Tests whether roi stats can be computed (not their accuracy) and the return values match in size."
 
     summary_methods = ['median', 'mean', 'std', 'variation', 'entropy', 'skew', 'kurtosis']
@@ -90,7 +90,7 @@ def test_CLI_weight():
 
     CLI()
 
-def test_CLI_stats():
+def test_run_roi_stats_via_CLI():
     " ensures the CLI works. "
 
     sys.argv = shlex.split('graynet -s {} -i {} -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
@@ -100,9 +100,10 @@ def test_CLI_stats():
 def test_CLI_only_weight_or_stats():
     " ensures the CLI works. "
 
-    with warns(UserWarning):
+    with raises(SystemExit):
         sys.argv = shlex.split('graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+        CLI()
 
-    CLI()
-
-test_CLI_stats()
+# test_run_roi_stats_via_API()
+# test_run_roi_stats_via_CLI()
+test_CLI_only_weight_or_stats()

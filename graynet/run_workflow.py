@@ -393,8 +393,9 @@ def __check_stat_methods(stat_list=None):
     if stat_list is None:
         stat_list = [ np.median, ]
 
-    if not isinstance(stat_list, collections.Iterable):
-        if isinstance(stat, str) or callable(stat):
+    if not isinstance(stat_list, list):
+        # when a single method is specified by a str or callable
+        if isinstance(stat_list, str) or callable(stat_list):
             stat_list = [stat_list, ]
         else:
             raise ValueError('Unrecognized stat method: must be a str or callable or a list of them.')
@@ -409,7 +410,7 @@ def __check_stat_methods(stat_list=None):
                 try:
                     summary_callable = getattr(sp_stats, stat)
                 except AttributeError:
-                    raise AttributeError('Chosen measure is not a member of scipy.stats.')
+                    raise AttributeError('Chosen measure {} is not a member of scipy.stats.'.format(stat))
         elif callable(stat):
             summary_callable = stat
         else:
@@ -434,7 +435,7 @@ def __check_stat_methods(stat_list=None):
 def __roi_statistics(data, rois, uniq_rois, given_callable=np.median):
     "Returns the requested ROI statistics."
 
-    roi_stats = [given_callable(data[rois == roi]) for roi in uniq_rois]
+    roi_stats = np.array( [ given_callable(data[rois == roi]) for roi in uniq_rois ] )
 
     return roi_stats
 
@@ -775,7 +776,7 @@ def __parse_args():
     if weight_method is not None:
         weight_method_list, _, _, _ = __check_weights(weight_method)
         if roi_stats is not None:
-            warnings.warn('roi stats method specified while also requesting network weights computation. Skipping it.', UserWarning)
+            warnings.warn(UserWarning('roi stats method specified while also requesting network weights computation. Skipping it.'))
         roi_stats = None
     elif roi_stats is not None:
         roi_stats, _, _, _, _ = __check_stat_methods(roi_stats)
