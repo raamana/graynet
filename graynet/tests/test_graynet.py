@@ -43,12 +43,14 @@ num_roi_atlas = {'FSAVERAGE':68, 'GLASSER2016':360}
 num_roi_wholebrain = num_roi_atlas[atlas]
 num_links = num_roi_wholebrain*(num_roi_wholebrain-1)/2
 
-weight_methods = [ 'manhattan', 'minowski' ]
+weight_methods = [ 'manhattan', ]
 
 cur_dir = os.path.dirname(abspath(__file__))
 example_dir = abspath(pjoin(cur_dir, '..', '..', 'example_data', 'freesurfer'))
 sub_list = pjoin(example_dir, 'subject_list.txt')
 out_dir = pjoin(example_dir, 'test_outputs')
+if not pexists(out_dir):
+    os.mkdir(out_dir)
 
 def test_run_no_IO():
     edge_weights_all = graynet.extract(subject_id_list, fs_dir, base_feature, weight_methods, atlas, fwhm,
