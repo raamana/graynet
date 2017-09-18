@@ -1,7 +1,7 @@
 import os
 import shlex
 import sys
-from os.path import join as pjoin, exists as pexists, abspath
+from os.path import join as pjoin, exists as pexists, abspath, dirname, realpath
 from sys import version_info
 import numpy as np
 import scipy.stats
@@ -11,16 +11,22 @@ from pytest import raises, warns, set_trace
 
 if version_info.major==2 and version_info.minor==7:
     import graynet
+    import run_workflow as graynet
     from graynet import cli_run as CLI
 elif version_info.major > 2:
-    from graynet import run_workflow
+    from graynet import run_workflow as graynet
     from graynet import cli_run as CLI
 else:
     raise NotImplementedError('hiwenet supports only 2.7.13 or 3+. Upgrate to Python 3+ is recommended.')
 
+if __name__ == '__main__' and __package__ is None:
+    parent_dir = dirname(dirname(abspath(__file__)))
+    pkg_dir = dirname(parent_dir)
+    sys.path.append(parent_dir)
+    sys.path.append(pkg_dir)
 
-test_dir = os.path.dirname(os.path.realpath(__file__))
-base_dir = os.path.realpath( pjoin(test_dir, '..', '..', 'example_data') )
+test_dir = dirname(os.path.realpath(__file__))
+base_dir = realpath( pjoin(test_dir, '..', '..', 'example_data') )
 
 subject_id_list = ['subject12345', ]
 
@@ -60,7 +66,9 @@ def test_run_no_IO():
 def test_run_roi_stats():
     "Tests whether roi stats can be computed (not their accuracy) and the return values match in size."
 
-    summary_methods = ['median', 'mode', 'mean', 'std', 'gmean', 'hmean', 'variation', 'entropy', 'skew', 'kurtosis']
+    summary_methods = ['median', 'mean', 'std', 'variation', 'entropy', 'skew', 'kurtosis']
+    # 'mode' returns more than one value; 'gmean' requires only positive values,
+    # 'hmean' can not always be computed
     trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut=0.05)
     third_kstat = lambda array: scipy.stats.kstat(array, n=3)
     summary_methods.extend([trimmed_mean, third_kstat])
