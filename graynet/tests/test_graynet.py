@@ -23,7 +23,7 @@ elif version_info.major > 2:
     from graynet import run_workflow as graynet
     from graynet import cli_run as CLI
 else:
-    raise NotImplementedError('hiwenet supports only 2.7.13 or 3+. Upgrate to Python 3+ is recommended.')
+    raise NotImplementedError('graynet.extract supports only 2.7.13 or 3+. Upgrate to Python 3+ is recommended.')
 
 test_dir = dirname(os.path.realpath(__file__))
 base_dir = realpath( pjoin(test_dir, '..', '..', 'example_data') )
@@ -52,8 +52,14 @@ out_dir = pjoin(example_dir, 'test_outputs')
 if not pexists(out_dir):
     os.mkdir(out_dir)
 
+dimensionality = 1000
+num_groups = 5
+
+cur_dir = os.path.dirname(abspath(__file__))
+
 def test_run_no_IO():
-    edge_weights_all = graynet.extract(subject_id_list, fs_dir, base_feature, weight_methods, atlas, fwhm,
+    edge_weights_all = graynet.extract(subject_id_list, fs_dir, base_feature, weight_methods,
+                                       atlas=atlas, smoothing_param=fwhm,
                                        out_dir=None, return_results=True)
     num_combinations = len(list(edge_weights_all))
 
@@ -106,6 +112,38 @@ def test_CLI_only_weight_or_stats():
         sys.argv = shlex.split('graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
         CLI()
 
+def test_invalid_edge_range():
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,edge_range=-1)
+
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,edge_range=[])
+
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,edge_range=[1, ])
+
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,edge_range=[1, 2, 3])
+
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,edge_range=(1, np.NaN))
+
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,edge_range=(2, 1))
+
+def test_invalid_nbins():
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,num_bins=np.NaN)
+
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,num_bins=np.Inf)
+
+    with raises(ValueError):
+        ew = graynet.extract(subject_id_list, fs_dir,num_bins=2)
+
+
+
+test_run_no_IO()
 # test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
-test_CLI_only_weight_or_stats()
+# test_CLI_only_weight_or_stats()

@@ -1,4 +1,3 @@
-
 __all__ = ['extract', 'roiwise_stats_indiv', 'roi_info', 'cli_run', 'implemented_weights']
 
 import collections
@@ -16,7 +15,7 @@ import numpy as np
 
 from sys import version_info
 
-if version_info.major==2 and version_info.minor==7:
+if version_info.major == 2 and version_info.minor == 7:
     import freesurfer
     import parcellate
 elif version_info.major > 2:
@@ -25,18 +24,16 @@ elif version_info.major > 2:
 else:
     raise NotImplementedError('hiwenet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
-
 np.seterr(divide='ignore', invalid='ignore')
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
 
 __features_freesurfer = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
 __features_fsl = ['gmdensity', ]
 
 __base_feature_list = __features_freesurfer + __features_fsl
 
-__default_weight_method = ( 'minowski', 'manhattan' )
+__default_weight_method = ('minowski', 'manhattan')
 implemented_weights = [
     'chebyshev', 'chebyshev_neg', 'chi_square',
     'correlate', 'correlate_1',
@@ -46,6 +43,8 @@ implemented_weights = [
     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
     'relative_bin_deviation', 'relative_deviation']
+
+minimum_num_bins = 5
 __default_num_bins = 25
 __default_trim_percentile = 5
 
@@ -54,14 +53,20 @@ __default_atlas = 'GLASSER2016'
 __default_smoothing_param = 10
 __default_node_size = None
 
+__edge_range_predefined = {'freesurfer_thickness': (0, 6), 'freesurfer_curv': (None, None)}
+__default_edge_range = __edge_range_predefined[__default_feature]
+
 __default_roi_statistic = 'median'
 
+
 def extract(subject_id_list, input_dir,
-            base_feature = __default_feature,
-            weight_method_list = __default_weight_method,
-            atlas = __default_atlas, smoothing_param = __default_smoothing_param,
-            node_size = __default_node_size,
-            out_dir=None, return_results = False):
+            base_feature=__default_feature,
+            weight_method_list=__default_weight_method,
+            num_bins=__default_num_bins,
+            edge_range=__default_edge_range,
+            atlas=__default_atlas, smoothing_param=__default_smoothing_param,
+            node_size=__default_node_size,
+            out_dir=None, return_results=False):
     """
     Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.
 
@@ -173,8 +178,11 @@ def extract(subject_id_list, input_dir,
         If return_results is False, this will be None, which is the default.
     """
 
+    # All the checks must happen here, as this is key function in the API
     __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
     subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
+
+    num_bins, edge_range = __check_weight_params(num_bins, edge_range)
     weight_method_list, num_weights, max_wtname_width, nd_wm = __check_weights(weight_method_list)
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
@@ -198,7 +206,7 @@ def extract(subject_id_list, input_dir,
         try:
             features = import_features(input_dir, [subject, ], base_feature)
         except:
-            raise IOError('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
+            warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
             continue
 
         data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
@@ -209,13 +217,13 @@ def extract(subject_id_list, input_dir,
             expt_id = __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
             sys.stdout.write('\nProcessing id {:{id_width}} ({:{nd_id}}/{:{nd_id}}) -- '
                              'weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
-                             ' :'.format(subject, ss+1, num_subjects, weight_method, ww+1, num_weights,
+                             ' :'.format(subject, ss + 1, num_subjects, weight_method, ww + 1, num_weights,
                                          id_width=max_id_width, wtname_width=max_wtname_width,
-                                         nd_id=nd_id, nd_wm=nd_wm)) # controlling for number of digits
+                                         nd_id=nd_id, nd_wm=nd_wm))  # controlling for number of digits
 
             # actual computation of pair-wise features
             try:
-                edge_weights = hiwenet.extract(data, rois, weight_method)
+                edge_weights = hiwenet.extract(data, rois, weight_method, num_bins=num_bins, edge_range=edge_range)
                 weight_vec = __get_triu_handle_inf_nan(edge_weights)
 
                 # saving the results to memory only if needed.
@@ -233,7 +241,7 @@ def extract(subject_id_list, input_dir,
             except KeyboardInterrupt:
                 print('Exiting on keyborad interrupt! \n'
                       'Abandoning the remaining processing for {} weights:\n'
-                      '{}.'.format(num_weights-ww, weight_method_list[ww:]))
+                      '{}.'.format(num_weights - ww, weight_method_list[ww:]))
                 sys.exit(1)
             except:
                 print('Unable to extract {} features for {}'.format(weight_method, subject))
@@ -246,11 +254,11 @@ def extract(subject_id_list, input_dir,
 
 
 def roiwise_stats_indiv(subject_id_list, input_dir,
-                        base_feature = __default_feature,
-                        chosen_roi_stats =__default_roi_statistic,
-                        atlas = __default_atlas, smoothing_param = __default_smoothing_param,
-                        node_size = __default_node_size,
-                        out_dir=None, return_results = False):
+                        base_feature=__default_feature,
+                        chosen_roi_stats=__default_roi_statistic,
+                        atlas=__default_atlas, smoothing_param=__default_smoothing_param,
+                        node_size=__default_node_size,
+                        out_dir=None, return_results=False):
     """
     Computes the chosen summary statistics within each ROI.
     These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.
@@ -329,7 +337,6 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         If return_results is False, this will be None, which is the default.
     """
 
-
     __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
     subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
     stat_func_list, stat_func_names, num_stats, max_stat_width, nd_st = __check_stat_methods(chosen_roi_stats)
@@ -361,23 +368,26 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         for ss, stat_func in enumerate(stat_func_list):
             sys.stdout.write('\nProcessing id {sid:{id_width}} ({sidnum:{nd_id}}/{numsub:{nd_id}}) -- '
                              'statistic {stname:{stat_name_width}} ({statnum:{nd_st}}/{numst:{nd_st}})'
-                             ' :'.format(sid=subject, sidnum=sub_idx+1, numsub=num_subjects,
-                                         stname=stat_func_names[ss], statnum=ss+1, numst=num_stats,
-                                         id_width=max_id_width, stat_name_width=max_stat_width, nd_id=nd_id, nd_st=nd_st))
+                             ' :'.format(sid=subject, sidnum=sub_idx + 1, numsub=num_subjects,
+                                         stname=stat_func_names[ss], statnum=ss + 1, numst=num_stats,
+                                         id_width=max_id_width, stat_name_width=max_stat_width, nd_id=nd_id,
+                                         nd_st=nd_st))
 
             try:
                 roi_stats = __roi_statistics(data, rois, uniq_rois, stat_func)
-                expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param, node_size)
+                expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param,
+                                                        node_size)
                 save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
                 sys.stdout.write('Done.')
             except KeyboardInterrupt:
                 print('Exiting on keyborad interrupt! \n'
                       'Abandoning the remaining processing for {} stats:\n'
-                      '{}.'.format(num_stats-ss, stat_func_names[ss:]))
+                      '{}.'.format(num_stats - ss, stat_func_names[ss:]))
                 sys.exit(1)
             except:
                 traceback.print_exc()
-                logging.debug('Error : unable to compute roi-wise {} for {}. Skipping it.'.format(stat_func_names[ss], subject))
+                logging.debug(
+                    'Error : unable to compute roi-wise {} for {}. Skipping it.'.format(stat_func_names[ss], subject))
 
         if return_results:
             roi_stats_all[subject] = roi_stats
@@ -391,7 +401,7 @@ def __check_stat_methods(stat_list=None):
     from scipy import stats as sp_stats
 
     if stat_list is None:
-        stat_list = [ np.median, ]
+        stat_list = [np.median, ]
 
     if not isinstance(stat_list, list):
         # when a single method is specified by a str or callable
@@ -435,7 +445,7 @@ def __check_stat_methods(stat_list=None):
 def __roi_statistics(data, rois, uniq_rois, given_callable=np.median):
     "Returns the requested ROI statistics."
 
-    roi_stats = np.array( [ given_callable(data[rois == roi]) for roi in uniq_rois ] )
+    roi_stats = np.array([given_callable(data[rois == roi]) for roi in uniq_rois])
 
     return roi_stats
 
@@ -529,7 +539,39 @@ def __check_weights(weight_method_list):
     return weight_method_list, num_weights, max_wtname_width, num_digits_wm_size
 
 
-def __remove_background_roi(data,labels, ignore_label):
+def __check_weight_params(num_bins, edge_range_spec):
+    "Ensures parameters are valid and type casts them."
+
+    if isinstance(num_bins, str):
+        # possible when called from CLI
+        num_bins = np.float(num_bins)
+
+    # rounding it to ensure it is int
+    num_bins = np.rint(num_bins)
+
+    if np.isnan(num_bins) or np.isinf(num_bins):
+        raise ValueError('Invalid value for number of bins! Choose a natural number >= {}'.format(minimum_num_bins))
+
+    if edge_range_spec is None:
+        edge_range = edge_range_spec
+    elif isinstance(edge_range_spec, collections.Sequence):
+        if len(edge_range_spec) != 2:
+            raise ValueError('edge_range must be a tuple of two values: (min, max)')
+        if edge_range_spec[0] >= edge_range_spec[1]:
+            raise ValueError(
+                'edge_range : min {} is not less than the max {} !'.format(edge_range_spec[0], edge_range_spec[1]))
+        if not np.all(np.isfinite(edge_range_spec)):
+            raise ValueError('Infinite or NaN values in edge range : {}'.format(edge_range_spec))
+
+        # converting it to tuple to make it immutable
+        edge_range = tuple(edge_range_spec)
+    else:
+        raise ValueError('Invalid edge range! Must be a tuple of two values (min, max)')
+
+    return num_bins, edge_range
+
+
+def __remove_background_roi(data, labels, ignore_label):
     "Returns everything but specified label"
 
     mask = labels != ignore_label
@@ -543,16 +585,16 @@ def roi_info(roi_labels):
     uniq_rois_temp, roi_size_temp = np.unique(roi_labels, return_counts=True)
 
     # removing the background label
-    index_bkgnd = np.argwhere(uniq_rois_temp==parcellate.null_roi_name)[0]
+    index_bkgnd = np.argwhere(uniq_rois_temp == parcellate.null_roi_name)[0]
     uniq_rois = np.delete(uniq_rois_temp, index_bkgnd)
-    roi_size  = np.delete(roi_size_temp, index_bkgnd)
+    roi_size = np.delete(roi_size_temp, index_bkgnd)
 
     num_nodes = len(uniq_rois)
 
     return uniq_rois, roi_size, num_nodes
 
 
-def save_summary_stats(data_vec, out_dir, subject, str_suffix = None):
+def save_summary_stats(data_vec, out_dir, subject, str_suffix=None):
     "Saves the ROI medians to disk."
 
     if out_dir is not None:
@@ -579,7 +621,7 @@ def save_summary_stats(data_vec, out_dir, subject, str_suffix = None):
     return
 
 
-def __save(weight_vec, out_dir, subject, str_suffix = None):
+def __save(weight_vec, out_dir, subject, str_suffix=None):
     "Saves the features to disk."
 
     if out_dir is not None:
@@ -619,7 +661,8 @@ def __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, w
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
-    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}'.format(base_feature, atlas, smoothing_param, node_size, weight_method)
+    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}'.format(base_feature, atlas, smoothing_param, node_size,
+                                                              weight_method)
 
     return expt_id
 
@@ -666,19 +709,22 @@ def __read_features_and_groups(features_path, groups_path):
 def cli_run():
     "command line interface!"
 
-    subject_ids_path, input_dir, base_feature, weight_method, \
-        atlas, out_dir, node_size, smoothing_param, roi_stats = __parse_args()
+    subject_ids_path, input_dir, base_feature, weight_method, num_bins, edge_range, \
+    atlas, out_dir, node_size, smoothing_param, roi_stats = __parse_args()
 
     # when run from CLI, results will not be received
     # so no point in wasting memory maintaining a very big array
     return_results = False
 
     if weight_method is not None:
-        extract(subject_ids_path, input_dir, base_feature, weight_method,
+        extract(subject_ids_path, input_dir, base_feature,
+                weight_method, num_bins, edge_range,
                 atlas, smoothing_param, node_size, out_dir, return_results)
     else:
         print('ROI summary stats computation requested -- skipping computation of network weights.')
-        roiwise_stats_indiv(subject_ids_path, input_dir, base_feature, roi_stats, atlas, smoothing_param, node_size, out_dir, return_results)
+        roiwise_stats_indiv(subject_ids_path, input_dir, base_feature,
+                            roi_stats, atlas, smoothing_param, node_size,
+                            out_dir, return_results)
 
     return
 
@@ -689,14 +735,18 @@ def __get_parser():
     help_text_subject_ids = "Path to file containing list of subject IDs (one per line)"
     help_text_input_dir = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
     help_text_feature = "Atlas to use to define nodes/ROIs. Default: '{}'".format(__default_feature)
-    help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes." # .format(__default_weight_method)
+
+    help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(__default_weight_method)
+    help_text_num_bins = "Number of bins used to construct the histogram. Default : {}".format(__default_num_bins)
+    help_text_edge_range = "The range of edges (two finite values) within which to bin the given values e.g. --edge_range 1 6 This can be helpful to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : {}, to automatically compute from the given values.".format(
+        __default_edge_range)
 
     help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include 'median', 'entropy', 'kurtosis' and any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . "
 
     help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. Default: '{}'".format(__default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. Default : {}".format(__default_node_size)
-
-    help_text_smoothing = "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(__default_smoothing_param)
+    help_text_smoothing = "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(
+        __default_smoothing_param)
 
     parser = argparse.ArgumentParser(prog="graynet")
 
@@ -716,26 +766,39 @@ def __get_parser():
                         default=None, required=False,
                         help="Where to save the extracted features. ")
 
+
     # method_selector = parser.add_argument_group(title='Stats', description='Choose only one of the following processing choices to be done.')
     method_selector = parser.add_mutually_exclusive_group(required=True)
     method_selector.add_argument("-w", "--weight_method", action="store", dest="weight_method",
-                        nargs='*', default=None, required=False, help=help_text_weight)
+                                 nargs='*', default=None, required=False, help=help_text_weight)
 
     method_selector.add_argument("-r", "--roi_stats", action="store", dest="roi_stats",
-                        nargs='*', default=None, help=help_text_roi_stats)
+                                 nargs='*', default=None, help=help_text_roi_stats)
 
-    atlas_params = parser.add_argument_group(title='Atlas', description="Parameters describing the atlas, its parcellation and any smoothing of features.")
+
+    method_params = parser.add_argument_group(title='Method parameters',
+                                              description='Parameters relevant to histogram edge weight calculations')
+    method_params.add_argument("-e", "--edge_range", action="store", dest="edge_range",
+                                default=__default_edge_range, required=False,
+                                nargs=2, help=help_text_edge_range)
+    method_params.add_argument("-b", "--num_bins", action="store", dest="num_bins",
+                                default=__default_num_bins, required=False,
+                                nargs=2, help=help_text_num_bins)
+
+
+    atlas_params = parser.add_argument_group(title='Atlas',
+                                             description="Parameters describing the atlas, its parcellation and any smoothing of features.")
     atlas_params.add_argument("-a", "--atlas", action="store", dest="atlas",
-                        default=__default_atlas, required=False,
-                        help=help_text_atlas)
+                              default=__default_atlas, required=False,
+                              help=help_text_atlas)
 
     atlas_params.add_argument("-n", "--node_size", action="store", dest="node_size",
-                        default=__default_node_size, required=False,
-                        help=help_text_parc_size)
+                              default=__default_node_size, required=False,
+                              help=help_text_parc_size)
 
     atlas_params.add_argument("-p", "--smoothing_param", action="store", dest="smoothing_param",
-                        default=__default_smoothing_param, required=False,
-                        help=help_text_smoothing)
+                              default=__default_smoothing_param, required=False,
+                              help=help_text_smoothing)
 
     return parser
 
@@ -776,7 +839,7 @@ def __parse_args():
     if weight_method is not None:
         weight_method_list, _, _, _ = __check_weights(weight_method)
         if roi_stats is not None:
-            warnings.warn(UserWarning('roi stats method specified while also requesting network weights computation. Skipping it.'))
+            warnings.warn('roi stats method specified while also requesting network weights computation. Skipping it.', UserWarning)
         roi_stats = None
     elif roi_stats is not None:
         roi_stats, _, _, _, _ = __check_stat_methods(roi_stats)
@@ -784,7 +847,7 @@ def __parse_args():
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
 
-    return subject_ids_path, input_dir, params.feature, weight_method_list, \
+    return subject_ids_path, input_dir, params.feature, weight_method_list, params.num_bins, params.edge_range, \
            params.atlas, out_dir, params.node_size, params.smoothing_param, roi_stats
 
 
