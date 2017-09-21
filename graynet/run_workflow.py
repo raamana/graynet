@@ -235,7 +235,7 @@ def extract(subject_id_list, input_dir,
 
             # actual computation of pair-wise features
             try:
-                edge_weights = hiwenet.extract(data, rois, weight_method, num_bins=num_bins, edge_range=edge_range)
+                edge_weights = hiwenet.extract(data, rois, weight_method=weight_method, num_bins=num_bins, edge_range=edge_range)
                 weight_vec = __get_triu_handle_inf_nan(edge_weights)
 
                 # saving the results to memory only if needed.
@@ -572,11 +572,14 @@ def __check_weight_params(num_bins, edge_range_spec):
         if edge_range_spec[0] >= edge_range_spec[1]:
             raise ValueError(
                 'edge_range : min {} is not less than the max {} !'.format(edge_range_spec[0], edge_range_spec[1]))
-        if not np.all(np.isfinite(edge_range_spec)):
+
+        # CLI args are strings unless converted to numeric
+        edge_range = np.float64(edge_range_spec)
+        if not np.all(np.isfinite(edge_range)):
             raise ValueError('Infinite or NaN values in edge range : {}'.format(edge_range_spec))
 
         # converting it to tuple to make it immutable
-        edge_range = tuple(edge_range_spec)
+        edge_range = tuple(edge_range)
     else:
         raise ValueError('Invalid edge range! Must be a tuple of two values (min, max)')
 
