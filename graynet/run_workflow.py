@@ -521,6 +521,9 @@ def __check_subjects(subjects_info):
 
     subject_id_list = np.atleast_1d(subjects_list)
     num_subjects = subject_id_list.size
+    if num_subjects < 1:
+        raise ValueError('Input subject list is empty.')
+    
     num_digits_id_size = len(str(num_subjects))
     max_id_width = max(map(len, subject_id_list))
 

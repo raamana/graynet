@@ -112,6 +112,10 @@ def test_CLI_only_weight_or_stats():
         sys.argv = shlex.split('graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
         CLI()
 
+def test_empty_subject_list():
+    with raises(ValueError):
+        ew = graynet.extract([], fs_dir)
+
 def test_invalid_edge_range():
     with raises(ValueError):
         ew = graynet.extract(subject_id_list, fs_dir,edge_range=-1)
@@ -142,8 +146,8 @@ def test_invalid_nbins():
         ew = graynet.extract(subject_id_list, fs_dir,num_bins=2)
 
 
-
-test_run_no_IO()
+test_empty_subject_list()
+# test_run_no_IO()
 # test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
