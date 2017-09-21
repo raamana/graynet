@@ -26,7 +26,9 @@ def import_features(fs_dir, subject_list, base_feature= 'thickness', fwhm=10, at
     features= dict()
     for subject_id in subjects_list:
         try:
+            print('Reading {} for {} ... '.format(base_feature, subject_id), end='')
             features[subject_id] = __get_data(fs_dir, subject_id, base_feature, fwhm, atlas)
+            print(' Done.')
         except:
             raise ValueError('{} data for {} could not be read!'.format(base_feature, subject_id))
 

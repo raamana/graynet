@@ -33,7 +33,7 @@ __features_fsl = ['gmdensity', ]
 
 __base_feature_list = __features_freesurfer + __features_fsl
 
-__default_weight_method = ('minowski', 'manhattan')
+__default_weight_method = ('manhattan', )
 implemented_weights = [
     'chebyshev', 'chebyshev_neg', 'chi_square',
     'correlate', 'correlate_1',
@@ -53,7 +53,7 @@ __default_atlas = 'GLASSER2016'
 __default_smoothing_param = 10
 __default_node_size = None
 
-__edge_range_predefined = {'freesurfer_thickness': (0, 6), 'freesurfer_curv': (None, None)}
+__edge_range_predefined = {'freesurfer_thickness': (0, 6), 'freesurfer_curv': (-0.3, +0.3)}
 __default_edge_range = __edge_range_predefined[__default_feature]
 
 __default_roi_statistic = 'median'
@@ -81,7 +81,7 @@ def extract(subject_id_list, input_dir,
     base_feature : str
         Specific type of feature to read for each subject from the input directory.
 
-    weight_method : string, optional
+    weight_method : string(s), optional
         Type of distance (or metric) to compute between the pair of histograms.
 
         It must be one of the following methods:
@@ -144,7 +144,19 @@ def extract(subject_id_list, input_dir,
         - 'cosine_alt'
         - 'fidelity_based'
 
-        *Default* choice: 'minowski'.
+        *Default* choice: 'manhattan'.
+
+    num_bins : int
+        Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
+
+    edge_range : tuple or list
+        The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 6``.
+        This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.
+
+        Default :
+
+            - ( 0.0, 6.0) for ``freesurfer_thickness`` and
+            - (-0.3, 0.3) for ``freesurfer_curv``.
 
     atlas : str
         Name of the atlas whose parcellation to be used.
@@ -738,7 +750,7 @@ def __get_parser():
 
     help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(__default_weight_method)
     help_text_num_bins = "Number of bins used to construct the histogram. Default : {}".format(__default_num_bins)
-    help_text_edge_range = "The range of edges (two finite values) within which to bin the given values e.g. --edge_range 1 6 This can be helpful to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : {}, to automatically compute from the given values.".format(
+    help_text_edge_range = "The range of edges (two finite values) within which to bin the given values e.g. --edge_range 1 6 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : {}, to automatically compute from the given values.".format(
         __default_edge_range)
 
     help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include 'median', 'entropy', 'kurtosis' and any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . "
