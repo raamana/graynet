@@ -161,11 +161,12 @@ for ww, weight in enumerate(histogram_dist):
     for ss in range(num_subjects):
         sid = id_list[ss]
         rem = np.mod(ss, num_rows*num_cols)
-        if ss > 0 and rem == 0:
-            fig, ax, fig_count = save_fig_get_new(fig, weight, fig_count, img)
 
         try:
             adj_mat = np.squeeze(adj_mat_all[ss, ww, :, :])
+            if ss > 0 and rem == 0:
+                fig, ax, fig_count = save_fig_get_new(fig, weight, fig_count, adj_mat)
+
             ax = plt.subplot(num_rows, num_cols, rem + 1)
 
             img = ax.imshow(adj_mat, vmin=clim_min, vmax=clim_max)
