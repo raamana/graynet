@@ -53,7 +53,7 @@ __default_atlas = 'GLASSER2016'
 __default_smoothing_param = 10
 __default_node_size = None
 
-__edge_range_predefined = {'freesurfer_thickness': (0, 6), 'freesurfer_curv': (-0.3, +0.3)}
+__edge_range_predefined = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-0.3, +0.3)}
 __default_edge_range = __edge_range_predefined[__default_feature]
 
 __default_roi_statistic = 'median'
@@ -150,12 +150,12 @@ def extract(subject_id_list, input_dir,
         Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
 
     edge_range : tuple or list
-        The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 6``.
+        The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 5``.
         This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.
 
         Default :
 
-            - ( 0.0, 6.0) for ``freesurfer_thickness`` and
+            - ( 0.0, 5.0) for ``freesurfer_thickness`` and
             - (-0.3, 0.3) for ``freesurfer_curv``.
 
     atlas : str
@@ -749,8 +749,8 @@ def __get_parser():
     help_text_feature = "Atlas to use to define nodes/ROIs. Default: '{}'".format(__default_feature)
 
     help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(__default_weight_method)
-    help_text_num_bins = "Number of bins used to construct the histogram. Default : {}".format(__default_num_bins)
-    help_text_edge_range = "The range of edges (two finite values) within which to bin the given values e.g. --edge_range 1 6 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : {}, to automatically compute from the given values.".format(
+    help_text_num_bins = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(__default_num_bins)
+    help_text_edge_range = "The range of edges (two finite values) within which to bin the given values e.g. --edge_range 0.0 5.0 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : {}, to automatically compute from the given values.".format(
         __default_edge_range)
 
     help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include 'median', 'entropy', 'kurtosis' and any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . "
@@ -788,14 +788,15 @@ def __get_parser():
                                  nargs='*', default=None, help=help_text_roi_stats)
 
 
-    method_params = parser.add_argument_group(title='Method parameters',
+    method_params = parser.add_argument_group(title='Weight parameters',
                                               description='Parameters relevant to histogram edge weight calculations')
     method_params.add_argument("-e", "--edge_range", action="store", dest="edge_range",
-                                default=__default_edge_range, required=False,
-                                nargs=2, help=help_text_edge_range)
+                               default=__default_edge_range, required=False,
+                               nargs=2, metavar=('min', 'max'),
+                               help=help_text_edge_range)
     method_params.add_argument("-b", "--num_bins", action="store", dest="num_bins",
                                 default=__default_num_bins, required=False,
-                                nargs=2, help=help_text_num_bins)
+                                help=help_text_num_bins)
 
 
     atlas_params = parser.add_argument_group(title='Atlas',

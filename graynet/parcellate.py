@@ -41,7 +41,7 @@ def get_atlas_annot(atlas_name=None):
     return annot, atlas_path
 
 
-def freesurfer_roi_labels(atlas_name):
+def freesurfer_roi_labels(atlas_name='GLASSER2016'):
     "Returns just the vertex-wise indices for grouping the vertices into ROIs. Order:  left followed by right."
 
     annot, _ = get_atlas_annot(atlas_name)
