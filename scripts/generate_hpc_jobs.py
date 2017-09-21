@@ -26,20 +26,27 @@ base_feature = 'freesurfer_thickness' # 'freesurfer_curv' #  'freesurfer_thickne
 atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
 
+num_bins = 25
+edge_range_predefined = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-0.3, +0.3)}
+edge_range = edge_range_predefined[base_feature]
+
 num_splits_samples = 8.0 # 10.0
 num_splits_weights = 3.0
 
-out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
+out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_range{}_{}_nbins{}'.format(base_feature, atlas, fwhm, edge_range[0], edge_range[1], num_bins))
 
-histogram_dist = np.array([
-    'chebyshev', 'chebyshev_neg', 'chi_square',
-    'correlate', 'correlate_1',
-    'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
-    'euclidean', 'fidelity_based',
-    'histogram_intersection', 'histogram_intersection_1',
-    'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
-    'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-    'relative_bin_deviation', 'relative_deviation'])
+histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean',
+                           'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski',  'relative_deviation'])
+
+# histogram_dist = np.array([
+#     'chebyshev', 'chebyshev_neg', 'chi_square',
+#     'correlate', 'correlate_1',
+#     'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
+#     'euclidean', 'fidelity_based',
+#     'histogram_intersection', 'histogram_intersection_1',
+#     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
+#     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
+#     'relative_bin_deviation', 'relative_deviation'])
 
 cluster_type = 'SGE'
 
@@ -72,17 +79,17 @@ def make_dirs(dir_list):
             os.makedirs(dir)
 
 def make_cli_call(cli_name, subject_id_list, base_feature, freesurfer_dir,
-            weight_method, atlas, fwhm, out_proc_dir):
+            weight_method, num_bins, edge_range, atlas, fwhm, out_proc_dir):
 
-    cmd = '{} -s {} -f {} -i {} -w {} -a {} -p {} -o {}\n'.format(cli_name,
+    cmd = '{} -s {} -f {} -i {} -w {} -e {} {} -b {} -a {} -p {} -o {}\n'.format(cli_name,
             realpath(subject_id_list), base_feature, realpath(freesurfer_dir),
-            weight_method, atlas, fwhm, out_proc_dir)
+            weight_method, edge_range[0], edge_range[1], num_bins, atlas, fwhm, out_proc_dir)
 
     return cmd
 
 
 def make_job(subject_id_list, freesurfer_dir,
-             base_feature, weight_method,
+             base_feature, weight_method, num_bins, edge_range,
              atlas, fwhm,
              out_proc_dir, job_dir, job_name):
     "Creates graynet job for running on HPC"
@@ -106,7 +113,7 @@ def make_job(subject_id_list, freesurfer_dir,
         jf.write('#!/bin/bash\n')
         jf.write(specify_hpc_resources(mem, queue, job_dir, job_log))
         jf.write(make_cli_call(cli_name,realpath(subject_id_list), base_feature, realpath(freesurfer_dir),
-            str_list_weight_method, atlas, fwhm, realpath(out_proc_dir)))
+            str_list_weight_method, num_bins, edge_range, atlas, fwhm, realpath(out_proc_dir)))
 
     st = os.stat(job_file)
     os.chmod(job_file, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -145,13 +152,13 @@ for ww in range(int(num_splits_weights)):
         subset_samples = id_list[sub_count:end_idx2]
         sub_count = end_idx2
 
-        subset_list_path = pjoin(out_dir,'{}_{}th_split_samples.txt'.format(dataset_name.lower(),ss))
+        subset_list_path = pjoin(job_dir,'{}_{}th_split_samples.txt'.format(dataset_name.lower(),ss))
         with open(subset_list_path, 'w') as sf:
             sf.write('\n'.join(subset_samples))
 
         job_name = 'split{}{}_{}'.format(ww,ss,'_'.join(subset_weights))
         job_file = make_job(subset_list_path, freesurfer_dir,
-                            base_feature, subset_weights,
+                            base_feature, subset_weights, num_bins, edge_range,
                             atlas, fwhm, out_dir, job_dir, job_name)
 
         print('generated jobs for {}'.format(job_name))
