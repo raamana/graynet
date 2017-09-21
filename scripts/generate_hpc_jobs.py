@@ -11,7 +11,7 @@ import numpy as np
 #---------------------------------
 
 base_dir = '/u1/work/hpc3194'
-dataset_name = 'PPMI' #
+dataset_name = '4RTNI' # 'PPMI' #
 
 # list_of_datasets = [ '4RTNI', 'PPMI', 'ADNI' ]
 # list_of_subject_lists = ['graynet.compute.list']*3
@@ -22,16 +22,13 @@ target_list_dir = pjoin(proc_dir, 'target_lists')
 
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 
-base_feature = 'freesurfer_thickness' # 'freesurfer_curv' #  'freesurfer_thickness'
+base_feature = 'freesurfer_thickness' # 'freesurfer_curv' #
 atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
 
 num_bins = 25
 edge_range_predefined = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-0.3, +0.3)}
 edge_range = edge_range_predefined[base_feature]
-
-num_splits_samples = 8.0 # 10.0
-num_splits_weights = 3.0
 
 out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_range{}_{}_nbins{}'.format(base_feature, atlas, fwhm, edge_range[0], edge_range[1], num_bins))
 
@@ -70,6 +67,7 @@ def specify_hpc_resources(mem, queue, job_dir, job_log, cluster_type='SGE'):
 
 if not pexists(out_dir):
     os.makedirs(out_dir)
+print('Saving the jobs to\n{}'.format(out_dir))
 
 def make_dirs(dir_list):
     "Make multiple directories at once"
@@ -99,10 +97,6 @@ def make_job(subject_id_list, freesurfer_dir,
     walltime_per_subject = 0.5 # in hours -> 15 mins
     cli_name = 'graynet'
 
-    sub_list = np.atleast_1d(np.genfromtxt(subject_id_list))
-    num_subjects = len(sub_list)
-    walltime = int(np.round(walltime_per_subject*num_subjects, 0))
-
     str_list_weight_method = ' '.join(weight_method)
 
     job_file = pjoin(job_dir, '{}.job'.format(job_name))
@@ -131,6 +125,9 @@ num_samples = len(id_list)
 
 print('{} samples and {} weights'.format(num_samples, num_weights))
 
+num_splits_samples = 50.0 # 10.0
+num_splits_weights = 2.0
+
 num_samples_per_job = max(1,np.int64(np.ceil(num_samples/num_splits_samples)))
 num_weights_per_job = max(1,np.int64(np.ceil(num_weights/num_splits_weights)))
 
@@ -156,7 +153,7 @@ for ww in range(int(num_splits_weights)):
         with open(subset_list_path, 'w') as sf:
             sf.write('\n'.join(subset_samples))
 
-        job_name = 'split{}{}_{}'.format(ww,ss,'_'.join(subset_weights))
+        job_name = 'split_w{}_s{}_{}'.format(ww,ss,'_'.join(subset_weights))
         job_file = make_job(subset_list_path, freesurfer_dir,
                             base_feature, subset_weights, num_bins, edge_range,
                             atlas, fwhm, out_dir, job_dir, job_name)
