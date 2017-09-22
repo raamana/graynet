@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 __all__ = ['import_features',]
 
 from os.path import join as pjoin, exists as pexists

@@ -26,6 +26,12 @@ fwhm = 10
 node_size = None
 num_links_expected = 360*(360-1)/2
 
+num_bins = 25
+edge_range = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-0.3, +0.3)}
+
+histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean',
+                           'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski',  'relative_deviation'])
+
 # histogram_dist = np.array([
 #     'chebyshev', 'chebyshev_neg', 'chi_square',
 #     'correlate', 'correlate_1',
@@ -36,8 +42,6 @@ num_links_expected = 360*(360-1)/2
 #     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
 #     'relative_bin_deviation', 'relative_deviation'])
 
-histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean', 'fidelity_based',
-    'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski', 'relative_deviation'])
 
 incomplete_processing, comb_nan_values = dict(), dict()
 
@@ -60,7 +64,10 @@ for base_feature in base_feature_list:
         comb_nan_values[base_feature][weight_method] = dict()
         for ds_name in dataset_list:
             proc_dir = pjoin(base_dir, ds_name, 'processed')
-            out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
+            # out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
+            out_dir = pjoin(proc_dir, 'graynet',
+                            '{}_{}_fwhm{}_range{}_{}_nbins{}'.format(base_feature, atlas, fwhm, edge_range[base_feature][0],
+                                                                     edge_range[base_feature][1], num_bins))
 
             meta_list = pjoin(proc_dir, 'target_lists', 'meta_{}.csv'.format(ds_name))
             sample_ids, classes = run_workflow.get_metadata(meta_list)

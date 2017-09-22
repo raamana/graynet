@@ -660,7 +660,7 @@ def __save(weight_vec, out_dir, subject, str_suffix=None):
             np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
             print('\nSaved the features to \n{}'.format(out_weights_path))
         except:
-            print('\nUnable to save extracted features to {}'.format(out_weights_path))
+            print('\nUnable to save features to {}'.format(out_weights_path))
             traceback.print_exc()
 
     return
