@@ -8,6 +8,8 @@ graynet
 
 .. image:: https://travis-ci.org/raamana/graynet.svg?branch=master
    :target: https://travis-ci.org/raamana/graynet
+.. image:: https://zenodo.org/badge/98567518.svg
+   :target: https://zenodo.org/badge/latestdoi/98567518   
 .. image:: https://landscape.io/github/raamana/graynet/master/landscape.svg?style=flat
    :target: https://landscape.io/github/raamana/graynet/master
    :alt: Code Health
