@@ -6,47 +6,69 @@ import stat
 from os.path import join as pjoin, exists as pexists, realpath
 import numpy as np
 
+"""#---------------------------------#---------------------------------#---------------------------------
+
+The following script helps you generating job files for processing the large computation on a cluster.
+
+Just input details regarding 
+- where your Freesurfer processing folder (SUBJECTS_DIR) is 
+- and what subjects to process
+- what feature is your "base features" to extract pair-wise network level features from
+
+We expect Freesurfer processing to have been done with -qcache flag with an FWHM value of 10. 
+The Qcache recon-all flag completes the following:
+    - resample data (e.g. thickness, curv, sulc) onto the average subject (called fsaverage)
+    - smooth it at a range of FWHM (full-width/half-max) values, usually 0, 5, 10, 15, 20, and 25mm. 
+Check https://surfer.nmr.mgh.harvard.edu/fswiki/qcache for more info
+
+graynet comes packaged with parcellations (info on what vertices belong to what ROIs) of fsaverage and Glasser2016. So you simply need to select which ones you would like. 
+
+There are plans to 
+ - integrate arbitrary atlases - for example, dataset- and age-specific atlases, as long as their info is organized in a Freesurfer structure.
+ - offer subdivision the defined ROIs to control their size.
+However, this is still a work in progress. Please email me and I will be happy to make it happen sooner than later. 
+
+"""#---------------------------------#---------------------------------#---------------------------------
+
 #---------------------------------
 # CHANGE THESE FOR YOUR PROCESSING
 #---------------------------------
 
+
+dataset_name = '4RTNI' # A short string identifying the larger dataset at a play
+
+
+# the following paths can be derived from any number of ways -
+#   just ensure freesurfer_dir and subject_id_list are defined and exist.
 base_dir = '/u1/work/hpc3194'
-dataset_name = '4RTNI' # 'PPMI' #
-
-# list_of_datasets = [ '4RTNI', 'PPMI', 'ADNI' ]
-# list_of_subject_lists = ['graynet.compute.list']*3
-
 proc_dir = pjoin(base_dir, dataset_name, 'processed')
-freesurfer_dir = pjoin(proc_dir, 'freesurfer')
 target_list_dir = pjoin(proc_dir, 'target_lists')
 
+# path to SUBJECTS_DIR
+freesurfer_dir = pjoin(proc_dir, 'freesurfer')
+# this must be file with one subject ID per line
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
+#---------------------------------#---------------------------------#---------------------------------
 
-base_feature = 'freesurfer_thickness' # 'freesurfer_curv' #
-atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
+base_feature = 'freesurfer_thickness' # Choose one of 'freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc'
+atlas = 'GLASSER2016' # Choose one of 'FSAVERAGE' and 'GLASSER2016'
 fwhm = 10
 
+# number of bins used in constructing a histograms used to compute pair-wise distances
 num_bins = 25
+
+# this is to control the full range of values within which histogram bins are defined
+# I think these ranges are reasonable for thickness and curvature based on what I have seen in my datasets,
+# but feel free to change using your own measurements and datasets.
 edge_range_predefined = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-0.3, +0.3)}
 edge_range = edge_range_predefined[base_feature]
 
-out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_range{}_{}_nbins{}'.format(base_feature, atlas, fwhm, edge_range[0], edge_range[1], num_bins))
-
+# You can choose only one or multiple, but keep them enclosed as a list or array.
 histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean',
                            'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski',  'relative_deviation'])
 
-# histogram_dist = np.array([
-#     'chebyshev', 'chebyshev_neg', 'chi_square',
-#     'correlate', 'correlate_1',
-#     'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
-#     'euclidean', 'fidelity_based',
-#     'histogram_intersection', 'histogram_intersection_1',
-#     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
-#     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-#     'relative_bin_deviation', 'relative_deviation'])
 
 cluster_type = 'SGE'
-
 def specify_hpc_resources(mem, queue, job_dir, job_log, cluster_type='SGE'):
     "returns lines to include in job scripts to specify resources"
 
@@ -54,8 +76,9 @@ def specify_hpc_resources(mem, queue, job_dir, job_log, cluster_type='SGE'):
     if cluster_type.upper() in ['SGE', 'SUNGRIDENGINE']:
         lines.append('#$ -l mf={} -q {} -wd {} -j yes -o {}'.format(mem, queue, job_dir, job_log))
         lines.append('cd {}\n'.format(job_dir))
-        # add other lines below accommodating to your own HPC
     else:
+        # add other lines below accommodating to your own HPC
+        # contact me if you need help - its not an obscure HPC, i can quickly help you with this.
         raise TypeError
 
     return '\n'.join(lines)
@@ -64,6 +87,10 @@ def specify_hpc_resources(mem, queue, job_dir, job_log, cluster_type='SGE'):
 #---------------------------------
 # END MAKING CHANGES
 #---------------------------------
+
+
+out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_range{}_{}_nbins{}'.format(base_feature, atlas, fwhm, edge_range[0], edge_range[1], num_bins))
+
 
 if not pexists(out_dir):
     os.makedirs(out_dir)

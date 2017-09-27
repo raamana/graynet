@@ -858,7 +858,8 @@ def __parse_args():
     if weight_method is not None:
         weight_method_list, _, _, _ = __check_weights(weight_method)
         if roi_stats is not None:
-            warnings.warn('roi stats method specified while also requesting network weights computation. Skipping it.', UserWarning)
+            warnings.warn('roi stats method specified while also requesting network weights computation. '
+                          'Only one can be done at a time. Skipping it.', UserWarning)
         roi_stats = None
     elif roi_stats is not None:
         roi_stats, _, _, _, _ = __check_stat_methods(roi_stats)
