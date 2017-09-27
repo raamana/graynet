@@ -23,4 +23,5 @@ A rough example of usage can be:
 Note you can specify mulitple weight metrics to save on I/O activity and walltime on HPC.
 
 
-**TODO** add more examples
+To automate the the process of generating the above job files and their submission for processing on HPC clusters, I have included a `script <https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py>`_ . Please read the instructions inside and run it.
+

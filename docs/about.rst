@@ -6,6 +6,8 @@ Individualized single-subject (covariance) networks from T1 mri features such as
 
 Applicable for biomarker development for the detection of many brain disorders such as Alzheimer's, Parkinson's, Schizophrenia and the like - see references below.
 
+.. image:: https://zenodo.org/badge/98567518.svg
+   :target: https://zenodo.org/badge/latestdoi/98567518
 
 Applicability
 -------------

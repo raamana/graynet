@@ -24,9 +24,10 @@ graynet
 
    about
    installation
+   getstarted
    API
-   usage_api
    usage_cli
+   usage_api
 
 
 Indices and tables

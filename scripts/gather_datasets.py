@@ -8,6 +8,17 @@ import pickle
 from neuropredict import run_workflow
 from pyradigm import MLDataset
 
+"""#---------------------------------#---------------------------------#---------------------------------
+
+You can use this script to traverse through the ouputs generated, and know which ones failed and need to be resubmitted.
+
+Info regarding 
+
+This script needs to be modified to suit your needs. It can  also produce a nice pyradigm dataset for use later on with neuropredict, if you are interested in predictive modeling.
+
+"""#---------------------------------#---------------------------------#---------------------------------
+
+
 #---------------------------------
 # CHANGE THESE FOR YOUR PROCESSING
 #---------------------------------
@@ -27,21 +38,15 @@ node_size = None
 num_links_expected = 360*(360-1)/2
 
 num_bins = 25
+
+#---------------------------------
+# END MAKING CHANGES
+#---------------------------------
+
 edge_range = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-0.3, +0.3)}
 
 histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean',
                            'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski',  'relative_deviation'])
-
-# histogram_dist = np.array([
-#     'chebyshev', 'chebyshev_neg', 'chi_square',
-#     'correlate', 'correlate_1',
-#     'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
-#     'euclidean', 'fidelity_based',
-#     'histogram_intersection', 'histogram_intersection_1',
-#     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
-#     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-#     'relative_bin_deviation', 'relative_deviation'])
-
 
 incomplete_processing, comb_nan_values = dict(), dict()
 
