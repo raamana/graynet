@@ -126,8 +126,8 @@ def make_job(subject_id_list, freesurfer_dir,
 
     str_list_weight_method = ' '.join(weight_method)
 
-    job_file = pjoin(job_dir, '{}.job'.format(job_name))
-    job_log  = pjoin(job_dir, '{}.log'.format(job_name))
+    job_file = pjoin(job_dir, '{}.graynet.job'.format(job_name))
+    job_log  = pjoin(job_dir, '{}.graynet.log'.format(job_name))
     if pexists(job_file):
         os.remove(job_file)
     with open(job_file, 'w') as jf:
@@ -186,3 +186,7 @@ for ww in range(int(num_splits_weights)):
                             atlas, fwhm, out_dir, job_dir, job_name)
 
         print('generated jobs for {}'.format(job_name))
+
+print('Job scripts have been generated in \n {}'.format(job_dir))
+print('\nPlease change to that directory and submit them using ./qsubMany *.graynet.job')
+print('If you are not on Linux or not using SGE/Torque, you may have to adapt the qsubMany script also.')

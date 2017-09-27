@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# to submit many PBS jobs - using wildcard specification
+
+jobList=$@
+
+for job in $jobList
+do
+	ABS_PATH=`readlink -fv $job`
+	BaseName=`basename $ABS_PATH`
+	DIR=${ABS_PATH%$BaseName}
+	pushd $DIR > /dev/null
+	qsub $BaseName
+	popd > /dev/null
+done
+
