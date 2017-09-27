@@ -35,11 +35,11 @@ import sphinx_rtd_theme
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'numpydoc', 'sphinxarg.ext',
+extensions = ['sphinx.ext.autodoc', 'numpydoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages', 'sphinxarg.ext']
 
 
 # requirements_file = 'docs/rtdocs_requirements.txt'
