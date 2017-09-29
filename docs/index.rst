@@ -27,9 +27,12 @@ graynet
    about
    installation
    getstarted
+   cortical
+   volumetric
    API
    usage_cli
    usage_api
+   citation
 
 
 Indices and tables

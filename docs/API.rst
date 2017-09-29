@@ -1,9 +1,11 @@
-
-API Reference
+--------------
+API
 --------------
 
 A tutorial-like presentation is available at :doc:`usage_api`, using the following API.
 
+API Reference
+--------------
 
 .. automodule:: graynet
    :members:
