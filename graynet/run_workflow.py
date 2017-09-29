@@ -823,7 +823,7 @@ def __get_parser():
 
     help_text_subject_ids = "Path to file containing list of subject IDs (one per line)"
     help_text_input_dir = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
-    help_text_feature = "Atlas to use to define nodes/ROIs. Default: '{}'".format(__default_feature)
+    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(__default_feature, __base_feature_list)
 
     help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(__default_weight_method)
     help_text_num_bins = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(__default_num_bins)
