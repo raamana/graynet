@@ -8,6 +8,8 @@ import warnings
 import traceback
 import logging
 from os.path import join as pjoin, exists as pexists
+from multiprocessing import Manager, Pool, cpu_count
+from functools import partial
 
 import hiwenet
 import nibabel
@@ -66,7 +68,7 @@ def extract(subject_id_list, input_dir,
             edge_range=__default_edge_range,
             atlas=__default_atlas, smoothing_param=__default_smoothing_param,
             node_size=__default_node_size,
-            out_dir=None, return_results=False):
+            out_dir=None, return_results=False, num_procs=1):
     """
     Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.
 
@@ -180,6 +182,8 @@ def extract(subject_id_list, input_dir,
         the number of subjects or weight methods are large, as it doesn't retain results for all combinations,
         when running from commmand line interface (or HPC). Default: False
         If this is False, out_dir must be specified to save the results to disk.
+    num_procs : int
+        Number of parallel processes to use to speed up computation.
 
     Returns
     -------
@@ -197,72 +201,139 @@ def extract(subject_id_list, input_dir,
     num_bins, edge_range = __check_weight_params(num_bins, edge_range)
     weight_method_list, num_weights, max_wtname_width, nd_wm = __check_weights(weight_method_list)
 
+    num_procs = check_num_procs(num_procs)
+    pretty_print_options = (num_subjects, max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
+
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
 
     print('\nProcessing {} features resampled to {} atlas,'
           ' smoothed at {} with node size {}'.format(base_feature, atlas, smoothing_param, node_size))
 
-    if return_results:
-        edge_weights_all = dict()
-    else:
+    if not return_results:
         if out_dir is None:
             raise ValueError('When return_results=False, out_dir must be specified to be able to save the results.')
         if not pexists(out_dir):
             os.mkdir(out_dir)
+
+    chunk_size = int(np.ceil(num_subjects/num_procs))
+    with Manager() as proxy_manager:
+        partial_func_extract = partial(_extract_per_subject, input_dir, base_feature, roi_labels, weight_method_list,
+                                                    atlas, smoothing_param, node_size, num_bins, edge_range, out_dir,
+                                                    return_results, pretty_print_options)
+        with Pool(processes=num_procs) as pool:
+            edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list, chunk_size)
+
+    if return_results:
+        edge_weights_all = dict()
+        for combo in edge_weights_list_dicts:
+            # each element from output of parallel loop is a dict keyed in by {subject, weight)
+            edge_weights_all.update(combo)
+    else:
         edge_weights_all = None
-
-    # edge_weights_all[weight_method] = dict() # np.zeros([num_subjects, np.int64(num_nodes*(num_nodes-1)/2)])
-    for ss, subject in enumerate(subject_id_list):
-
-        try:
-            features = import_features(input_dir, [subject, ], base_feature)
-        except:
-            warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
-            continue
-
-        data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
-
-        # computing networks whe
-        for ww, weight_method in enumerate(weight_method_list):
-            # unique stamp for each subject and weight
-            expt_id = __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
-            sys.stdout.write('\nProcessing id {:{id_width}} ({:{nd_id}}/{:{nd_id}}) -- '
-                             'weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
-                             ' :'.format(subject, ss + 1, num_subjects, weight_method, ww + 1, num_weights,
-                                         id_width=max_id_width, wtname_width=max_wtname_width,
-                                         nd_id=nd_id, nd_wm=nd_wm))  # controlling for number of digits
-
-            # actual computation of pair-wise features
-            try:
-                edge_weights = hiwenet.extract(data, rois, weight_method=weight_method, num_bins=num_bins, edge_range=edge_range)
-                weight_vec = __get_triu_handle_inf_nan(edge_weights)
-
-                # saving the results to memory only if needed.
-                if return_results:
-                    edge_weights_all[(weight_method, subject)] = weight_vec
-
-                # saving to disk
-                try:
-                    __save(weight_vec, out_dir, subject, expt_id)
-                except:
-                    raise IOError('Unable to save the computed and vectorized features to:\n{}'.format(out_dir))
-
-            except (RuntimeError, RuntimeWarning) as runexc:
-                print(runexc)
-            except KeyboardInterrupt:
-                print('Exiting on keyborad interrupt! \n'
-                      'Abandoning the remaining processing for {} weights:\n'
-                      '{}.'.format(num_weights - ww, weight_method_list[ww:]))
-                sys.exit(1)
-            except:
-                print('Unable to extract {} features for {}'.format(weight_method, subject))
-                traceback.print_exc()
-
-            sys.stdout.write('Done.')
 
     print('\ngraynet computation done.')
     return edge_weights_all
+
+
+def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list,
+                         atlas, smoothing_param, node_size,
+                         num_bins, edge_range,
+                         out_dir, return_results, pretty_print_options,
+                         subject=None): # purposefully leaving it last to enable partial function creation
+    """
+    Extracts give set of weights for one subject.
+
+    Parameters
+    ----------
+    subject
+    input_dir
+    base_feature
+    roi_labels
+    weight_method_list
+    atlas
+    smoothing_param
+    node_size
+    num_bins
+    edge_range
+    out_dir
+    return_results
+    pretty_print_options
+
+    Returns
+    -------
+
+    """
+
+    if subject is None:
+        return
+
+    try:
+        features = import_features(input_dir, [subject, ], base_feature)
+    except:
+        warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
+
+    data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+
+    num_subjects, max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
+
+    if return_results:
+        edge_weights_all = dict()
+    else:
+        edge_weights_all = None
+
+    for ww, weight_method in enumerate(weight_method_list):
+        # unique stamp for each subject and weight
+        expt_id = __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
+        sys.stdout.write('\nProcessing id {:{id_width}} -- weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
+                         ' :'.format(subject, weight_method, ww + 1, num_weights, nd_id=nd_id, nd_wm=nd_wm,
+                                     id_width=max_id_width, wtname_width=max_wtname_width))
+
+        # actual computation of pair-wise features
+        try:
+            edge_weights = hiwenet.extract(data, rois, weight_method=weight_method, num_bins=num_bins,
+                                           edge_range=edge_range)
+            weight_vec = __get_triu_handle_inf_nan(edge_weights)
+
+            if return_results:
+                edge_weights_all[(weight_method, subject)] = weight_vec
+
+            # saving to disk
+            try:
+                __save(weight_vec, out_dir, subject, expt_id)
+            except:
+                raise IOError('Unable to save the computed and vectorized features to:\n{}'.format(out_dir))
+
+        except (RuntimeError, RuntimeWarning) as runexc:
+            print(runexc)
+        except KeyboardInterrupt:
+            print('Exiting on keyborad interrupt! \n'
+                  'Abandoning the remaining processing for {} weights:\n'
+                  '{}.'.format(num_weights - ww, weight_method_list[ww:]))
+            sys.exit(1)
+        except:
+            print('Unable to extract {} features for {}'.format(weight_method, subject))
+            traceback.print_exc()
+
+        sys.stdout.write('Done.')
+
+
+    return  edge_weights_all
+
+
+def check_num_procs(num_procs=1):
+    "Ensures num_procs is finite and <= available cpu count."
+
+    num_procs  = int(num_procs)
+    avail_cpu_count = cpu_count()
+    if num_procs < 1 or not np.isfinite(num_procs) or num_procs is None:
+        num_procs = 1
+        print('Invalid value for num_procs. Using num_procs=1')
+    elif num_procs > avail_cpu_count:
+        print('# CPUs requested higher than available - choosing {}'.format(avail_cpu_count))
+        num_procs = avail_cpu_count
+
+    return num_procs
 
 
 def roiwise_stats_indiv(subject_id_list, input_dir,
