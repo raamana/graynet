@@ -28,7 +28,7 @@ else:
 test_dir = dirname(os.path.realpath(__file__))
 base_dir = realpath( pjoin(test_dir, '..', '..', 'example_data') )
 
-subject_id_list = ['subject12345', 'sub2', 'sub3', 'sub5', 'sub6', 'sub7', 'sub8', 'sub9']
+subject_id_list = ['subject12345', ]
 
 out_dir = pjoin(base_dir, 'graynet')
 if not pexists(out_dir):
