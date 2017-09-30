@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
+import versioneer
 
 setup(name='graynet',
-      version='0.3',
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description='Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density. ',
       long_description='Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density; graynet',
       author='Pradeep Reddy Raamana',
