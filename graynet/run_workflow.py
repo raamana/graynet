@@ -59,7 +59,7 @@ __edge_range_predefined = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-
 __default_edge_range = __edge_range_predefined[__default_feature]
 
 __default_roi_statistic = 'median'
-
+__default_num_procs = 2
 
 def extract(subject_id_list, input_dir,
             base_feature=__default_feature,
@@ -68,7 +68,7 @@ def extract(subject_id_list, input_dir,
             edge_range=__default_edge_range,
             atlas=__default_atlas, smoothing_param=__default_smoothing_param,
             node_size=__default_node_size,
-            out_dir=None, return_results=False, num_procs=1):
+            out_dir=None, return_results=False, num_procs=__default_num_procs):
     """
     Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.
 
@@ -202,7 +202,7 @@ def extract(subject_id_list, input_dir,
     weight_method_list, num_weights, max_wtname_width, nd_wm = __check_weights(weight_method_list)
 
     num_procs = check_num_procs(num_procs)
-    pretty_print_options = (num_subjects, max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
+    pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
 
     roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
@@ -217,7 +217,7 @@ def extract(subject_id_list, input_dir,
             os.mkdir(out_dir)
 
     chunk_size = int(np.ceil(num_subjects/num_procs))
-    with Manager() as proxy_manager:
+    with Manager():
         partial_func_extract = partial(_extract_per_subject, input_dir, base_feature, roi_labels, weight_method_list,
                                                     atlas, smoothing_param, node_size, num_bins, edge_range, out_dir,
                                                     return_results, pretty_print_options)
@@ -275,7 +275,7 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list
 
     data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
 
-    num_subjects, max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
+    max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
 
     if return_results:
         edge_weights_all = dict()
@@ -321,7 +321,7 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list
     return  edge_weights_all
 
 
-def check_num_procs(num_procs=1):
+def check_num_procs(num_procs=__default_num_procs):
     "Ensures num_procs is finite and <= available cpu count."
 
     num_procs  = int(num_procs)
@@ -799,7 +799,7 @@ def cli_run():
     "command line interface!"
 
     subject_ids_path, input_dir, base_feature, weight_method, num_bins, edge_range, \
-    atlas, out_dir, node_size, smoothing_param, roi_stats = __parse_args()
+    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs = __parse_args()
 
     # when run from CLI, results will not be received
     # so no point in wasting memory maintaining a very big array
@@ -808,7 +808,7 @@ def cli_run():
     if weight_method is not None:
         extract(subject_ids_path, input_dir, base_feature,
                 weight_method, num_bins, edge_range,
-                atlas, smoothing_param, node_size, out_dir, return_results)
+                atlas, smoothing_param, node_size, out_dir, return_results, num_procs)
     else:
         print('ROI summary stats computation requested -- skipping computation of network weights.')
         roiwise_stats_indiv(subject_ids_path, input_dir, base_feature,
@@ -836,6 +836,8 @@ def __get_parser():
     help_text_parc_size = "Size of individual node for the atlas parcellation. Default : {}".format(__default_node_size)
     help_text_smoothing = "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(
         __default_smoothing_param)
+
+    help_text_num_procs = "Number of CPUs to use in parallel to speed up processing. Default : {}, capping at available number of CPUs in the processing node.".format(__default_num_procs)
 
     parser = argparse.ArgumentParser(prog="graynet")
 
@@ -890,6 +892,10 @@ def __get_parser():
                               default=__default_smoothing_param, required=False,
                               help=help_text_smoothing)
 
+    computing_params = parser.add_argument_group(title='Computing', description='Options related to computing and parallelization.')
+    computing_params.add_argument('-c', '--num_procs', action='store', dest='num_procs', 
+                                  default=__default_num_procs, required=False, help=help_text_num_procs)
+
     return parser
 
 
@@ -938,8 +944,10 @@ def __parse_args():
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
 
+    # num_procs will be validated inside in the functions using it.
+
     return subject_ids_path, input_dir, params.feature, weight_method_list, params.num_bins, params.edge_range, \
-           params.atlas, out_dir, params.node_size, params.smoothing_param, roi_stats
+           params.atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, params.num_procs
 
 
 if __name__ == '__main__':
