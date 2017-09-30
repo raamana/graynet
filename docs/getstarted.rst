@@ -11,7 +11,7 @@ In both streams, in addition to the computation of pair-wise network-level featu
 
 The package has offers both :doc:`usage_cli` and an :doc:`API`, to better integrate with your workflow. Suggestions for improvement are welcome.
 
-For uniform processign across subjects, ``graynet`` needs:
+For uniform processing across subjects, ``graynet`` needs:
 
   - an atlas with pre-defined ROIs
   - each subject be registered to atlas (vertex- or voxel-wise), so ROIs correspond across all subjects.

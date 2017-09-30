@@ -29,8 +29,8 @@ graynet
    getstarted
    cortical
    volumetric
-   API
    usage_cli
+   API
    usage_api
    citation
 

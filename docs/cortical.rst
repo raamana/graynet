@@ -5,11 +5,11 @@ For the cortical stream of processing, ``graynet`` relies on outputs from Freesu
 
 The following steps should help you get started and going quickly:
 
-    - Ensure Freesurfer processing is complete ("recon-all is finished without error")
-    - Ensure you ran ``recon-all`` with ``-qcache`` flag choosing atleast one FWHM value (10 is the default), for the feature you are interested in analyzing (e.g. thickness). If not already run, it is quick to rerun on existing Freesurfer processing.
-    - Install graynet using this command in a terminal:  ``pip install -U graynet``
+    - Ensure Freesurfer processing is complete.
+    - Ensure you ran ``recon-all`` with ``-qcache`` flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.
+    - check :ref:`run_fs` for more details.
 
-If it installed without error, you should have ``graynet`` command in your path. Just type ``graynet`` and you should see it display options and usage instructions, as presented in :doc:`usage_cli` page.
+If graynet is installed without error, you should have ``graynet`` command in your path. Just type ``graynet`` and you should see it display options and usage instructions, as presented in :doc:`usage_cli` page.
 
 Suppose say
 
@@ -55,6 +55,26 @@ which after expansion looks something like based on your choices: ``/your_proc_d
 
 ``graynet`` also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the ``-r`` or ``--roi_stats`` flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.
 
+
+.. _run_fs:
+
+How to run Freesurfer
+--------------------------------------
+
+If you are new to Freesurfer, please:
+
+    - follow this `beginners guide <https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferBeginnersGuide>`_
+    - leverage various `options <https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all>`_ available
+    - include ``-qcache`` flag choosing atleast one FWHM value (10 is the default) - see :ref:`qcache_flag`.
+    - process the subjects till "recon-all is finished without error"
+
+In typical scenarios (when T1 mri scans do not *special* processing to handle any artefacts), running Freesurfer would boil down to running command:
+
+.. code-block:: bash
+
+    recon-all -all -sd /project/processed/freesurfer -subjid ABC_0001 -i /project/raw/ABC_0001/mri.nii -qcache
+
+.. _qcache_flag:
 
 Qcache recon-all flag
 ----------------------------------

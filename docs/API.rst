@@ -8,17 +8,6 @@ API Reference
 --------------
 
 .. automodule:: graynet
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-.. automodule:: parcellate
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: freesurfer
-   :members:
+   :members: extract, roiwise_stats_indiv
    :undoc-members:
    :show-inheritance:
