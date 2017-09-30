@@ -60,7 +60,7 @@ cur_dir = os.path.dirname(abspath(__file__))
 def test_run_no_IO():
     edge_weights_all = graynet.extract(subject_id_list, fs_dir, base_feature, weight_methods,
                                        atlas=atlas, smoothing_param=fwhm,
-                                       out_dir=None, return_results=True)
+                                       out_dir=None, return_results=True, num_procs=4)
     num_combinations = len(list(edge_weights_all))
 
     if num_combinations != len(subject_id_list)*len(weight_methods):
@@ -146,8 +146,8 @@ def test_invalid_nbins():
         ew = graynet.extract(subject_id_list, fs_dir,num_bins=2)
 
 
-test_empty_subject_list()
-# test_run_no_IO()
+# test_empty_subject_list()
+test_run_no_IO()
 # test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
