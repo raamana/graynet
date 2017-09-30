@@ -302,7 +302,7 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list
             try:
                 __save(weight_vec, out_dir, subject, expt_id)
             except:
-                raise IOError('Unable to save the computed and vectorized features to:\n{}'.format(out_dir))
+                raise IOError('Unable to save the vectorized features to:\n{}'.format(out_dir))
 
         except (RuntimeError, RuntimeWarning) as runexc:
             print(runexc)
@@ -408,7 +408,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     return_results : bool
         Flag to indicating whether to keep the results to be returned to caller method.
         Helps to save memory (as it doesn't retain results all subjects and weight combinations),
-        when running from commmand line interface (or HPC). Default: False
+        when running from command line interface (or HPC). Default: False
         If this is False, out_dir must be specified to save the results to disk.
 
     Returns

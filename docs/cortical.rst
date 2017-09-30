@@ -84,9 +84,10 @@ The Qcache recon-all flag does the following:
     - resample data (e.g. thickness, curv, sulc) onto the average subject (called fsaverage)
     - smooth it at a range of FWHM (full-width/half-max) values, usually 0, 5, 10, 15, 20, and 25mm.
 
-Check https://surfer.nmr.mgh.harvard.edu/fswiki/qcache for more info
+We encourage the use of default behaviour (simple inclusion of ``-qcache``), which will smooth the surface data for thickness, curv, sulc, area and jacobian_white at 0, 5, 10, 15, 20, and 25 mm FWHM.
+
+If you are interested in resampling the data on to a different atlas or process features outside Freesurfer structure, check https://surfer.nmr.mgh.harvard.edu/fswiki/qcache for more info.
 
 The parcellation for the `Glasser et al 2016 <http://www.nature.com/nature/journal/vaop/ncurrent/full/nature18933.html>`_ atlas has been resampled onto the fsaverage space already, courtesy of `Kathryn Mills <https://figshare.com/articles/HCP-MMP1_0_projected_on_fsaverage/3498446>`_.
-
 
 If you run into any issues, or have a feature you would like, please let me know here `by opening an issue <https://github.com/raamana/graynet/issues/new>`_.
