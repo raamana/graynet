@@ -196,6 +196,8 @@ def extract(subject_id_list, input_dir,
 
     # All the checks must happen here, as this is key function in the API
     __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
+    atlas = check_atlas(atlas)
+
     subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
 
     num_bins, edge_range = __check_weight_params(num_bins, edge_range)
@@ -319,6 +321,33 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list
 
 
     return  edge_weights_all
+
+
+def check_atlas(atlas):
+    """Validation of atlas input."""
+
+    # when its a name for pre-defined atlas
+    if isinstance(atlas, str):
+        if not pexists(atlas): # just a name
+            atlas = atlas.upper()
+            if atlas not in parcellate.atlas_list:
+                raise ValueError('Invalid choice of atlas. Accepted : {}'.format(parcellate.atlas_list))
+        elif os.path.isdir(atlas): # cortical atlas in Freesurfer org
+            if not parcellate.check_atlas_annot_exist(atlas):
+                raise ValueError('Given atlas folder does not contain Freesurfer label annot files. '
+                                 'Needed : given_atlas_dir/label/?h.aparc.annot')
+        elif pexists(atlas): # may be a volumetric atlas? 
+            try:
+                atlas = nibabel.load(atlas)
+            except:
+                traceback.print_exc()
+                raise ValueError('Unable to read the provided image volume. Must be a nifti 2d volume, readable by nibabel.')
+        else:
+            raise ValueError('Unable to decipher or use the given atlas.')
+    else:
+        raise NotImplementedError('Atlas must be a string, providing a name or path to Freesurfer folder or a 3D nifti volume.')
+
+    return atlas
 
 
 def check_num_procs(num_procs=__default_num_procs):

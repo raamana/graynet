@@ -7,8 +7,9 @@ import nibabel
 import warnings
 import numpy as np
 
+_base_feature_list = ['thickness', 'curv', 'sulc', 'area']
 
-def import_features(fs_dir, subject_list, base_feature= 'thickness', fwhm=10, atlas='fsaverage'):
+def import_features(fs_dir, subject_list, base_feature= 'freesurfer_thickness', fwhm=10, atlas='fsaverage'):
     "Ensure subjects are provided and their data exist."
 
     if isinstance(subject_list, collections.Iterable):
@@ -36,7 +37,7 @@ def import_features(fs_dir, subject_list, base_feature= 'thickness', fwhm=10, at
 
 
 def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
-    "Ensures all data exists for a given subject"
+    "Reads the specified features from both hemispheres for a given subject."
 
     _base_feature_list = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
     feat_name = base_feature.lower()
@@ -54,7 +55,6 @@ def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
 def __all_data_exists(fs_dir, subject_id, base_feature):
     "Ensures all data exists for a given subject"
 
-    _base_feature_list = ['thickness', 'curv', 'sulc']
     if base_feature.lower() in _base_feature_list:
         data_exists = pexists(_surf_data_path(fs_dir, subject_id, 'lh')) and \
                       pexists(_surf_data_path(fs_dir, subject_id, 'rh'))
@@ -83,7 +83,10 @@ def __read_data(fs_dir, subject_list, base_feature):
     def read_gmdensity(gmpath):
         return nibabel.load(gmpath)
 
-    reader = {'gmdensity': read_gmdensity, 'thickness': __read_morph_feature}
+    reader = {'gmdensity': read_gmdensity, }
+    # common reader for common formats.
+    for feature in _base_feature_list:
+        reader[feature] = __read_morph_feature
 
     features = dict()
     for subj_info in subject_list:

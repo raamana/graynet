@@ -82,6 +82,20 @@ def __combine_annotations(annot, atlas_name):
     return wholebrain_named_labels
 
 
+def check_atlas_annot_exist(atlas_dir, hemi_list=None):
+    " Checks for the presence of atlas annotations "
+
+    if hemi_list is None:
+        hemi_list = ['lh', 'rh']
+
+    for hemi in hemi_list:
+        annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
+        if not pexists(annot_path) or os.path.getsize(annot_path) == 0:
+            return False
+
+    return True
+    
+
 def read_atlas_annot(atlas_dir, hemi_list=None):
     " Returns atlas annotations "
 
