@@ -89,7 +89,8 @@ def check_atlas_annot_exist(atlas_dir, hemi_list=None):
         hemi_list = ['lh', 'rh']
 
     for hemi in hemi_list:
-        if not pexists(pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))):
+        annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
+        if not pexists(annot_path) or os.path.getsize(annot_path) == 0:
             return False
 
     return True

@@ -331,13 +331,14 @@ def check_atlas(atlas):
         if not pexists(atlas): # just a name
             atlas = atlas.upper()
             if atlas not in parcellate.atlas_list:
-                raise ValueError('Invalid choice of atlas. Accepted : {}'.format(atlas_list))
+                raise ValueError('Invalid choice of atlas. Accepted : {}'.format(parcellate.atlas_list))
         elif os.path.isdir(atlas): # cortical atlas in Freesurfer org
             if not parcellate.check_atlas_annot_exist(atlas):
-                raise ValueError('Given atlas folder does not contain Freesurfer label annot files. Need : atlas_dir/label/?h.aparc.annot')
+                raise ValueError('Given atlas folder does not contain Freesurfer label annot files. '
+                                 'Needed : given_atlas_dir/label/?h.aparc.annot')
         elif pexists(atlas): # may be a volumetric atlas? 
             try:
-                nifti_vol = nibabel.load(atlas)
+                atlas = nibabel.load(atlas)
             except:
                 traceback.print_exc()
                 raise ValueError('Unable to read the provided image volume. Must be a nifti 2d volume, readable by nibabel.')
