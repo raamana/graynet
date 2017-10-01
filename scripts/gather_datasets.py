@@ -32,10 +32,12 @@ dataset_list = ['PPMI', '4RTNI']
 numeric_labels = {'CN' : 1, 'PARK' : 2, 'CBS' : 3, 'PSP': 4}
 
 base_feature_list = [ 'freesurfer_thickness', 'freesurfer_curv' ] #  'freesurfer_thickness'
-atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
+atlas = 'FSAVERAGE' # 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
 node_size = None
-num_links_expected = 360*(360-1)/2
+
+num_rois = {'GLASSER2016': 360, 'FSAVERAGE': 68}
+num_links_expected = num_rois[atlas]*(num_rois[atlas]-1)/2
 
 num_bins = 25
 
