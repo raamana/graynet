@@ -2,5 +2,5 @@ sphinx-argparse==0.2.1
 numpydoc==0.7.0
 numpy==1.13.3
 nibabel==2.1.0
-medpy
+medpy==0.3.0
 hiwenet
