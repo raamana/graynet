@@ -336,7 +336,7 @@ def check_atlas(atlas):
             if not parcellate.check_atlas_annot_exist(atlas):
                 raise ValueError('Given atlas folder does not contain Freesurfer label annot files. '
                                  'Needed : given_atlas_dir/label/?h.aparc.annot')
-        elif pexists(atlas): # may be a volumetric atlas? 
+        elif pexists(atlas): # may be a volumetric atlas?
             try:
                 atlas = nibabel.load(atlas)
             except:
@@ -382,7 +382,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     Parameters
     ----------
     subject_id_list : str or list
-         must be path to a file containing subject IDs, or a list of subject IDs
+        must be path to a file containing subject IDs, or a list of subject IDs
 
     input_dir : str
         Path to the input directory where features can be read.
@@ -417,7 +417,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
     atlas : str
         Name of the atlas whose parcellation to be used.
-        Choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'], which are primary cortical.
+        Available choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'].
         Volumetric whole-brain atlases will be added soon.
 
     smoothing_param : scalar
@@ -623,7 +623,7 @@ def __check_subjects(subjects_info):
     num_subjects = subject_id_list.size
     if num_subjects < 1:
         raise ValueError('Input subject list is empty.')
-    
+
     num_digits_id_size = len(str(num_subjects))
     max_id_width = max(map(len, subject_id_list))
 
@@ -922,7 +922,7 @@ def __get_parser():
                               help=help_text_smoothing)
 
     computing_params = parser.add_argument_group(title='Computing', description='Options related to computing and parallelization.')
-    computing_params.add_argument('-c', '--num_procs', action='store', dest='num_procs', 
+    computing_params.add_argument('-c', '--num_procs', action='store', dest='num_procs',
                                   default=__default_num_procs, required=False, help=help_text_num_procs)
 
     return parser
