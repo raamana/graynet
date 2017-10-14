@@ -14,6 +14,7 @@ from functools import partial
 import hiwenet
 import nibabel
 import numpy as np
+import networkx as nx
 
 from sys import version_info
 
@@ -164,10 +165,12 @@ def extract(subject_id_list, input_dir,
         Name of the atlas whose parcellation to be used.
         Choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'], which are primary cortical.
         Volumetric whole-brain atlases will be added soon.
+
     smoothing_param : scalar
         Smoothing parameter, which could be fwhm for Freesurfer cortical features,
         or another relevant for the chosen base_feature.
         Default: assumed as fwhm=10mm for the default feature choice 'thickness'
+
     node_size : scalar, optional
         Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
         This feature is not implemented yet, just a placeholder and to enable default computation.
@@ -176,12 +179,14 @@ def extract(subject_id_list, input_dir,
         Path to output directory to store results.
         Default: None, results are returned, but not saved to disk.
         If this is None, return_results must be true.
+
     return_results : bool
         Flag to indicate whether to return the results to be returned.
         This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
         the number of subjects or weight methods are large, as it doesn't retain results for all combinations,
         when running from commmand line interface (or HPC). Default: False
         If this is False, out_dir must be specified to save the results to disk.
+
     num_procs : int
         Number of parallel processes to use to speed up computation.
 
@@ -206,8 +211,9 @@ def extract(subject_id_list, input_dir,
     num_procs = check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
 
-    roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
-    uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
+    # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
+    # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
+    uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
 
     print('\nProcessing {} features resampled to {} atlas,'
           ' smoothed at {} with node size {}'.format(base_feature, atlas, smoothing_param, node_size))
@@ -220,7 +226,7 @@ def extract(subject_id_list, input_dir,
 
     chunk_size = int(np.ceil(num_subjects/num_procs))
     with Manager():
-        partial_func_extract = partial(_extract_per_subject, input_dir, base_feature, roi_labels, weight_method_list,
+        partial_func_extract = partial(_extract_per_subject, input_dir, base_feature, roi_labels, centroids, weight_method_list,
                                                     atlas, smoothing_param, node_size, num_bins, edge_range, out_dir,
                                                     return_results, pretty_print_options)
         with Pool(processes=num_procs) as pool:
@@ -238,7 +244,8 @@ def extract(subject_id_list, input_dir,
     return edge_weights_all
 
 
-def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list,
+def _extract_per_subject(input_dir, base_feature, roi_labels, centroids,
+                         weight_method_list,
                          atlas, smoothing_param, node_size,
                          num_bins, edge_range,
                          out_dir, return_results, pretty_print_options,
@@ -293,9 +300,23 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list
 
         # actual computation of pair-wise features
         try:
-            edge_weights = hiwenet.extract(data, rois, weight_method=weight_method, num_bins=num_bins,
-                                           edge_range=edge_range)
-            weight_vec = __get_triu_handle_inf_nan(edge_weights)
+            graph = hiwenet.extract(data,
+                                       rois,
+                                       weight_method=weight_method,
+                                       num_bins=num_bins,
+                                       edge_range=edge_range,
+                                       return_networkx_graph=True)
+
+            # retrieving edge weights
+            weight_vec = np.array(list(nx.get_edge_attributes(graph, 'weight').values()))
+            warn_nan(weight_vec)
+            # weight_vec = __get_triu_handle_inf_nan(edge_weights)
+
+            # adding position info to nodes (for visualization later)
+            for roi in centroids:
+                graph.node[roi]['x'] = float(centroids[roi][0])
+                graph.node[roi]['y'] = float(centroids[roi][1])
+                graph.node[roi]['z'] = float(centroids[roi][2])
 
             if return_results:
                 edge_weights_all[(weight_method, subject)] = weight_vec
@@ -303,8 +324,9 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, weight_method_list
             # saving to disk
             try:
                 __save(weight_vec, out_dir, subject, expt_id)
+                save_graph(graph, out_dir, subject, expt_id)
             except:
-                raise IOError('Unable to save the vectorized features to:\n{}'.format(out_dir))
+                raise IOError('Unable to save the network/vectorized weights to:\n{}'.format(out_dir))
 
         except (RuntimeError, RuntimeWarning) as runexc:
             print(runexc)
@@ -453,8 +475,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
     stat_func_list, stat_func_names, num_stats, max_stat_width, nd_st = __check_stat_methods(chosen_roi_stats)
 
-    roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
-    uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
+    # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
+    # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
+    uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
 
     print('\nProcessing {} features resampled to {} atlas,'
           ' smoothed at {} with node size {}'.format(base_feature, atlas, smoothing_param, node_size))
@@ -589,6 +612,15 @@ def fsl_import(input_dir, subject_id_list, base_feature):
     return
 
 
+def warn_nan(array):
+    "Raises a warning when non-finite or NaN values are found."
+
+    num_nonfinite = np.count_nonzero(np.logical_not(np.isfinite(array)))
+    if num_nonfinite > 0:
+        logging.warning('{} non-finite values are found.'.format(num_nonfinite))
+
+    return
+
 def __get_triu_handle_inf_nan(weights_matrix):
     "Issue a warning when NaNs or Inf are found."
 
@@ -597,9 +629,7 @@ def __get_triu_handle_inf_nan(weights_matrix):
 
     upper_tri_vec = weights_matrix[np.triu_indices_from(weights_matrix, 1)]
 
-    num_nonfinite = np.count_nonzero(np.logical_not(np.isfinite(upper_tri_vec)))
-    if num_nonfinite > 0:
-        logging.warning(' {} non-finite values are found.'.format(num_nonfinite))
+    warn_nan(upper_tri_vec)
 
     return upper_tri_vec
 
@@ -734,6 +764,34 @@ def save_summary_stats(data_vec, out_dir, subject, str_suffix=None):
             print('\nSaved roi stats to \n{}'.format(out_weights_path))
         except:
             print('\nUnable to save extracted features to {}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
+
+
+def save_graph(graph_nx, out_dir, subject, str_suffix=None):
+    "Saves the features to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_graynet.graphml'.format(str_suffix)
+        else:
+            out_file_name = 'graynet.graphml'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            nx.info(graph_nx)
+            nx.write_graphml(graph_nx, out_weights_path, encoding='utf-8')
+            print('\nSaved the graph to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save graph to \n{}'.format(out_weights_path))
             traceback.print_exc()
 
     return
