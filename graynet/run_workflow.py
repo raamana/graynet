@@ -265,7 +265,7 @@ def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
 
     for ww, weight_method in enumerate(weight_method_list):
         # unique stamp for each subject and weight
-        expt_id = __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
+        expt_id = stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
         sys.stdout.write('\nProcessing id {:{id_width}} -- weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
                          ' :'.format(subject, weight_method, ww + 1, num_weights, nd_id=nd_id, nd_wm=nd_wm,
                                      id_width=max_id_width, wtname_width=max_wtname_width))
@@ -557,7 +557,11 @@ def calc_roi_statistics(data, rois, uniq_rois, given_callable=np.median):
     return roi_stats
 
 
-def import_features(input_dir, subject_id_list, base_feature):
+def import_features(input_dir,
+                    subject_id_list,
+                    base_feature,
+                    fwhm=cfg.default_smoothing_param,
+                    atlas=cfg.default_atlas):
     "Wrapper to support input data of multiple types and multiple packages."
 
     if isinstance(subject_id_list, str):
@@ -565,9 +569,11 @@ def import_features(input_dir, subject_id_list, base_feature):
 
     base_feature = base_feature.lower()
     if base_feature in cfg.features_freesurfer:
-        features = freesurfer.import_features(input_dir, subject_id_list, base_feature)
+        features = freesurfer.import_features(input_dir, subject_id_list,
+                                              base_feature=base_feature,
+                                              fwhm=fwhm, atlas=atlas)
     elif base_feature in cfg.features_fsl:
-        features = fsl_import(input_dir, subject_id_list, base_feature)
+        features = fsl_import(input_dir, subject_id_list, base_feature, fwhm=fwhm, atlas=atlas)
     else:
         raise NotImplementedError('Invalid or choice not implemented!\n'
                                   'Choose one of \n {}'.format(cfg.base_feature_list))
@@ -575,7 +581,11 @@ def import_features(input_dir, subject_id_list, base_feature):
     return features
 
 
-def fsl_import(input_dir, subject_id_list, base_feature):
+def fsl_import(input_dir,
+               subject_id_list,
+               base_feature,
+               fwhm=cfg.default_smoothing_param,
+               atlas=cfg.default_atlas):
     "To be implemented."
 
     if base_feature not in cfg.features_fsl:
@@ -805,7 +815,7 @@ def __stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_s
     return expt_id
 
 
-def __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, weight_method):
+def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method):
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
