@@ -171,13 +171,13 @@ def extract(subject_id_list, input_dir,
     """
 
     # All the checks must happen here, as this is key function in the API
-    __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
+    check_params_single_edge(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
     atlas = check_atlas(atlas)
 
-    subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
+    subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
 
-    num_bins, edge_range = __check_weight_params(num_bins, edge_range)
-    weight_method_list, num_weights, max_wtname_width, nd_wm = __check_weights(weight_method_list)
+    num_bins, edge_range = check_weight_params(num_bins, edge_range)
+    weight_method_list, num_weights, max_wtname_width, nd_wm = check_weights(weight_method_list)
 
     num_procs = check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
@@ -197,9 +197,9 @@ def extract(subject_id_list, input_dir,
 
     chunk_size = int(np.ceil(num_subjects/num_procs))
     with Manager():
-        partial_func_extract = partial(_extract_per_subject, input_dir, base_feature, roi_labels, centroids, weight_method_list,
-                                                    atlas, smoothing_param, node_size, num_bins, edge_range, out_dir,
-                                                    return_results, pretty_print_options)
+        partial_func_extract = partial(extract_per_subject, input_dir, base_feature, roi_labels, centroids, weight_method_list,
+                                       atlas, smoothing_param, node_size, num_bins, edge_range, out_dir,
+                                       return_results, pretty_print_options)
         with Pool(processes=num_procs) as pool:
             edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list, chunk_size)
 
@@ -215,12 +215,12 @@ def extract(subject_id_list, input_dir,
     return edge_weights_all
 
 
-def _extract_per_subject(input_dir, base_feature, roi_labels, centroids,
-                         weight_method_list,
-                         atlas, smoothing_param, node_size,
-                         num_bins, edge_range,
-                         out_dir, return_results, pretty_print_options,
-                         subject=None): # purposefully leaving it last to enable partial function creation
+def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
+                        weight_method_list,
+                        atlas, smoothing_param, node_size,
+                        num_bins, edge_range,
+                        out_dir, return_results, pretty_print_options,
+                        subject=None): # purposefully leaving it last to enable partial function creation
     """
     Extracts give set of weights for one subject.
 
@@ -254,7 +254,7 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, centroids,
         warnings.warn('Unable to read {} features'
                       ' for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
 
-    data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+    data, rois = mask_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
 
     max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
 
@@ -282,7 +282,7 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, centroids,
             # retrieving edge weights
             weight_vec = np.array(list(nx.get_edge_attributes(graph, 'weight').values()))
             warn_nan(weight_vec)
-            # weight_vec = __get_triu_handle_inf_nan(edge_weights)
+            # weight_vec = get_triu_handle_inf_nan(edge_weights)
 
             # adding position info to nodes (for visualization later)
             for roi in centroids:
@@ -295,7 +295,7 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, centroids,
 
             # saving to disk
             try:
-                __save(weight_vec, out_dir, subject, expt_id)
+                save(weight_vec, out_dir, subject, expt_id)
                 save_graph(graph, out_dir, subject, expt_id)
             except:
                 raise IOError('Unable to save the network/vectorized weights to:\n{}'.format(out_dir))
@@ -443,9 +443,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         If return_results is False, this will be None, which is the default.
     """
 
-    __check_parameters(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
-    subject_id_list, num_subjects, max_id_width, nd_id = __check_subjects(subject_id_list)
-    stat_func_list, stat_func_names, num_stats, max_stat_width, nd_st = __check_stat_methods(chosen_roi_stats)
+    check_params_single_edge(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
+    subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
+    stat_func_list, stat_func_names, num_stats, max_stat_width, nd_st = check_stat_methods(chosen_roi_stats)
 
     # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
@@ -471,7 +471,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             raise IOError('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
             continue
 
-        data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+        data, rois = mask_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
         for ss, stat_func in enumerate(stat_func_list):
             sys.stdout.write('\nProcessing id {sid:{id_width}} ({sidnum:{nd_id}}/{numsub:{nd_id}}) -- '
                              'statistic {stname:{stat_name_width}} ({statnum:{nd_st}}/{numst:{nd_st}})'
@@ -481,7 +481,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                                          nd_st=nd_st))
 
             try:
-                roi_stats = __roi_statistics(data, rois, uniq_rois, stat_func)
+                roi_stats = calc_roi_statistics(data, rois, uniq_rois, stat_func)
                 expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param,
                                                         node_size)
                 save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
@@ -502,7 +502,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     return roi_stats_all
 
 
-def __check_stat_methods(stat_list=None):
+def check_stat_methods(stat_list=None):
     "Validates the choice and returns a callable to compute summaries."
 
     from scipy import stats as sp_stats
@@ -549,7 +549,7 @@ def __check_stat_methods(stat_list=None):
     return stat_callable_list, names_callable, num_stats, max_wtname_width, num_digits_stat_size
 
 
-def __roi_statistics(data, rois, uniq_rois, given_callable=np.median):
+def calc_roi_statistics(data, rois, uniq_rois, given_callable=np.median):
     "Returns the requested ROI statistics."
 
     roi_stats = np.array([given_callable(data[rois == roi]) for roi in uniq_rois])
@@ -593,7 +593,7 @@ def warn_nan(array):
 
     return
 
-def __get_triu_handle_inf_nan(weights_matrix):
+def get_triu_handle_inf_nan(weights_matrix):
     "Issue a warning when NaNs or Inf are found."
 
     if weights_matrix is None:
@@ -606,7 +606,7 @@ def __get_triu_handle_inf_nan(weights_matrix):
     return upper_tri_vec
 
 
-def __check_subjects(subjects_info):
+def check_subjects(subjects_info):
     "Ensure subjects are provided and their data exist."
 
     if isinstance(subjects_info, str):
@@ -632,7 +632,7 @@ def __check_subjects(subjects_info):
     return subject_id_list, num_subjects, max_id_width, num_digits_id_size
 
 
-def __check_weights(weight_method_list):
+def check_weights(weight_method_list):
     "Ensures weights are implemented and atleast one choice is given."
 
     if isinstance(weight_method_list, str):
@@ -656,7 +656,7 @@ def __check_weights(weight_method_list):
     return weight_method_list, num_weights, max_wtname_width, num_digits_wm_size
 
 
-def __check_weight_params(num_bins, edge_range_spec):
+def check_weight_params(num_bins, edge_range_spec):
     "Ensures parameters are valid and type casts them."
 
     if isinstance(num_bins, str):
@@ -691,7 +691,7 @@ def __check_weight_params(num_bins, edge_range_spec):
     return num_bins, edge_range
 
 
-def __remove_background_roi(data, labels, ignore_label):
+def mask_background_roi(data, labels, ignore_label):
     "Returns everything but specified label"
 
     mask = labels != ignore_label
@@ -769,7 +769,7 @@ def save_graph(graph_nx, out_dir, subject, str_suffix=None):
     return
 
 
-def __save(weight_vec, out_dir, subject, str_suffix=None):
+def save(weight_vec, out_dir, subject, str_suffix=None):
     "Saves the features to disk."
 
     if out_dir is not None:
@@ -815,7 +815,7 @@ def __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, w
     return expt_id
 
 
-def __check_parameters(base_feature, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
+def check_params_single_edge(base_feature, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
     """"""
 
     if base_feature not in cfg.base_feature_list:
@@ -992,13 +992,13 @@ def __parse_args():
     weight_method = params.weight_method
     roi_stats = params.roi_stats
     if weight_method is not None:
-        weight_method_list, _, _, _ = __check_weights(weight_method)
+        weight_method_list, _, _, _ = check_weights(weight_method)
         if roi_stats is not None:
             warnings.warn('roi stats method specified while also requesting network weights computation. '
                           'Only one can be done at a time. Skipping it.', UserWarning)
         roi_stats = None
     elif roi_stats is not None:
-        roi_stats, _, _, _, _ = __check_stat_methods(roi_stats)
+        roi_stats, _, _, _, _ = check_stat_methods(roi_stats)
         weight_method_list = None
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
