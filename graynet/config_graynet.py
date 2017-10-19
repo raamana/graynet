@@ -29,7 +29,7 @@ default_num_bins = 25
 default_trim_percentile = 5
 
 default_feature = 'freesurfer_thickness'
-default_atlas = 'GLASSER2016'
+default_atlas = 'FSAVERAGE' # 'GLASSER2016'
 default_smoothing_param = 10
 default_node_size = None
 

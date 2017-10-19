@@ -33,7 +33,8 @@ np.seterr(divide='ignore', invalid='ignore')
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-def extract(subject_id_list, input_dir,
+def extract(subject_id_list,
+            input_dir,
             base_feature=cfg.default_feature,
             weight_method_list=cfg.default_weight_method,
             num_bins=cfg.default_num_bins,
@@ -249,8 +250,13 @@ def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
         return
 
     try:
-        features = import_features(input_dir, [subject, ], base_feature)
+        features = import_features(input_dir,
+                                   [subject, ],
+                                   base_feature,
+                                   fwhm=smoothing_param,
+                                   atlas=atlas)
     except:
+        traceback.print_exc()
         warnings.warn('Unable to read {} features'
                       ' for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
 

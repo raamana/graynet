@@ -8,6 +8,7 @@ from os.path import join as pjoin, exists as pexists
 import collections
 import nibabel
 import warnings
+import traceback
 import numpy as np
 
 _base_feature_list = ['thickness', 'curv', 'sulc', 'area',
@@ -39,6 +40,7 @@ def import_features(fs_dir,
             features[subject_id] = __get_data(fs_dir, subject_id, base_feature, fwhm, atlas)
             print(' Done.')
         except:
+            traceback.print_exc()
             raise ValueError('{} data for {} could not be read!'.format(base_feature, subject_id))
 
     return features
