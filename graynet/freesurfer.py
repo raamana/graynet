@@ -1,8 +1,5 @@
 from __future__ import print_function
-
 __all__ = ['import_features',]
-
-from graynet import config_graynet as cfg
 
 from os.path import join as pjoin, exists as pexists
 import collections
@@ -10,14 +7,9 @@ import nibabel
 import warnings
 import numpy as np
 
-_base_feature_list = ['thickness', 'curv', 'sulc', 'area',
-                      'area.pial', 'jacobian_white']
+_base_feature_list = ['thickness', 'curv', 'sulc', 'area']
 
-def import_features(fs_dir,
-                    subject_list,
-                    base_feature= 'freesurfer_thickness',
-                    fwhm=10,
-                    atlas='fsaverage'):
+def import_features(fs_dir, subject_list, base_feature= 'freesurfer_thickness', fwhm=10, atlas='fsaverage'):
     "Ensure subjects are provided and their data exist."
 
     if isinstance(subject_list, collections.Iterable):
@@ -47,11 +39,12 @@ def import_features(fs_dir,
 def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
     "Reads the specified features from both hemispheres for a given subject."
 
+    _base_feature_list = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
     feat_name = base_feature.lower()
-    if feat_name in cfg.features_freesurfer:
+    if feat_name in _base_feature_list:
         bare_name_feature = feat_name.replace('freesurfer_','')
-        left  = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='lh', feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
-        right = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='rh', feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
+        left  = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='lh', feature=bare_name_feature))
+        right = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='rh', feature=bare_name_feature))
         whole = np.hstack((left, right))
     else:
         raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
@@ -59,20 +52,14 @@ def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
     return whole
 
 
-def __all_data_exists(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
+def __all_data_exists(fs_dir, subject_id, base_feature):
     "Ensures all data exists for a given subject"
 
     if base_feature.lower() in _base_feature_list:
-        data_exists = True
-        for hemi in ['lh', 'rh']:
-            if not pexists(_surf_data_path(fs_dir, subject_id,
-                                           feature=base_feature,
-                                           hemi=hemi,
-                                           atlas=atlas, fwhm=fwhm)):
-                return False
+        data_exists = pexists(_surf_data_path(fs_dir, subject_id, 'lh')) and \
+                      pexists(_surf_data_path(fs_dir, subject_id, 'rh'))
     else:
-        raise ValueError('Invalid choice for freesurfer data. '
-                         'Valid choices: {}'.format(_base_feature_list))
+        raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
 
     return data_exists
 
