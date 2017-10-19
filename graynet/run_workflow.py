@@ -1,4 +1,4 @@
-__all__ = ['extract', 'roiwise_stats_indiv', 'roi_info', 'cli_run', 'implemented_weights']
+__all__ = ['extract', 'roiwise_stats_indiv', 'roi_info', 'cli_run']
 
 import collections
 import os
@@ -21,55 +21,26 @@ from sys import version_info
 if version_info.major == 2 and version_info.minor == 7:
     import freesurfer
     import parcellate
+    import config_graynet as cfg
 elif version_info.major > 2:
     from graynet import parcellate
     from graynet import freesurfer
+    from graynet import config_graynet as cfg
 else:
-    raise NotImplementedError('hiwenet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
+    raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
 np.seterr(divide='ignore', invalid='ignore')
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-__features_freesurfer = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc']
-__features_fsl = ['gmdensity', ]
-
-__base_feature_list = __features_freesurfer + __features_fsl
-
-__default_weight_method = ('manhattan', )
-implemented_weights = [
-    'chebyshev', 'chebyshev_neg', 'chi_square',
-    'correlate', 'correlate_1',
-    'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
-    'euclidean', 'fidelity_based',
-    'histogram_intersection', 'histogram_intersection_1',
-    'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
-    'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-    'relative_bin_deviation', 'relative_deviation']
-
-minimum_num_bins = 5
-__default_num_bins = 25
-__default_trim_percentile = 5
-
-__default_feature = 'freesurfer_thickness'
-__default_atlas = 'GLASSER2016'
-__default_smoothing_param = 10
-__default_node_size = None
-
-__edge_range_predefined = {'freesurfer_thickness': (0, 5), 'freesurfer_curv': (-0.3, +0.3)}
-__default_edge_range = __edge_range_predefined[__default_feature]
-
-__default_roi_statistic = 'median'
-__default_num_procs = 2
-
 def extract(subject_id_list, input_dir,
-            base_feature=__default_feature,
-            weight_method_list=__default_weight_method,
-            num_bins=__default_num_bins,
-            edge_range=__default_edge_range,
-            atlas=__default_atlas, smoothing_param=__default_smoothing_param,
-            node_size=__default_node_size,
-            out_dir=None, return_results=False, num_procs=__default_num_procs):
+            base_feature=cfg.default_feature,
+            weight_method_list=cfg.default_weight_method,
+            num_bins=cfg.default_num_bins,
+            edge_range=cfg.default_edge_range,
+            atlas=cfg.default_atlas, smoothing_param=cfg.default_smoothing_param,
+            node_size=cfg.default_node_size,
+            out_dir=None, return_results=False, num_procs=cfg.default_num_procs):
     """
     Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.
 
@@ -280,7 +251,8 @@ def _extract_per_subject(input_dir, base_feature, roi_labels, centroids,
     try:
         features = import_features(input_dir, [subject, ], base_feature)
     except:
-        warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
+        warnings.warn('Unable to read {} features'
+                      ' for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
 
     data, rois = __remove_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
 
@@ -372,7 +344,7 @@ def check_atlas(atlas):
     return atlas
 
 
-def check_num_procs(num_procs=__default_num_procs):
+def check_num_procs(num_procs=cfg.default_num_procs):
     "Ensures num_procs is finite and <= available cpu count."
 
     num_procs  = int(num_procs)
@@ -388,10 +360,10 @@ def check_num_procs(num_procs=__default_num_procs):
 
 
 def roiwise_stats_indiv(subject_id_list, input_dir,
-                        base_feature=__default_feature,
-                        chosen_roi_stats=__default_roi_statistic,
-                        atlas=__default_atlas, smoothing_param=__default_smoothing_param,
-                        node_size=__default_node_size,
+                        base_feature=cfg.default_feature,
+                        chosen_roi_stats=cfg.default_roi_statistic,
+                        atlas=cfg.default_atlas, smoothing_param=cfg.default_smoothing_param,
+                        node_size=cfg.default_node_size,
                         out_dir=None, return_results=False):
     """
     Computes the chosen summary statistics within each ROI.
@@ -592,13 +564,13 @@ def import_features(input_dir, subject_id_list, base_feature):
         subject_id_list = [subject_id_list, ]
 
     base_feature = base_feature.lower()
-    if base_feature in __features_freesurfer:
+    if base_feature in cfg.features_freesurfer:
         features = freesurfer.import_features(input_dir, subject_id_list, base_feature)
-    elif base_feature in __features_fsl:
+    elif base_feature in cfg.features_fsl:
         features = fsl_import(input_dir, subject_id_list, base_feature)
     else:
         raise NotImplementedError('Invalid or choice not implemented!\n'
-                                  'Choose one of \n {}'.format(__base_feature_list))
+                                  'Choose one of \n {}'.format(cfg.base_feature_list))
 
     return features
 
@@ -606,7 +578,7 @@ def import_features(input_dir, subject_id_list, base_feature):
 def fsl_import(input_dir, subject_id_list, base_feature):
     "To be implemented."
 
-    if base_feature not in __features_fsl:
+    if base_feature not in cfg.features_fsl:
         raise NotImplementedError
 
     return
@@ -673,9 +645,9 @@ def __check_weights(weight_method_list):
         raise ValueError('Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
 
     for weight in weight_method_list:
-        if weight not in implemented_weights:
+        if weight not in cfg.implemented_weights:
             raise NotImplementedError('Method {} not implemented. '
-                                      'Choose one of : \n {}'.format(weight, implemented_weights))
+                                      'Choose one of : \n {}'.format(weight, cfg.implemented_weights))
 
     num_weights = len(weight_method_list)
     num_digits_wm_size = len(str(num_weights))
@@ -695,7 +667,7 @@ def __check_weight_params(num_bins, edge_range_spec):
     num_bins = np.rint(num_bins)
 
     if np.isnan(num_bins) or np.isinf(num_bins):
-        raise ValueError('Invalid value for number of bins! Choose a natural number >= {}'.format(minimum_num_bins))
+        raise ValueError('Invalid value for number of bins! Choose a natural number >= {}'.format(cfg.default_minimum_num_bins))
 
     if edge_range_spec is None:
         edge_range = edge_range_spec
@@ -846,7 +818,7 @@ def __stamp_experiment_weight(base_feature, atlas, smoothing_param, node_size, w
 def __check_parameters(base_feature, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
     """"""
 
-    if base_feature not in __base_feature_list:
+    if base_feature not in cfg.base_feature_list:
         raise NotImplementedError('Choice {} is invalid or not implemented'.format(base_feature))
 
     if atlas.upper() not in parcellate.atlas_list:
@@ -910,21 +882,21 @@ def __get_parser():
 
     help_text_subject_ids = "Path to file containing list of subject IDs (one per line)"
     help_text_input_dir = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
-    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(__default_feature, __base_feature_list)
+    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(cfg.default_feature, cfg.base_feature_list)
 
-    help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(__default_weight_method)
-    help_text_num_bins = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(__default_num_bins)
+    help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(cfg.default_weight_method)
+    help_text_num_bins = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(cfg.default_num_bins)
     help_text_edge_range = "The range of edges (two finite values) within which to bin the given values e.g. --edge_range 0.0 5.0 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : {}, to automatically compute from the given values.".format(
-        __default_edge_range)
+        cfg.default_edge_range)
 
     help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include 'median', 'entropy', 'kurtosis' and any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . "
 
-    help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. Default: '{}'".format(__default_atlas)
-    help_text_parc_size = "Size of individual node for the atlas parcellation. Default : {}".format(__default_node_size)
+    help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. Default: '{}'".format(cfg.default_atlas)
+    help_text_parc_size = "Size of individual node for the atlas parcellation. Default : {}".format(cfg.default_node_size)
     help_text_smoothing = "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(
-        __default_smoothing_param)
+        cfg.default_smoothing_param)
 
-    help_text_num_procs = "Number of CPUs to use in parallel to speed up processing. Default : {}, capping at available number of CPUs in the processing node.".format(__default_num_procs)
+    help_text_num_procs = "Number of CPUs to use in parallel to speed up processing. Default : {}, capping at available number of CPUs in the processing node.".format(cfg.default_num_procs)
 
     parser = argparse.ArgumentParser(prog="graynet")
 
@@ -937,7 +909,7 @@ def __get_parser():
 
     # TODO let users specify multiple features comma separated
     parser.add_argument("-f", "--feature", action="store", dest="feature",
-                        default=__default_feature, required=False,
+                        default=cfg.default_feature, required=False,
                         help=help_text_feature)
 
     parser.add_argument("-o", "--out_dir", action="store", dest="out_dir",
@@ -957,31 +929,31 @@ def __get_parser():
     method_params = parser.add_argument_group(title='Weight parameters',
                                               description='Parameters relevant to histogram edge weight calculations')
     method_params.add_argument("-e", "--edge_range", action="store", dest="edge_range",
-                               default=__default_edge_range, required=False,
+                               default=cfg.default_edge_range, required=False,
                                nargs=2, metavar=('min', 'max'),
                                help=help_text_edge_range)
     method_params.add_argument("-b", "--num_bins", action="store", dest="num_bins",
-                                default=__default_num_bins, required=False,
+                                default=cfg.default_num_bins, required=False,
                                 help=help_text_num_bins)
 
 
     atlas_params = parser.add_argument_group(title='Atlas',
                                              description="Parameters describing the atlas, its parcellation and any smoothing of features.")
     atlas_params.add_argument("-a", "--atlas", action="store", dest="atlas",
-                              default=__default_atlas, required=False,
+                              default=cfg.default_atlas, required=False,
                               help=help_text_atlas)
 
     atlas_params.add_argument("-n", "--node_size", action="store", dest="node_size",
-                              default=__default_node_size, required=False,
+                              default=cfg.default_node_size, required=False,
                               help=help_text_parc_size)
 
     atlas_params.add_argument("-p", "--smoothing_param", action="store", dest="smoothing_param",
-                              default=__default_smoothing_param, required=False,
+                              default=cfg.default_smoothing_param, required=False,
                               help=help_text_smoothing)
 
     computing_params = parser.add_argument_group(title='Computing', description='Options related to computing and parallelization.')
     computing_params.add_argument('-c', '--num_procs', action='store', dest='num_procs',
-                                  default=__default_num_procs, required=False, help=help_text_num_procs)
+                                  default=cfg.default_num_procs, required=False, help=help_text_num_procs)
 
     return parser
 
