@@ -12,6 +12,7 @@ from functools import partial
 
 import numpy as np
 import networkx as nx
+import hiwenet
 
 from sys import version_info
 
@@ -22,8 +23,6 @@ if version_info.major > 2:
     from graynet import run_workflow as single_edge
 else:
     raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
-
-import hiwenet
 
 def extract(subject_id_list,
             input_dir,
@@ -239,9 +238,12 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
     max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
 
+    func_summary = np.nanmedian
+
     for ww, weight_method in enumerate(weight_method_list):
 
-        multigraph = nx.MultiGraph(weight_method=weight_method)
+        multigraph = nx.MultiGraph(weight_method=weight_method,
+                                   subject_id=subject)
 
         for base_feature in base_feature_list:
             try:
@@ -289,25 +291,55 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                 print('Unable to extract {} weights for {} for {}'.format(weight_method, base_feature, subject))
                 traceback.print_exc()
 
-            sys.stdout.write('Done.')
+            print('Done.')
 
-        # TODO add edges/weights from unigraph to multigraph
-        raise NotImplementedError
-        multigraph
+            # adding edges/weights from each feature to a multigraph
+            # this also encodes the sources
+            for u, v in unigraph.edges():
+                multigraph.add_edge(u, v,
+                                    weight=unigraph[u][v]['weight'],
+                                    base_feature=base_feature)
 
         # adding position info to nodes (for visualization later)
-        for roi in centroids:
-            multigraph.node[roi]['x'] = float(centroids[roi][0])
-            multigraph.node[roi]['y'] = float(centroids[roi][1])
-            multigraph.node[roi]['z'] = float(centroids[roi][2])
+        add_nodal_positions(multigraph, centroids)
+
+        # creating single graph with a summary edge weight (like median)
+        summary_multigraph = summarize_multigraph(multigraph, func_summary)
+        add_nodal_positions(summary_multigraph, centroids)
 
         # saving to disk
         try:
-            single_edge.save_graph(multigraph, out_dir, subject, expt_id)
+            save_summary_graph(summary_multigraph, out_dir, subject,
+                               expt_id, summary_descr=func_summary.__name__)
         except:
             raise IOError('Unable to save the graph to:\n{}'.format(out_dir))
 
     return edge_weights_all
+
+
+def summarize_multigraph(multigraph, func_summary):
+    "Creating single graph with a summary edge weight (like median)"
+
+    summary_multigraph = nx.Graph()
+    for u, v in multigraph.edges():
+        # looping through parallel edges and obtaining their weights.
+        all_weights = np.array([edge_item['weight'] for idx, edge_item in multigraph[u][v].items()])
+        summary_weight = float(func_summary(all_weights))  # float needed due to graphml limitation
+        summary_multigraph.add_edge(u, v, weight=summary_weight)
+
+    return summary_multigraph
+
+
+def add_nodal_positions(graph, centroids):
+    "Adds the x, y, z attributes to each node in graph."
+
+    # adding position info to nodes (for visualization later)
+    for roi in centroids:
+        graph.node[roi]['x'] = float(centroids[roi][0])
+        graph.node[roi]['y'] = float(centroids[roi][1])
+        graph.node[roi]['z'] = float(centroids[roi][2])
+
+    return
 
 
 def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
@@ -334,5 +366,35 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
         os.mkdir(out_dir)
 
     # no checks on subdivison size yet, as its not implemented
+
+    return
+
+
+def save_summary_graph(graph, out_dir, subject,
+                       str_suffix=None,
+                       summary_descr='summary'):
+    "Saves the features to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_{}_multigraph_graynet.graphml'.format(str_suffix,summary_descr)
+        else:
+            out_file_name = '_{}_multigraph_graynet.graphml'.format(summary_descr)
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            nx.info(graph)
+            nx.write_graphml(graph, out_weights_path, encoding='utf-8')
+            print('\nSaved the summary multi-graph to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save summary multi-graph to \n{}'.format(out_weights_path))
+            traceback.print_exc()
 
     return

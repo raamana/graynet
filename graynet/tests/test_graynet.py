@@ -68,6 +68,17 @@ def test_multi_edge():
                                           return_results=True,
                                           num_procs=1)
 
+    num_combinations = len(list(edge_weights_all))
+    expected_num_comb = len(subject_id_list) * len(weight_methods)*len(cfg.default_feature_list_multi_edge)
+    if num_combinations != expected_num_comb:
+        raise ValueError('invalid results : # subjects')
+
+    for wm in weight_methods:
+        for sub in subject_id_list:
+            for feat in cfg.default_feature_list_multi_edge:
+                if edge_weights_all[(wm, feat, sub)].size != num_links:
+                    raise ValueError('invalid results : # links')
+
     print('')
 
 
@@ -175,7 +186,7 @@ def test_invalid_nbins():
 
 
 #
-# test_multi_edge()
+test_multi_edge()
 
 # test_empty_subject_list()
 # test_run_no_IO()
