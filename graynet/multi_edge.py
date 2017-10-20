@@ -252,7 +252,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                                        base_feature,
                                                        fwhm=smoothing_param,
                                                        atlas=atlas)
-                # features[base_feature] is another dict keyed in by subject id
+
             except:
                 traceback.print_exc()
                 warnings.warn('Unable to read {} features'
@@ -300,14 +300,17 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                     weight=unigraph[u][v]['weight'],
                                     base_feature=base_feature)
 
-        # adding position info to nodes (for visualization later)
-        add_nodal_positions(multigraph, centroids)
-
         # creating single graph with a summary edge weight (like median)
         summary_multigraph = summarize_multigraph(multigraph, func_summary)
+
+        # adding position info to nodes (for visualization later)
+        add_nodal_positions(multigraph, centroids)
         add_nodal_positions(summary_multigraph, centroids)
 
         # saving to disk
+        # TODO need a way to save a multigraph (skip fancy features to get job done)
+        save_multigraph(multigraph, out_dir, subject, expt_id)
+
         try:
             save_summary_graph(summary_multigraph, out_dir, subject,
                                expt_id, summary_descr=func_summary.__name__)
@@ -315,6 +318,33 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
             raise IOError('Unable to save the graph to:\n{}'.format(out_dir))
 
     return edge_weights_all
+
+
+def save_multigraph(multigraph, out_dir, subject, expt_id):
+    "Saves the given multigraph to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_multigraph_graynet.graphml'.format(str_suffix)
+        else:
+            out_file_name = '_multigraph_graynet.graphml'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            nx.write_graphml(multigraph, out_weights_path, encoding='utf-8')
+            print('\nSaved the multi-graph to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save multi-graph to \n{}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
 
 
 def summarize_multigraph(multigraph, func_summary):
