@@ -710,9 +710,17 @@ def check_weight_params(num_bins, edge_range_spec):
 def mask_background_roi(data, labels, ignore_label):
     "Returns everything but specified label"
 
-    mask = labels != ignore_label
+    if data.size != labels.size or data.shape != labels.shape:
+        raise ValueError('features and membership/group labels differ in length/shape!')
 
-    return data[mask], labels[mask]
+    mask = labels != ignore_label
+    masked_data    = data[mask]
+    masked_labels  = labels[mask]
+
+    if masked_data.size != masked_labels.size or masked_data.shape != masked_labels.shape:
+        raise ValueError('features and membership/group labels (after removing background ROI) differ in length/shape!')
+
+    return masked_data, masked_labels
 
 
 def roi_info(roi_labels):
