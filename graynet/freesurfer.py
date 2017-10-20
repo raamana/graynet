@@ -52,11 +52,11 @@ def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
     feat_name = base_feature.lower()
     if feat_name in cfg.features_freesurfer:
         bare_name_feature = feat_name.replace('freesurfer_','')
-        left  = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='lh', feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
-        right = __read_morph_feature(_surf_data_path(fs_dir, subject_id, hemi='rh', feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
+        left  = __read_morph_feature(path_to_vertex_data(fs_dir, subject_id, hemi='lh', feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
+        right = __read_morph_feature(path_to_vertex_data(fs_dir, subject_id, hemi='rh', feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
         whole = np.hstack((left, right))
     else:
-        raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(_base_feature_list))
+        raise ValueError('Invalid choice for freesurfer data. Valid choices: {}'.format(cfg.features_freesurfer))
 
     return whole
 
@@ -67,10 +67,10 @@ def __all_data_exists(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverag
     if base_feature.lower() in _base_feature_list:
         data_exists = True
         for hemi in ['lh', 'rh']:
-            if not pexists(_surf_data_path(fs_dir, subject_id,
-                                           feature=base_feature,
-                                           hemi=hemi,
-                                           atlas=atlas, fwhm=fwhm)):
+            if not pexists(path_to_vertex_data(fs_dir, subject_id,
+                                               feature=base_feature,
+                                               hemi=hemi,
+                                               atlas=atlas, fwhm=fwhm)):
                 return False
     else:
         raise ValueError('Invalid choice for freesurfer data. '
@@ -79,7 +79,7 @@ def __all_data_exists(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverag
     return data_exists
 
 
-def _surf_data_path(fsd, sid, hemi='lh', fwhm=10, atlas='fsaverage', feature = 'thickness'):
+def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10, atlas='fsaverage', feature ='thickness'):
     "Returning the path to surface features. Using a smoothed version"
 
     return pjoin(fsd, sid, 'surf', '{}.{}.fwhm{}.{}.mgh'.format(hemi, feature, fwhm, atlas))
@@ -92,24 +92,3 @@ def __read_morph_feature(tpath):
     return np.squeeze(vec) # becomes (163842, )
 
 
-def __read_data(fs_dir, subject_list, base_feature):
-    "Returns the location of the source of subject-wise features: /path/subject/surf/?h.thickness or nifti image"
-
-    def read_gmdensity(gmpath):
-        return nibabel.load(gmpath)
-
-    reader = {'gmdensity': read_gmdensity, }
-    # common reader for common formats.
-    for feature in _base_feature_list:
-        reader[feature] = __read_morph_feature
-
-    features = dict()
-    for subj_info in subject_list:
-        subj_id, subj_data_path = subj_info.split(',')
-        try:
-            features[subj_id] = reader[base_feature](subj_data_path)
-        except:
-            warnings.warn('data for {} could not be read from:\n{}'.format(subj_id, subj_data_path))
-            raise
-
-    return features
