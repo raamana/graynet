@@ -1,4 +1,4 @@
-__all__ = ['extract', ]
+__all__ = ['extract_multiedge', ]
 
 import collections
 import os
@@ -24,18 +24,20 @@ if version_info.major > 2:
 else:
     raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
-def extract(subject_id_list,
-            input_dir,
-            base_feature_list=cfg.default_feature_list_multi_edge,
-            weight_method_list=cfg.default_weight_method,
-            num_bins=cfg.default_num_bins,
-            edge_range=cfg.default_edge_range,
-            atlas=cfg.default_atlas,
-            smoothing_param=cfg.default_smoothing_param,
-            node_size=cfg.default_node_size,
-            out_dir=None,
-            return_results=False,
-            num_procs=cfg.default_num_procs):
+
+def extract_multiedge(subject_id_list,
+                      input_dir,
+                      base_feature_list=cfg.default_feature_list_multi_edge,
+                      weight_method_list=cfg.default_weight_method,
+                      summary_stat=cfg.multi_edge_summary_func_default,
+                      num_bins=cfg.default_num_bins,
+                      edge_range=cfg.default_edge_range,
+                      atlas=cfg.default_atlas,
+                      smoothing_param=cfg.default_smoothing_param,
+                      node_size=cfg.default_node_size,
+                      out_dir=None,
+                      return_results=False,
+                      num_procs=cfg.default_num_procs):
     """
     Extracts weighted networks (matrix of pair-wise ROI distances) based on multiple gray matter features based on Freesurfer processing.
 
@@ -178,6 +180,11 @@ def extract(subject_id_list,
     num_bins, edge_range = single_edge.check_weight_params(num_bins, edge_range)
     weight_method_list, num_weights, max_wtname_width, nd_wm = single_edge.check_weights(weight_method_list)
 
+    # validating the choice and getting a callable
+    stat_callable_list, names_callable, _, _, _ = single_edge.check_stat_methods(summary_stat)
+    summary_stat = stat_callable_list[0]
+    summary_stat_name = names_callable[0]
+
     num_procs = single_edge.check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
 
@@ -199,7 +206,7 @@ def extract(subject_id_list,
     with Manager():
         partial_func_extract = partial(per_subject_multi_edge, input_dir, base_feature_list,
                                        roi_labels, centroids,
-                                       weight_method_list,
+                                       weight_method_list, summary_stat, summary_stat_name,
                                        atlas, smoothing_param, node_size,
                                        num_bins, edge_range,
                                        out_dir, return_results, pretty_print_options)
@@ -219,7 +226,7 @@ def extract(subject_id_list,
 
 
 def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
-                           weight_method_list,
+                           weight_method_list, summary_stat, summary_stat_name,
                            atlas, smoothing_param, node_size,
                            num_bins, edge_range,
                            out_dir, return_results, pretty_print_options,
@@ -238,12 +245,11 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
     max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
 
-    func_summary = np.nanmedian
-
     for ww, weight_method in enumerate(weight_method_list):
 
-        multigraph = nx.MultiGraph(weight_method=weight_method,
-                                   subject_id=subject)
+        # multigraph = nx.MultiGraph(weight_method=weight_method,
+        #                            subject_id=subject)
+        multigraph = nx.MultiGraph()
 
         for base_feature in base_feature_list:
             try:
@@ -263,7 +269,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                                          parcellate.null_roi_name)
 
             # unique stamp for each subject and weight
-            expt_id = single_edge.stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
+            expt_id_single = single_edge.stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
             sys.stdout.write('\nProcessing id {:{id_width}} -- weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}}) :'.format(subject, weight_method, ww + 1, num_weights, nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width, wtname_width=max_wtname_width))
 
             # actual computation of pair-wise features
@@ -293,6 +299,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
             print('Done.')
 
+            single_edge.save_graph(unigraph, out_dir, subject, expt_id_single)
+
             # adding edges/weights from each feature to a multigraph
             # this also encodes the sources
             for u, v in unigraph.edges():
@@ -301,7 +309,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                     base_feature=base_feature)
 
         # creating single graph with a summary edge weight (like median)
-        summary_multigraph = summarize_multigraph(multigraph, func_summary)
+        summary_multigraph = summarize_multigraph(multigraph, summary_stat)
 
         # adding position info to nodes (for visualization later)
         add_nodal_positions(multigraph, centroids)
@@ -309,18 +317,19 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
         # saving to disk
         # TODO need a way to save a multigraph (skip fancy features to get job done)
-        save_multigraph(multigraph, out_dir, subject, expt_id)
+        expt_id_multi = stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method)
+        save_multigraph(multigraph, out_dir, subject, expt_id_multi)
 
         try:
             save_summary_graph(summary_multigraph, out_dir, subject,
-                               expt_id, summary_descr=func_summary.__name__)
+                               expt_id_multi, summary_descr=summary_stat_name)
         except:
             raise IOError('Unable to save the graph to:\n{}'.format(out_dir))
 
     return edge_weights_all
 
 
-def save_multigraph(multigraph, out_dir, subject, expt_id):
+def save_multigraph(multigraph, out_dir, subject, str_suffix):
     "Saves the given multigraph to disk."
 
     if out_dir is not None:
@@ -370,6 +379,17 @@ def add_nodal_positions(graph, centroids):
         graph.node[roi]['z'] = float(centroids[roi][2])
 
     return
+
+
+def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method):
+    "Constructs a string to uniquely identify a given experiment."
+
+    import re
+    all_words = re.split('_|; |, |\*|\n| ', ' '.join(base_feature_list))
+    feat_repr = '_'.join(set(all_words))
+    expt_id   = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param, node_size, weight_method)
+
+    return expt_id
 
 
 def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,

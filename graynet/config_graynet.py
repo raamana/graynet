@@ -40,5 +40,9 @@ default_edge_range = edge_range_predefined[default_feature]
 default_roi_statistic = 'median'
 default_num_procs = 2
 
+# multiedge
+
+multi_edge_summary_func_default = 'prod' # 'median'
+
 if __name__ == '__main__':
     pass

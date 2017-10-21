@@ -31,7 +31,7 @@ else:
 
 np.seterr(divide='ignore', invalid='ignore')
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 def extract(subject_id_list,
             input_dir,
@@ -527,13 +527,12 @@ def check_stat_methods(stat_list=None):
     for stat in stat_list:
         if isinstance(stat, str):
             stat = stat.lower()
-            if stat in ['median', 'mean', 'std', 'var']:
+            if hasattr(np, stat):
                 summary_callable = getattr(np, stat)
+            elif hasattr(sp_stats, stat):
+                summary_callable = getattr(sp_stats, stat)
             else:
-                try:
-                    summary_callable = getattr(sp_stats, stat)
-                except AttributeError:
-                    raise AttributeError('Chosen measure {} is not a member of scipy.stats.'.format(stat))
+                raise AttributeError('Chosen measure {} is not a member of numpy or scipy.stats.'.format(stat))
         elif callable(stat):
             summary_callable = stat
         else:

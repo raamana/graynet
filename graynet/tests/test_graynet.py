@@ -58,7 +58,7 @@ cur_dir = os.path.dirname(abspath(__file__))
 
 
 def test_multi_edge():
-    edge_weights_all = multi_edge.extract(subject_id_list,
+    edge_weights_all = multi_edge.extract_multiedge(subject_id_list,
                                           input_dir=fs_dir,
                                           base_feature_list=cfg.default_feature_list_multi_edge,
                                           weight_method_list=weight_methods,
