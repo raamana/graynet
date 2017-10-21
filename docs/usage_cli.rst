@@ -5,7 +5,7 @@ Command line interface
 The command line interface for graynet (preferred interface, given its target is HPC) is shown below. Check the bottom of this page for examples.
 
 .. argparse::
-   :ref: graynet.run_workflow.__get_parser
+   :ref: graynet.run_workflow.get_parser
    :prog: graynet
    :nodefault:
    :nodefaultconst:

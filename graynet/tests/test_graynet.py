@@ -59,23 +59,23 @@ cur_dir = os.path.dirname(abspath(__file__))
 
 def test_multi_edge():
     edge_weights_all = multi_edge.extract_multiedge(subject_id_list,
-                                          input_dir=fs_dir,
-                                          base_feature_list=cfg.default_feature_list_multi_edge,
-                                          weight_method_list=weight_methods,
-                                          atlas=atlas,
-                                          smoothing_param=fwhm,
-                                          out_dir=out_dir,
-                                          return_results=True,
-                                          num_procs=1)
+                                                    input_dir=fs_dir,
+                                                    base_feature_list=cfg.default_features_multi_edge,
+                                                    weight_method_list=weight_methods,
+                                                    atlas=atlas,
+                                                    smoothing_param=fwhm,
+                                                    out_dir=out_dir,
+                                                    return_results=True,
+                                                    num_procs=1)
 
     num_combinations = len(list(edge_weights_all))
-    expected_num_comb = len(subject_id_list) * len(weight_methods)*len(cfg.default_feature_list_multi_edge)
+    expected_num_comb = len(subject_id_list) * len(weight_methods)*len(cfg.default_features_multi_edge)
     if num_combinations != expected_num_comb:
         raise ValueError('invalid results : # subjects')
 
     for wm in weight_methods:
         for sub in subject_id_list:
-            for feat in cfg.default_feature_list_multi_edge:
+            for feat in cfg.default_features_multi_edge:
                 if edge_weights_all[(wm, feat, sub)].size != num_links:
                     raise ValueError('invalid results : # links')
 
@@ -186,10 +186,10 @@ def test_invalid_nbins():
 
 
 #
-test_multi_edge()
+# test_multi_edge()
 
 # test_empty_subject_list()
-# test_run_no_IO()
-# test_run_roi_stats_via_API()
+test_run_no_IO()
+test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()

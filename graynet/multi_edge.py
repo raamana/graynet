@@ -1,11 +1,12 @@
+import graynet.utils
+from graynet.utils import stamp_expt_multiedge, check_params_multiedge
+
 __all__ = ['extract_multiedge', ]
 
-import collections
 import os
 import sys
 import warnings
 import traceback
-import logging
 from os.path import join as pjoin, exists as pexists
 from multiprocessing import Manager, Pool
 from functools import partial
@@ -18,16 +19,16 @@ from sys import version_info
 
 if version_info.major > 2:
     from graynet import parcellate
-    from graynet import freesurfer
     from graynet import config_graynet as cfg
     from graynet import run_workflow as single_edge
+    from graynet import utils
 else:
     raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
 
 def extract_multiedge(subject_id_list,
                       input_dir,
-                      base_feature_list=cfg.default_feature_list_multi_edge,
+                      base_feature_list=cfg.default_features_multi_edge,
                       weight_method_list=cfg.default_weight_method,
                       summary_stat=cfg.multi_edge_summary_func_default,
                       num_bins=cfg.default_num_bins,
@@ -121,6 +122,12 @@ def extract_multiedge(subject_id_list,
 
         *Default* choice: 'manhattan'.
 
+    summary_stat : str
+        A string representing a method (like 'median', 'prod' or 'max'),
+        to compute a summay statistic from the array of multiple weights computed.
+
+        This must be available as a member of numpy or scipy.stats.
+
     num_bins : int
         Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
 
@@ -173,19 +180,19 @@ def extract_multiedge(subject_id_list,
 
     # All the checks must happen here, as this is key function in the API
     check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param, node_size, out_dir, return_results)
-    atlas = single_edge.check_atlas(atlas)
+    atlas = utils.check_atlas(atlas)
 
-    subject_id_list, num_subjects, max_id_width, nd_id = single_edge.check_subjects(subject_id_list)
+    subject_id_list, num_subjects, max_id_width, nd_id = utils.check_subjects(subject_id_list)
 
-    num_bins, edge_range = single_edge.check_weight_params(num_bins, edge_range)
-    weight_method_list, num_weights, max_wtname_width, nd_wm = single_edge.check_weights(weight_method_list)
+    num_bins, edge_range = utils.check_weight_params(num_bins, edge_range)
+    weight_method_list, num_weights, max_wtname_width, nd_wm = utils.check_weights(weight_method_list)
 
     # validating the choice and getting a callable
-    stat_callable_list, names_callable, _, _, _ = single_edge.check_stat_methods(summary_stat)
+    stat_callable_list, names_callable, _, _, _ = utils.check_stat_methods(summary_stat)
     summary_stat = stat_callable_list[0]
     summary_stat_name = names_callable[0]
 
-    num_procs = single_edge.check_num_procs(num_procs)
+    num_procs = utils.check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
 
     # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
@@ -283,7 +290,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
                 # retrieving edge weights
                 weight_vec = np.array(list(nx.get_edge_attributes(unigraph, 'weight').values()))
-                single_edge.warn_nan(weight_vec)
+                utils.warn_nan(weight_vec)
                 if return_results:
                     edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
 
@@ -317,7 +324,6 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
         add_nodal_positions(summary_multigraph, centroids)
 
         # saving to disk
-        # TODO need a way to save a multigraph (skip fancy features to get job done)
         expt_id_multi = stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method)
         save_multigraph(multigraph, out_dir, subject, expt_id_multi)
 
@@ -378,45 +384,6 @@ def add_nodal_positions(graph, centroids):
         graph.node[roi]['x'] = float(centroids[roi][0])
         graph.node[roi]['y'] = float(centroids[roi][1])
         graph.node[roi]['z'] = float(centroids[roi][2])
-
-    return
-
-
-def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method):
-    "Constructs a string to uniquely identify a given experiment."
-
-    import re
-    all_words = re.split('_|; |, |\*|\n| ', ' '.join(base_feature_list))
-    feat_repr = '_'.join(set(all_words))
-    expt_id   = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param, node_size, weight_method)
-
-    return expt_id
-
-
-def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
-                           node_size, out_dir, return_results):
-    """Validation of parameters and appropriate type casting if necessary."""
-
-    given = set(base_feature_list)
-    allowed = set(cfg.base_feature_list)
-    if not given.issubset(allowed):
-        unrecog_methods = given.difference(allowed)
-        raise NotImplementedError('Methods unrecognized: \n {}'.format(unrecog_methods))
-
-    if atlas.upper() not in parcellate.atlas_list:
-        raise ValueError('Invalid atlas choice. Use one of {}'.format(parcellate.atlas_list))
-
-    if not pexists(input_dir):
-        raise IOError('Input directory at {} does not exist.'.format(input_dir))
-
-    if out_dir is None and return_results is False:
-        raise ValueError('Results are neither saved to disk or being received when returned.\n'
-                         'Specify out_dir (not None) or make return_results=True')
-
-    if out_dir is not None and not pexists(out_dir):
-        os.mkdir(out_dir)
-
-    # no checks on subdivison size yet, as its not implemented
 
     return
 

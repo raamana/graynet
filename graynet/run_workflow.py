@@ -1,6 +1,8 @@
+from graynet.utils import check_atlas, check_num_procs, check_stat_methods, warn_nan, check_subjects, check_weights, \
+    check_weight_params, check_params_single_edge
+
 __all__ = ['extract', 'roiwise_stats_indiv', 'roi_info', 'cli_run']
 
-import collections
 import os
 import sys
 import argparse
@@ -8,11 +10,10 @@ import warnings
 import traceback
 import logging
 from os.path import join as pjoin, exists as pexists
-from multiprocessing import Manager, Pool, cpu_count
+from multiprocessing import Manager, Pool
 from functools import partial
 
 import hiwenet
-import nibabel
 import numpy as np
 import networkx as nx
 
@@ -26,6 +27,7 @@ elif version_info.major > 2:
     from graynet import parcellate
     from graynet import freesurfer
     from graynet import config_graynet as cfg
+    from graynet import utils
 else:
     raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
@@ -35,7 +37,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 def extract(subject_id_list,
             input_dir,
-            base_feature=cfg.default_feature,
+            base_feature=cfg.default_feature_single_edge,
             weight_method_list=cfg.default_weight_method,
             num_bins=cfg.default_num_bins,
             edge_range=cfg.default_edge_range,
@@ -323,50 +325,8 @@ def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
     return  edge_weights_all
 
 
-def check_atlas(atlas):
-    """Validation of atlas input."""
-
-    # when its a name for pre-defined atlas
-    if isinstance(atlas, str):
-        if not pexists(atlas): # just a name
-            atlas = atlas.upper()
-            if atlas not in parcellate.atlas_list:
-                raise ValueError('Invalid choice of atlas. Accepted : {}'.format(parcellate.atlas_list))
-        elif os.path.isdir(atlas): # cortical atlas in Freesurfer org
-            if not parcellate.check_atlas_annot_exist(atlas):
-                raise ValueError('Given atlas folder does not contain Freesurfer label annot files. '
-                                 'Needed : given_atlas_dir/label/?h.aparc.annot')
-        elif pexists(atlas): # may be a volumetric atlas?
-            try:
-                atlas = nibabel.load(atlas)
-            except:
-                traceback.print_exc()
-                raise ValueError('Unable to read the provided image volume. Must be a nifti 2d volume, readable by nibabel.')
-        else:
-            raise ValueError('Unable to decipher or use the given atlas.')
-    else:
-        raise NotImplementedError('Atlas must be a string, providing a name or path to Freesurfer folder or a 3D nifti volume.')
-
-    return atlas
-
-
-def check_num_procs(num_procs=cfg.default_num_procs):
-    "Ensures num_procs is finite and <= available cpu count."
-
-    num_procs  = int(num_procs)
-    avail_cpu_count = cpu_count()
-    if num_procs < 1 or not np.isfinite(num_procs) or num_procs is None:
-        num_procs = 1
-        print('Invalid value for num_procs. Using num_procs=1')
-    elif num_procs > avail_cpu_count:
-        print('# CPUs requested higher than available - choosing {}'.format(avail_cpu_count))
-        num_procs = avail_cpu_count
-
-    return num_procs
-
-
 def roiwise_stats_indiv(subject_id_list, input_dir,
-                        base_feature=cfg.default_feature,
+                        base_feature=cfg.default_feature_single_edge,
                         chosen_roi_stats=cfg.default_roi_statistic,
                         atlas=cfg.default_atlas, smoothing_param=cfg.default_smoothing_param,
                         node_size=cfg.default_node_size,
@@ -488,8 +448,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
             try:
                 roi_stats = calc_roi_statistics(data, rois, uniq_rois, stat_func)
-                expt_id_no_network = __stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param,
-                                                        node_size)
+                expt_id_no_network = stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param,
+                                                      node_size)
                 save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
                 sys.stdout.write('Done.')
             except KeyboardInterrupt:
@@ -506,52 +466,6 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             roi_stats_all[subject] = roi_stats
 
     return roi_stats_all
-
-
-def check_stat_methods(stat_list=None):
-    "Validates the choice and returns a callable to compute summaries."
-
-    from scipy import stats as sp_stats
-
-    if stat_list is None:
-        stat_list = [np.median, ]
-
-    if not isinstance(stat_list, list):
-        # when a single method is specified by a str or callable
-        if isinstance(stat_list, str) or callable(stat_list):
-            stat_list = [stat_list, ]
-        else:
-            raise ValueError('Unrecognized stat method: must be a str or callable or a list of them.')
-
-    stat_callable_list = list()
-    for stat in stat_list:
-        if isinstance(stat, str):
-            stat = stat.lower()
-            if hasattr(np, stat):
-                summary_callable = getattr(np, stat)
-            elif hasattr(sp_stats, stat):
-                summary_callable = getattr(sp_stats, stat)
-            else:
-                raise AttributeError('Chosen measure {} is not a member of numpy or scipy.stats.'.format(stat))
-        elif callable(stat):
-            summary_callable = stat
-        else:
-            raise ValueError('summary measure is not recognized.')
-
-        stat_callable_list.append(summary_callable)
-
-    # constructing names
-    names_callable = list()
-    for func in stat_callable_list:
-        method_name = func.__name__
-        method_name = method_name.replace(' ', '_')
-        names_callable.append(method_name)
-
-    num_stats = len(stat_callable_list)
-    num_digits_stat_size = len(str(num_stats))
-    max_wtname_width = max(map(len, names_callable))
-
-    return stat_callable_list, names_callable, num_stats, max_wtname_width, num_digits_stat_size
 
 
 def calc_roi_statistics(data, rois, uniq_rois, given_callable=np.median):
@@ -599,15 +513,6 @@ def fsl_import(input_dir,
     return
 
 
-def warn_nan(array):
-    "Raises a warning when non-finite or NaN values are found."
-
-    num_nonfinite = np.count_nonzero(np.logical_not(np.isfinite(array)))
-    if num_nonfinite > 0:
-        logging.warning('{} non-finite values are found.'.format(num_nonfinite))
-
-    return
-
 def get_triu_handle_inf_nan(weights_matrix):
     "Issue a warning when NaNs or Inf are found."
 
@@ -619,91 +524,6 @@ def get_triu_handle_inf_nan(weights_matrix):
     warn_nan(upper_tri_vec)
 
     return upper_tri_vec
-
-
-def check_subjects(subjects_info):
-    "Ensure subjects are provided and their data exist."
-
-    if isinstance(subjects_info, str):
-        if not pexists(subjects_info):
-            raise IOError('path to subject list does not exist: {}'.format(subjects_info))
-        subjects_list = np.genfromtxt(subjects_info, dtype=str)
-    elif isinstance(subjects_info, collections.Iterable):
-        if len(subjects_info) < 1:
-            raise ValueError('Empty subject list.')
-        subjects_list = subjects_info
-    else:
-        raise ValueError('Invalid value provided for subject list. \n '
-                         'Must be a list of paths, or path to file containing list of paths, one for each subject.')
-
-    subject_id_list = np.atleast_1d(subjects_list)
-    num_subjects = subject_id_list.size
-    if num_subjects < 1:
-        raise ValueError('Input subject list is empty.')
-
-    num_digits_id_size = len(str(num_subjects))
-    max_id_width = max(map(len, subject_id_list))
-
-    return subject_id_list, num_subjects, max_id_width, num_digits_id_size
-
-
-def check_weights(weight_method_list):
-    "Ensures weights are implemented and atleast one choice is given."
-
-    if isinstance(weight_method_list, str):
-        weight_method_list = [weight_method_list, ]
-
-    if isinstance(weight_method_list, collections.Iterable):
-        if len(weight_method_list) < 1:
-            raise ValueError('Empty weight list. Atleast one weight must be provided.')
-    else:
-        raise ValueError('Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
-
-    for weight in weight_method_list:
-        if weight not in cfg.implemented_weights:
-            raise NotImplementedError('Method {} not implemented. '
-                                      'Choose one of : \n {}'.format(weight, cfg.implemented_weights))
-
-    num_weights = len(weight_method_list)
-    num_digits_wm_size = len(str(num_weights))
-    max_wtname_width = max(map(len, weight_method_list))
-
-    return weight_method_list, num_weights, max_wtname_width, num_digits_wm_size
-
-
-def check_weight_params(num_bins, edge_range_spec):
-    "Ensures parameters are valid and type casts them."
-
-    if isinstance(num_bins, str):
-        # possible when called from CLI
-        num_bins = np.float(num_bins)
-
-    # rounding it to ensure it is int
-    num_bins = np.rint(num_bins)
-
-    if np.isnan(num_bins) or np.isinf(num_bins):
-        raise ValueError('Invalid value for number of bins! Choose a natural number >= {}'.format(cfg.default_minimum_num_bins))
-
-    if edge_range_spec is None:
-        edge_range = edge_range_spec
-    elif isinstance(edge_range_spec, collections.Sequence):
-        if len(edge_range_spec) != 2:
-            raise ValueError('edge_range must be a tuple of two values: (min, max)')
-        if edge_range_spec[0] >= edge_range_spec[1]:
-            raise ValueError(
-                'edge_range : min {} is not less than the max {} !'.format(edge_range_spec[0], edge_range_spec[1]))
-
-        # CLI args are strings unless converted to numeric
-        edge_range = np.float64(edge_range_spec)
-        if not np.all(np.isfinite(edge_range)):
-            raise ValueError('Infinite or NaN values in edge range : {}'.format(edge_range_spec))
-
-        # converting it to tuple to make it immutable
-        edge_range = tuple(edge_range)
-    else:
-        raise ValueError('Invalid edge range! Must be a tuple of two values (min, max)')
-
-    return num_bins, edge_range
 
 
 def mask_background_roi(data, labels, ignore_label):
@@ -819,7 +639,7 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
     return
 
 
-def __stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size):
+def stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size):
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
@@ -838,74 +658,45 @@ def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_me
     return expt_id
 
 
-def check_params_single_edge(base_feature, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
-    """"""
-
-    if base_feature not in cfg.base_feature_list:
-        raise NotImplementedError('Choice {} is invalid or not implemented'.format(base_feature))
-
-    if atlas.upper() not in parcellate.atlas_list:
-        raise ValueError('Invalid atlas choice. Use one of {}'.format(parcellate.atlas_list))
-
-    if not pexists(in_dir):
-        raise IOError('Input directory at {} does not exist.'.format(in_dir))
-
-    if out_dir is None and return_results is False:
-        raise ValueError('Results are neither saved to disk or being received when returned.\n'
-                         'Specify out_dir (not None) or make return_results=True')
-
-    if out_dir is not None and not pexists(out_dir):
-        os.mkdir(out_dir)
-
-    # no checks on subdivison size yet, as its not implemented
-
-    return
-
-
-def __read_features_and_groups(features_path, groups_path):
-    "Reader for data and groups"
-
-    try:
-        features = np.loadtxt(features_path)
-        groups = np.loadtxt(groups_path)
-    except:
-        raise IOError('error reading the specified features and/or groups.')
-
-    if len(features) != len(groups):
-        raise ValueError("lengths of features and groups do not match!")
-
-    return features, groups
-
-
 def cli_run():
     "command line interface!"
 
-    subject_ids_path, input_dir, base_feature, weight_method, num_bins, edge_range, \
-    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs = __parse_args()
+    subject_ids_path, input_dir, base_feature_list, \
+    weight_method, do_multi_edge, num_bins, edge_range, \
+    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs = parse_args()
 
     # when run from CLI, results will not be received
     # so no point in wasting memory maintaining a very big array
     return_results = False
 
-    if weight_method is not None:
-        extract(subject_ids_path, input_dir, base_feature,
-                weight_method, num_bins, edge_range,
-                atlas, smoothing_param, node_size, out_dir, return_results, num_procs)
+    if do_multi_edge:
+        from graynet.multi_edge import extract_multiedge
+        print('Computing multiple edges ... ')
+        extract_multiedge(subject_ids_path, input_dir, base_feature_list,
+                          weight_method, num_bins, edge_range,
+                          atlas, smoothing_param, node_size, out_dir, return_results, num_procs)
     else:
-        print('ROI summary stats computation requested -- skipping computation of network weights.')
-        roiwise_stats_indiv(subject_ids_path, input_dir, base_feature,
-                            roi_stats, atlas, smoothing_param, node_size,
-                            out_dir, return_results)
+        base_feature = base_feature_list[0]
+        if weight_method is not None:
+            print('Computing single edge ... ')
+            extract(subject_ids_path, input_dir, base_feature,
+                    weight_method, num_bins, edge_range,
+                    atlas, smoothing_param, node_size, out_dir, return_results, num_procs)
+        else:
+            print('Computing ROI summary stats -- skipping computation of any network weights.')
+            roiwise_stats_indiv(subject_ids_path, input_dir, base_feature,
+                                roi_stats, atlas, smoothing_param, node_size,
+                                out_dir, return_results)
 
     return
 
 
-def __get_parser():
+def get_parser():
     "Method to specify arguments and defaults. "
 
     help_text_subject_ids = "Path to file containing list of subject IDs (one per line)"
     help_text_input_dir = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
-    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(cfg.default_feature, cfg.base_feature_list)
+    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(cfg.default_feature_single_edge, cfg.base_feature_list)
 
     help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(cfg.default_weight_method)
     help_text_num_bins = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(cfg.default_num_bins)
@@ -931,19 +722,27 @@ def __get_parser():
                         required=True, help=help_text_input_dir)
 
     # TODO let users specify multiple features comma separated
-    parser.add_argument("-f", "--feature", action="store", dest="feature",
-                        default=cfg.default_feature, required=False,
+    parser.add_argument("-f", "--feature", action="store",
+                        dest="features",
+                        nargs='*',
+                        default=cfg.default_feature_single_edge, required=False,
                         help=help_text_feature)
 
     parser.add_argument("-o", "--out_dir", action="store", dest="out_dir",
                         default=None, required=False,
                         help="Where to save the extracted features. ")
 
+    parser.add_argument("-m", "--do_multi_edge", action="store_true", dest="do_multi_edge",
+                        default=False, required=False,
+                        help="Option to compute multiple edges between ROIs based on different features. Must specify atleast two valid features.")
+
 
     # method_selector = parser.add_argument_group(title='Stats', description='Choose only one of the following processing choices to be done.')
     method_selector = parser.add_mutually_exclusive_group(required=True)
-    method_selector.add_argument("-w", "--weight_method", action="store", dest="weight_method",
-                                 nargs='*', default=None, required=False, help=help_text_weight)
+    method_selector.add_argument("-w", "--weight_method", action="store",
+                                 dest="weight_methods",
+                                 nargs='*',
+                                 default=None, required=False, help=help_text_weight)
 
     method_selector.add_argument("-r", "--roi_stats", action="store", dest="roi_stats",
                                  nargs='*', default=None, help=help_text_roi_stats)
@@ -981,10 +780,10 @@ def __get_parser():
     return parser
 
 
-def __parse_args():
+def parse_args():
     """Parser/validator for the cmd line args."""
 
-    parser = __get_parser()
+    parser = get_parser()
 
     if len(sys.argv) < 2:
         parser.print_help()
@@ -1011,11 +810,22 @@ def __parse_args():
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
+    feature_list = utils.check_features(params.features)
+
+    do_multi_edge = bool(params.do_multi_edge)
+    if do_multi_edge:
+        # ensure atleast two features
+        if len(feature_list) < 2:
+            raise ValueError('To enable multi-edge computation, specify atleast two valid features.')
+    else:
+        if len(feature_list) > 1:
+            raise ValueError('For single edge computation, only one feature can be specified.')
+
     # validating choices and doing only one of the two
-    weight_method = params.weight_method
+    weight_methods = params.weight_methods
     roi_stats = params.roi_stats
-    if weight_method is not None:
-        weight_method_list, _, _, _ = check_weights(weight_method)
+    if weight_methods is not None:
+        weight_method_list, _, _, _ = check_weights(weight_methods)
         if roi_stats is not None:
             warnings.warn('roi stats method specified while also requesting network weights computation. '
                           'Only one can be done at a time. Skipping it.', UserWarning)
@@ -1028,7 +838,9 @@ def __parse_args():
 
     # num_procs will be validated inside in the functions using it.
 
-    return subject_ids_path, input_dir, params.feature, weight_method_list, params.num_bins, params.edge_range, \
+    return subject_ids_path, input_dir, \
+           feature_list, weight_method_list, do_multi_edge, \
+           params.num_bins, params.edge_range, \
            params.atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, params.num_procs
 
 

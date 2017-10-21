@@ -10,7 +10,8 @@ features_fsl = ['gmdensity', ]
 
 base_feature_list = features_freesurfer + features_fsl
 
-default_feature_list_multi_edge = ['freesurfer_thickness', 'freesurfer_curv']
+default_feature_single_edge = ['freesurfer_thickness', ]
+default_features_multi_edge = ['freesurfer_thickness', 'freesurfer_curv']
 
 default_weight_method = ('manhattan',)
 
@@ -28,14 +29,13 @@ default_minimum_num_bins = 5
 default_num_bins = 25
 default_trim_percentile = 5
 
-default_feature = 'freesurfer_thickness'
 default_atlas = 'FSAVERAGE' # 'GLASSER2016'
 default_smoothing_param = 10
 default_node_size = None
 
 edge_range_predefined = {'freesurfer_thickness': (0, 5),
                          'freesurfer_curv'     : (-0.3, +0.3)}
-default_edge_range = edge_range_predefined[default_feature]
+default_edge_range = None # edge_range_predefined[default_feature_single_edge]
 
 default_roi_statistic = 'median'
 default_num_procs = 2
