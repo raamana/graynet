@@ -662,7 +662,7 @@ def cli_run():
     "command line interface!"
 
     subject_ids_path, input_dir, base_feature_list, \
-    weight_method, do_multi_edge, num_bins, edge_range, \
+    weight_method, do_multi_edge, summary_stat, num_bins, edge_range, \
     atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs = parse_args()
 
     # when run from CLI, results will not be received
@@ -672,16 +672,25 @@ def cli_run():
     if do_multi_edge:
         from graynet.multi_edge import extract_multiedge
         print('Computing multiple edges ... ')
-        extract_multiedge(subject_ids_path, input_dir, base_feature_list,
-                          weight_method, num_bins, edge_range,
-                          atlas, smoothing_param, node_size, out_dir, return_results, num_procs)
+        extract_multiedge(subject_ids_path, input_dir,
+                    base_feature_list=base_feature_list,
+                    weight_method_list=weight_method,
+                    summary_stat=summary_stat,
+                    num_bins=num_bins, edge_range=edge_range,
+                    atlas=atlas, smoothing_param=smoothing_param,
+                    node_size=node_size, out_dir=out_dir,
+                    return_results=return_results, num_procs=num_procs)
     else:
         base_feature = base_feature_list[0]
         if weight_method is not None:
             print('Computing single edge ... ')
-            extract(subject_ids_path, input_dir, base_feature,
-                    weight_method, num_bins, edge_range,
-                    atlas, smoothing_param, node_size, out_dir, return_results, num_procs)
+            extract(subject_ids_path, input_dir,
+                    base_feature=base_feature,
+                    weight_method_list=weight_method,
+                    num_bins=num_bins, edge_range=edge_range,
+                    atlas=atlas, smoothing_param=smoothing_param,
+                    node_size=node_size, out_dir=out_dir,
+                    return_results=return_results, num_procs=num_procs)
         else:
             print('Computing ROI summary stats -- skipping computation of any network weights.')
             roiwise_stats_indiv(subject_ids_path, input_dir, base_feature,
@@ -698,6 +707,9 @@ def get_parser():
     help_text_input_dir     = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
     help_text_feature       = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(cfg.default_feature_single_edge[0], cfg.base_feature_list)
     help_text_multi_edge    = "Option to compute multiple edges between ROIs based on different features. Default False. If True, two valid features must be specified."
+    help_text_summary_stat  = "Summary statistic to compute of the weights from multiple edges." \
+                              "This must be a string representing a method (like 'median', 'prod' or 'max'). " \
+                              "that is available as a member of numpy or scipy.stats."
     help_text_weight        = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(cfg.default_weight_method)
     help_text_num_bins      = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(cfg.default_num_bins)
     help_text_edge_range    = "The range of edges (two finite values) within which to bin the given values " \
@@ -745,13 +757,16 @@ def get_parser():
                                  nargs='*',
                                  default=None, required=False, help=help_text_weight)
 
+    method_selector.add_argument("-r", "--roi_stats", action="store", dest="roi_stats",
+                                 nargs='*', default=None, help=help_text_roi_stats)
+
     method_selector.add_argument("-m", "--do_multi_edge", action="store_true", dest="do_multi_edge",
                                  default=False, required=False,
                                  help=help_text_multi_edge)
 
-    method_selector.add_argument("-r", "--roi_stats", action="store", dest="roi_stats",
-                                 nargs='*', default=None, help=help_text_roi_stats)
-
+    method_selector.add_argument("-t", "--summary_stat", action="store", dest="summary_stat",
+                                 default=cfg.multi_edge_summary_func_default, required=False,
+                                 help=help_text_summary_stat)
 
     method_params = parser.add_argument_group(title='Weight parameters',
                                               description='Parameters relevant to histogram edge weight calculations')
@@ -818,11 +833,15 @@ def parse_args():
     feature_list = utils.check_features(params.features)
 
     do_multi_edge = bool(params.do_multi_edge)
+    summary_stat = params.summary_stat
     if do_multi_edge:
         # ensure atleast two features
         if len(feature_list) < 2:
             raise ValueError('To enable multi-edge computation, specify atleast two valid features.')
+
+        utils.check_stat_methods(summary_stat)
     else:
+        summary_stat = None
         if len(feature_list) > 1:
             raise ValueError('For single edge computation, only one feature can be specified.')
 
@@ -844,7 +863,8 @@ def parse_args():
     # num_procs will be validated inside in the functions using it.
 
     return subject_ids_path, input_dir, \
-           feature_list, weight_method_list, do_multi_edge, \
+           feature_list, weight_method_list, \
+           do_multi_edge, summary_stat, \
            params.num_bins, params.edge_range, \
            params.atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, params.num_procs
 
