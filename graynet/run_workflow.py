@@ -696,14 +696,20 @@ def get_parser():
 
     help_text_subject_ids = "Path to file containing list of subject IDs (one per line)"
     help_text_input_dir = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
-    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(cfg.default_feature_single_edge, cfg.base_feature_list)
+    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(cfg.default_feature_single_edge[0], cfg.base_feature_list)
+
+    help_text_multi_edge = "Option to compute multiple edges between ROIs based on different features. Default False. If True, two valid features must be specified."
 
     help_text_weight = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(cfg.default_weight_method)
     help_text_num_bins = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(cfg.default_num_bins)
     help_text_edge_range = "The range of edges (two finite values) within which to bin the given values e.g. --edge_range 0.0 5.0 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : {}, to automatically compute from the given values.".format(
         cfg.default_edge_range)
 
-    help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include 'median', 'entropy', 'kurtosis' and any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . "
+    help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. " \
+                          "These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. " \
+                          "Options for summary statistics include 'median', 'entropy', 'kurtosis' and " \
+                          "any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . " \
+                          "When this option is chosen, network computation is not allowed. You need to compute networks and ROI stats separately."
 
     help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. Default: '{}'".format(cfg.default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. Default : {}".format(cfg.default_node_size)
@@ -721,7 +727,6 @@ def get_parser():
     parser.add_argument("-i", "--input_dir", action="store", dest="input_dir",
                         required=True, help=help_text_input_dir)
 
-    # TODO let users specify multiple features comma separated
     parser.add_argument("-f", "--feature", action="store",
                         dest="features",
                         nargs='*',
@@ -732,17 +737,17 @@ def get_parser():
                         default=None, required=False,
                         help="Where to save the extracted features. ")
 
-    parser.add_argument("-m", "--do_multi_edge", action="store_true", dest="do_multi_edge",
-                        default=False, required=False,
-                        help="Option to compute multiple edges between ROIs based on different features. Must specify atleast two valid features.")
-
-
-    # method_selector = parser.add_argument_group(title='Stats', description='Choose only one of the following processing choices to be done.')
-    method_selector = parser.add_mutually_exclusive_group(required=True)
+    method_selector = parser.add_argument_group(title='Type of computation',
+                                                description='Choose one among single edge, multiedge or simply ROI stats.')
+    # method_selector = parser.add_argument_group(required=True)
     method_selector.add_argument("-w", "--weight_method", action="store",
                                  dest="weight_methods",
                                  nargs='*',
                                  default=None, required=False, help=help_text_weight)
+
+    method_selector.add_argument("-m", "--do_multi_edge", action="store_true", dest="do_multi_edge",
+                                 default=False, required=False,
+                                 help=help_text_multi_edge)
 
     method_selector.add_argument("-r", "--roi_stats", action="store", dest="roi_stats",
                                  nargs='*', default=None, help=help_text_roi_stats)
@@ -827,8 +832,8 @@ def parse_args():
     if weight_methods is not None:
         weight_method_list, _, _, _ = check_weights(weight_methods)
         if roi_stats is not None:
-            warnings.warn('roi stats method specified while also requesting network weights computation. '
-                          'Only one can be done at a time. Skipping it.', UserWarning)
+            print('ROI stats requested with network weights computation - not allowed.')
+            sys.exit(1)
         roi_stats = None
     elif roi_stats is not None:
         roi_stats, _, _, _, _ = check_stat_methods(roi_stats)
