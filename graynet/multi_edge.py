@@ -299,6 +299,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
             print('Done.')
 
+            add_nodal_positions(unigraph, centroids)
             single_edge.save_graph(unigraph, out_dir, subject, expt_id_single)
 
             # adding edges/weights from each feature to a multigraph
