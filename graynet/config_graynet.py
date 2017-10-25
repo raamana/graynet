@@ -2,6 +2,7 @@
 features_freesurfer = ['freesurfer_thickness',
                        'freesurfer_sulc',
                        'freesurfer_curv',
+                       'freesurfer_area',
                        'freesurfer_pial_area',
                        'freesurfer_pial_lgi',
                        'freesurfer_jacobian_white',
@@ -29,12 +30,15 @@ default_minimum_num_bins = 5
 default_num_bins = 25
 default_trim_percentile = 5
 
-default_atlas = 'FSAVERAGE' # 'GLASSER2016'
+default_atlas = 'fsaverage' # 'glasser2016'
 default_smoothing_param = 10
 default_node_size = None
 
-edge_range_predefined = {'freesurfer_thickness': (0, 5),
-                         'freesurfer_curv'     : (-0.3, +0.3)}
+edge_range_predefined = {'freesurfer_thickness' : ( 0.0,  5.0),
+                         'freesurfer_curv'      : (-0.3, +0.3),
+                         'freesurfer_sulc'      : (-1.5, +1.5),
+                         'freesurfer_area'      : ( 0.0,  1.5)
+                         }
 default_edge_range = None # edge_range_predefined[default_feature_single_edge]
 
 default_roi_statistic = 'median'

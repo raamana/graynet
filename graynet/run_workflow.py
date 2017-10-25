@@ -860,13 +860,14 @@ def parse_args():
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
 
+    atlas = params.atlas.lower()
     # num_procs will be validated inside in the functions using it.
 
     return subject_ids_path, input_dir, \
            feature_list, weight_method_list, \
            do_multi_edge, summary_stat, \
            params.num_bins, params.edge_range, \
-           params.atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, params.num_procs
+           atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, params.num_procs
 
 
 if __name__ == '__main__':
