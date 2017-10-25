@@ -88,6 +88,7 @@ def check_stat_methods(stat_list=None):
     "Validates the choice and returns a callable to compute summaries."
 
     from scipy import stats as sp_stats
+    from functools import partial
 
     if stat_list is None:
         stat_list = [np.median, ]
@@ -119,7 +120,13 @@ def check_stat_methods(stat_list=None):
     # constructing names
     names_callable = list()
     for func in stat_callable_list:
-        method_name = func.__name__
+        try:
+            method_name = func.__name__
+        except:
+            if isinstance(func, partial):
+                method_name = func.func.__name__
+            else:
+                raise ValueError('name of callable {} could not be obtained'.format(func))
         method_name = method_name.replace(' ', '_')
         names_callable.append(method_name)
 

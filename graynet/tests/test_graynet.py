@@ -119,8 +119,11 @@ def test_run_roi_stats_via_API():
     summary_methods = ['median', 'mean', 'std', 'variation', 'entropy', 'skew', 'kurtosis']
     # 'mode' returns more than one value; 'gmean' requires only positive values,
     # 'hmean' can not always be computed
-    trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut=0.05)
-    third_kstat = lambda array: scipy.stats.kstat(array, n=3)
+    from scipy.stats import  trim_mean, kstat
+    from functools import partial
+    trimmed_mean = partial(trim_mean, proportiontocut=0.05)
+    third_kstat = partial(kstat, n=3)
+
     summary_methods.extend([trimmed_mean, third_kstat])
     # checking support for nan-handling callables
     summary_methods.extend([np.nanmedian, np.nanmean])
