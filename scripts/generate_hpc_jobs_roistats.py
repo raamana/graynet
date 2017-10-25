@@ -11,7 +11,7 @@ import numpy as np
 #---------------------------------
 
 base_dir = '/u1/work/hpc3194'
-dataset_name = '4RTNI' # 'PPMI' #
+dataset_name = 'ADNI' # '4RTNI' # 'PPMI' #
 
 # list_of_datasets = [ '4RTNI', 'PPMI', 'ADNI' ]
 # list_of_subject_lists = ['graynet.compute.list']*3
@@ -22,13 +22,15 @@ target_list_dir = pjoin(proc_dir, 'target_lists')
 
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 
-base_feature = 'freesurfer_curv' # 'freesurfer_thickness' #  'freesurfer_thickness'
-atlas = 'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
+base_feature = 'freesurfer_thickness' #  'freesurfer_curv'
+atlas = 'FSAVERAGE' #  'GLASSER2016' # 'FSAVERAGE' # 'GLASSER2016' #
 fwhm = 10
 
 roi_statistic = 'median'
 compute_roi_statistic = True
-expt_name = 'roistats'
+expt_name = 'graynet_roistats'
+
+num_procs = 1
 
 num_splits_samples = 40 # 10.0
 num_splits_stats = 1
@@ -39,13 +41,17 @@ roi_stats_list = np.array(['median', 'mode', 'mean', 'std', 'gmean', 'hmean',
                            'variation', 'entropy', 'skew', 'kurtosis'])
 
 cluster_type = 'SGE'
+pe_name = 'dist.pe' # distributed parallel env, not shared mem
 
 def specify_hpc_resources(mem, queue, job_dir, job_log, cluster_type='SGE'):
     "returns lines to include in job scripts to specify resources"
 
     lines = list()
     if cluster_type.upper() in ['SGE', 'SUNGRIDENGINE']:
-        lines.append('#$ -l mf={} -q {} -wd {} -j yes -o {}'.format(mem, queue, job_dir, job_log))
+        parallel_str=''
+        if num_procs > 1:
+                parallel_str='-pe {} {}'.format(pe_name,num_procs)
+        lines.append('#$ -l mf={} -q {} {} -wd {} -j yes -o {}'.format(mem, queue, parallel_str, job_dir, job_log))
         lines.append('cd {}\n'.format(job_dir))
         # add other lines below accommodating to your own HPC
     else:
@@ -91,7 +97,7 @@ def make_job(subject_id_list, freesurfer_dir,
     roi_stat_list = ' '.join(roi_stat_list)
 
     job_file = pjoin(job_dir, '{}.job'.format(job_name))
-    job_log  = pjoin(job_dir, '{}.log'.format(job_name))
+    job_log  = pjoin(job_dir, '{}.graynet_roistats.log'.format(job_name))
     if pexists(job_file):
         os.remove(job_file)
     with open(job_file, 'w') as jf:
@@ -152,3 +158,10 @@ for ww in range(int(num_splits_stats)):
                             atlas, fwhm, out_dir, job_dir, job_name)
 
         print('generated jobs for {} : {} samples and {} stats'.format(job_name, len(subset_samples), len(subset_stats)))
+
+
+print('Job scripts have been generated in \n {}'.format(job_dir))
+print('\nPlease change to that directory and submit them using ./qsubMany *.graynet.job')
+print('If you are not on Linux or not using SGE/Torque, you may have to adapt the qsubMany script also.')
+
+
