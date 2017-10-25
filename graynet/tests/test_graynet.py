@@ -35,10 +35,10 @@ if not pexists(out_dir):
 
 fs_dir = pjoin(base_dir, 'freesurfer')
 base_feature = 'freesurfer_thickness'
-atlas = 'FSAVERAGE'  # 'GLASSER2016' #
+atlas = 'fsaverage'  # 'glasser2016' #
 fwhm = 10
 
-num_roi_atlas = {'FSAVERAGE': 68, 'GLASSER2016': 360}
+num_roi_atlas = {'fsaverage': 68, 'glasser2016': 360}
 num_roi_wholebrain = num_roi_atlas[atlas]
 num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
 
@@ -126,8 +126,9 @@ def test_run_roi_stats_via_API():
     summary_methods.extend([np.nanmedian, np.nanmean])
 
     for summary_method in summary_methods:
-        roi_medians = graynet.roiwise_stats_indiv(subject_id_list, fs_dir, base_feature,
-                                                  summary_method, atlas, fwhm, out_dir=None, return_results=True)
+        roi_medians = graynet.roiwise_stats_indiv(subject_id_list, fs_dir, base_feature=base_feature,
+                                                  chosen_roi_stats=summary_method, atlas=atlas,
+                                                  smoothing_param=fwhm, out_dir=out_dir, return_results=True)
         for sub in subject_id_list:
             if roi_medians[sub].size != num_roi_wholebrain:
                 raise ValueError('invalid summary stats - #nodes do not match.')
@@ -196,10 +197,10 @@ def test_invalid_nbins():
 
 
 #
-test_multi_edge_CLI()
+# test_multi_edge_CLI()
 
 # test_empty_subject_list()
 # test_run_no_IO()
-# test_run_roi_stats_via_API()
+test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()

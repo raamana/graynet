@@ -10,9 +10,9 @@ atlas_list = ['FSAVERAGE', 'GLASSER2016']
 
 # roi labelled ?? in Glasser parcellation has label 16777215
 # fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
-ignore_roi_labels = {'GLASSER2016': [16777215, ], 'FSAVERAGE': [1639705, 3294840]}
-ignore_roi_names = {'GLASSER2016': ['??', '???', 'lh_???', 'rh_???', 'lh_???', 'rh_???'],
-                    'FSAVERAGE'  : ['unknown', 'corpuscallosum',
+ignore_roi_labels = {'glasser2016': [16777215, ], 'fsaverage': [1639705, 3294840]}
+ignore_roi_names = {'glasser2016': ['??', '???', 'lh_???', 'rh_???', 'lh_???', 'rh_???'],
+                    'fsaverage'  : ['unknown', 'corpuscallosum',
                                     'lh_unknown', 'lh_corpuscallosum',
                                     'rh_unknown', 'rh_corpuscallosum']}
 
@@ -23,15 +23,15 @@ null_roi_name = 'null_roi_ignore'
 def check_atlas_name(atlas_name=None):
     "Validates the atlas name and returs its location"
 
-    if atlas_name in [None, 'None']:
-        atlas_name = 'FSAVERAGE'
+    if atlas_name in [None, 'None', '']:
+        atlas_name = 'fsaverage'
 
-    atlas_name = atlas_name.upper()
+    atlas_name = atlas_name.lower()
 
-    if atlas_name in ['GLASSER2016']:
+    if atlas_name in ['glasser2016']:
         this_dir = os.path.dirname(os.path.realpath(__file__))
         atlas_path = os.path.realpath(pjoin(this_dir, 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446'))
-    elif atlas_name in ['FSAVERAGE']:
+    elif atlas_name in ['fsaverage']:
         this_dir = os.path.dirname(os.path.realpath(__file__))
         atlas_path = os.path.realpath(pjoin(this_dir, 'atlases', 'fsaverage'))
     else:
@@ -49,7 +49,7 @@ def get_atlas_annot(atlas_name=None):
     return annot, atlas_path
 
 
-def freesurfer_roi_labels(atlas_name='GLASSER2016'):
+def freesurfer_roi_labels(atlas_name):
     "Returns just the vertex-wise indices for grouping the vertices into ROIs. Order:  left followed by right."
 
     annot, _ = get_atlas_annot(atlas_name)
