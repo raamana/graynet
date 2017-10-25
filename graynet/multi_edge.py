@@ -32,7 +32,7 @@ def extract_multiedge(subject_id_list,
                       weight_method_list=cfg.default_weight_method,
                       summary_stat=cfg.multi_edge_summary_func_default,
                       num_bins=cfg.default_num_bins,
-                      edge_range=cfg.default_edge_range,
+                      edge_range_dict=cfg.edge_range_predefined,
                       atlas=cfg.default_atlas,
                       smoothing_param=cfg.default_smoothing_param,
                       node_size=cfg.default_node_size,
@@ -131,7 +131,7 @@ def extract_multiedge(subject_id_list,
     num_bins : int
         Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
 
-    edge_range : tuple or list
+    edge_range_dict : tuple or list
         The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 5``.
         This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.
 
@@ -184,7 +184,8 @@ def extract_multiedge(subject_id_list,
 
     subject_id_list, num_subjects, max_id_width, nd_id = utils.check_subjects(subject_id_list)
 
-    num_bins, edge_range = utils.check_weight_params(num_bins, edge_range)
+    num_bins = utils.check_num_bins(num_bins)
+    edge_range_dict = utils.check_edge_range_dict(edge_range_dict, base_feature_list)
     weight_method_list, num_weights, max_wtname_width, nd_wm = utils.check_weights(weight_method_list)
 
     # validating the choice and getting a callable
@@ -215,7 +216,7 @@ def extract_multiedge(subject_id_list,
                                        roi_labels, centroids,
                                        weight_method_list, summary_stat, summary_stat_name,
                                        atlas, smoothing_param, node_size,
-                                       num_bins, edge_range,
+                                       num_bins, edge_range_dict,
                                        out_dir, return_results, pretty_print_options)
         with Pool(processes=num_procs) as pool:
             edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list, chunk_size)
@@ -235,7 +236,7 @@ def extract_multiedge(subject_id_list,
 def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                            weight_method_list, summary_stat, summary_stat_name,
                            atlas, smoothing_param, node_size,
-                           num_bins, edge_range,
+                           num_bins, edge_range_dict,
                            out_dir, return_results, pretty_print_options,
                            subject=None):  # purposefully leaving it last to enable partial function creation
     """
@@ -285,7 +286,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                            rois,
                                            weight_method=weight_method,
                                            num_bins=num_bins,
-                                           edge_range=edge_range,
+                                           edge_range=edge_range_dict[base_feature],
                                            return_networkx_graph=True)
 
                 # retrieving edge weights

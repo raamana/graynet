@@ -61,6 +61,7 @@ def test_multi_edge():
     edge_weights_all = multi_edge.extract_multiedge(subject_id_list,
                                                     input_dir=fs_dir,
                                                     base_feature_list=cfg.default_features_multi_edge,
+                                                    edge_range_dict=cfg.edge_range_predefined,
                                                     weight_method_list=weight_methods,
                                                     atlas=atlas,
                                                     smoothing_param=fwhm,
@@ -80,6 +81,15 @@ def test_multi_edge():
                     raise ValueError('invalid results : # links')
 
     print('')
+
+def test_multi_edge_CLI():
+
+    sys.argv = shlex.split('graynet -s {} -i {} '
+                           ' -f freesurfer_thickness freesurfer_curv'
+                           ' --do_multi_edge --multi_edge_range 0.0 5.0 -0.3 +0.3 '
+                           ' -w manhattan -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+
+    CLI()
 
 
 def test_run_no_IO():
@@ -186,10 +196,10 @@ def test_invalid_nbins():
 
 
 #
-# test_multi_edge()
+test_multi_edge_CLI()
 
 # test_empty_subject_list()
-test_run_no_IO()
-test_run_roi_stats_via_API()
+# test_run_no_IO()
+# test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
