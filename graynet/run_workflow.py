@@ -137,7 +137,7 @@ def extract(subject_id_list,
 
     atlas : str
         Name of the atlas whose parcellation to be used.
-        Choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'], which are primary cortical.
+        Choices for cortical parcellation: ['fsaverage', 'glasser2016'], which are primary cortical.
         Volumetric whole-brain atlases will be added soon.
 
     smoothing_param : scalar
@@ -378,7 +378,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
     atlas : str
         Name of the atlas whose parcellation to be used.
-        Available choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'].
+        Available choices for cortical parcellation: ['fsaverage', 'glasser2016'].
         Volumetric whole-brain atlases will be added soon.
 
     smoothing_param : scalar

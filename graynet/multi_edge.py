@@ -142,7 +142,7 @@ def extract_multiedge(subject_id_list,
 
     atlas : str
         Name of the atlas whose parcellation to be used.
-        Choices for cortical parcellation: ['FSAVERAGE', 'GLASSER2016'], which are primary cortical.
+        Choices for cortical parcellation: ['fsaverage', 'glasser2016'], which are primary cortical.
         Volumetric whole-brain atlases will be added soon.
 
     smoothing_param : scalar

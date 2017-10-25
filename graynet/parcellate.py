@@ -6,7 +6,7 @@ import numpy as np
 import nibabel as nib
 from .run_workflow import roi_info
 
-atlas_list = ['FSAVERAGE', 'GLASSER2016']
+atlas_list = ['fsaverage', 'glasser2016']
 
 # roi labelled ?? in Glasser parcellation has label 16777215
 # fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
