@@ -48,7 +48,7 @@ def check_atlas(atlas):
     # when its a name for pre-defined atlas
     if isinstance(atlas, str):
         if not pexists(atlas): # just a name
-            atlas = atlas.upper()
+            atlas = atlas.lower()
             if atlas not in parcellate.atlas_list:
                 raise ValueError('Invalid choice of atlas. Accepted : {}'.format(parcellate.atlas_list))
         elif os.path.isdir(atlas): # cortical atlas in Freesurfer org
@@ -271,7 +271,7 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node
 
     check_features(base_features)
 
-    if atlas.upper() not in parcellate.atlas_list:
+    if atlas.lower() not in parcellate.atlas_list:
         raise ValueError('Invalid atlas choice. Use one of {}'.format(parcellate.atlas_list))
 
     if not pexists(in_dir):
@@ -306,7 +306,7 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
 
     check_features(base_feature_list)
 
-    if atlas.upper() not in parcellate.atlas_list:
+    if atlas.lower() not in parcellate.atlas_list:
         raise ValueError('Invalid atlas choice. Use one of {}'.format(parcellate.atlas_list))
 
     if not pexists(input_dir):
