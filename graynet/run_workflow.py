@@ -261,6 +261,7 @@ def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
         traceback.print_exc()
         warnings.warn('Unable to read {} features'
                       ' for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
+        return
 
     data, rois = mask_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
 
@@ -450,7 +451,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                 roi_stats = calc_roi_statistics(data, rois, uniq_rois, stat_func)
                 expt_id_no_network = stamp_experiment(base_feature, stat_func_names[ss], atlas, smoothing_param,
                                                       node_size)
-                save_summary_stats(roi_stats, out_dir, subject, expt_id_no_network)
+                save_summary_stats(roi_stats, uniq_rois, stat_func_names[ss], out_dir, subject, expt_id_no_network)
                 sys.stdout.write('Done.')
             except KeyboardInterrupt:
                 print('Exiting on keyborad interrupt! \n'
@@ -549,15 +550,15 @@ def roi_info(roi_labels):
 
     # removing the background label
     index_bkgnd = np.argwhere(uniq_rois_temp == parcellate.null_roi_name)[0]
-    uniq_rois = np.delete(uniq_rois_temp, index_bkgnd)
-    roi_size = np.delete(roi_size_temp, index_bkgnd)
+    uniq_rois   = np.delete(uniq_rois_temp, index_bkgnd)
+    roi_size    = np.delete(roi_size_temp, index_bkgnd)
 
     num_nodes = len(uniq_rois)
 
     return uniq_rois, roi_size, num_nodes
 
 
-def save_summary_stats(data_vec, out_dir, subject, str_suffix=None):
+def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_suffix=None):
     "Saves the ROI medians to disk."
 
     if out_dir is not None:
@@ -575,7 +576,11 @@ def save_summary_stats(data_vec, out_dir, subject, str_suffix=None):
         out_weights_path = pjoin(out_subject_dir, out_file_name)
 
         try:
-            np.savetxt(out_weights_path, data_vec, fmt='%.5f')
+            with open(out_weights_path, 'w') as of:
+                of.write('#roi,{}\n'.format(stat_name))
+                for name, value in zip(roi_labels, roi_values):
+                    of.write('{},{}\n'.format(name,value))
+            # np.savetxt(out_weights_path, roi_values, fmt='%.5f')
             print('\nSaved roi stats to \n{}'.format(out_weights_path))
         except:
             print('\nUnable to save extracted features to {}'.format(out_weights_path))
