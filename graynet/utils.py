@@ -27,12 +27,7 @@ def check_features(base_feature_list):
     if isinstance(base_feature_list,str):
         base_feature_list = [base_feature_list, ]
 
-    # remove duplicates, preserve order
-    given_list = []
-    for feat in base_feature_list:
-        if feat not in given_list:
-            given_list.append(feat)
-
+    given_list = unique_order(base_feature_list)
     given = set(given_list)
     allowed = set(cfg.base_feature_list)
     if not given.issubset(allowed):
@@ -67,6 +62,17 @@ def check_atlas(atlas):
         raise NotImplementedError('Atlas must be a string, providing a name or path to Freesurfer folder or a 3D nifti volume.')
 
     return atlas
+
+
+def unique_order(seq):
+    "Removes duplicates while preserving order"
+
+    uniq = list()
+    for element in seq:
+        if element not in uniq:
+            uniq.append(element)
+
+    return uniq
 
 
 def check_num_procs(num_procs=cfg.default_num_procs):
@@ -294,7 +300,7 @@ def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, w
 
     import re
     all_words = re.split('_|; |, |\*|\n| ', ' '.join(base_feature_list))
-    feat_repr = '_'.join(set(all_words))
+    feat_repr = '_'.join(unique_order(all_words))
     expt_id   = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param, node_size, weight_method)
 
     return expt_id

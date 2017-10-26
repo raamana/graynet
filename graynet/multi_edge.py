@@ -1,7 +1,5 @@
-import graynet.utils
-from graynet.utils import stamp_expt_multiedge, check_params_multiedge
 
-__all__ = ['extract_multiedge', ]
+__all__ = ['extract_multiedge', 'summarize_multigraph']
 
 import os
 import sys
@@ -22,6 +20,7 @@ if version_info.major > 2:
     from graynet import config_graynet as cfg
     from graynet import run_workflow as single_edge
     from graynet import utils
+    from graynet.utils import stamp_expt_multiedge, check_params_multiedge
 else:
     raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
