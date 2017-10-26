@@ -34,7 +34,7 @@ However, this is still a work in progress. Please email me and I will be happy t
 # CHANGE THESE FOR YOUR PROCESSING
 # ---------------------------------
 
-dataset_name = '4RTNI' # 'ADNI'  # 'PPMI' #   A short string identifying the larger dataset at a play
+dataset_name = 'PPMI' # '4RTNI' # 'ADNI'  #   A short string identifying the larger dataset at a play
 
 # the following paths can be derived from any number of ways -
 #   just ensure freesurfer_dir and subject_id_list are defined and exist.
@@ -48,7 +48,7 @@ freesurfer_dir = pjoin(proc_dir, 'freesurfer')
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 
 num_procs = 4
-num_splits_samples = 10  # 10.0
+num_splits_samples = 40  # 10.0
 num_splits_weights = 2
 
 queue = 'abaqus.q'
@@ -58,7 +58,7 @@ cli_name = 'graynet'
 job_type = 'multiedge_{}'.format(cli_name)
 # ---------------------------------#---------------------------------#---------------------------------
 
-atlas = 'FSAVERAGE'  # 'GLASSER2016' # Choose one of 'FSAVERAGE' and 'GLASSER2016'
+atlas = 'fsaverage'  # 'glasser2016' # Choose one of 'fsaverage' and 'glasser2016'
 fwhm = 10
 num_bins = 25
 

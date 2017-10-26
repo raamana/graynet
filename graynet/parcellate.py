@@ -158,15 +158,15 @@ def roi_labels_centroids(atlas_name):
 
     atlas_dir, atlas_name = check_atlas_name(atlas_name)
     coords, faces, annot = read_atlas(atlas_dir)
-    roi_labels, ctx_annot = freesurfer_roi_labels(atlas_name)
-    uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
+    vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name)
+    uniq_rois, roi_size, num_nodes = roi_info(vertex_labels)
 
     centroids = dict()
     for roi in uniq_rois:
-        this_roi_vertices = coords['whole'][roi_labels == roi, :]
+        this_roi_vertices = coords['whole'][vertex_labels == roi, :]
         centroids[roi] = np.median(this_roi_vertices, axis=0)
 
-    return uniq_rois, centroids, roi_labels
+    return uniq_rois, centroids, vertex_labels
 
 
 def subdivide_cortex(atlas_dir, hemi_list=None):
