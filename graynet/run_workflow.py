@@ -12,6 +12,7 @@ import logging
 from os.path import join as pjoin, exists as pexists
 from multiprocessing import Manager, Pool
 from functools import partial
+import pickle
 
 import hiwenet
 import numpy as np
@@ -670,6 +671,17 @@ def cli_run():
     weight_method, do_multi_edge, summary_stat, multi_edge_range, \
     num_bins, edge_range, atlas, out_dir, node_size, smoothing_param, \
     roi_stats, num_procs = parse_args()
+
+    # save options to out folder for future ref
+    try:
+        user_opt = [subject_ids_path, input_dir, base_feature_list, weight_method,
+                    do_multi_edge, summary_stat, multi_edge_range, num_bins, edge_range,
+                    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs]
+        with open(pjoin(out_dir,'user_options.pkl'), 'wb') as of:
+            pickle.dump(user_opt, of)
+    except:
+        # ignore
+        traceback.print_exc()
 
     # when run from CLI, results will not be received
     # so no point in wasting memory maintaining a very big array
