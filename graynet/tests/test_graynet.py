@@ -199,11 +199,11 @@ def test_invalid_nbins():
         ew = graynet.extract(subject_id_list, fs_dir, num_bins=2)
 
 
-#
-# test_multi_edge_CLI()
+# test_multi_edge()
+test_multi_edge_CLI()
 
 # test_empty_subject_list()
 # test_run_no_IO()
-test_run_roi_stats_via_API()
+# test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
