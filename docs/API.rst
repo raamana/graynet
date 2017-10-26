@@ -7,7 +7,12 @@ A tutorial-like presentation is available at :doc:`usage_api`, using the followi
 API Reference
 --------------
 
-.. automodule:: graynet
+.. automodule:: run_workflow
    :members: extract, roiwise_stats_indiv
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: multi_edge
+   :members: extract_multiedge
    :undoc-members:
    :show-inheritance:
