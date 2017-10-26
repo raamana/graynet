@@ -26,7 +26,7 @@ This script needs to be modified to suit your needs. It can  also produce a nice
 #---------------------------------
 
 base_dir = '/u1/work/hpc3194'
-dataset_list =['4RTNI', ] # ['4RTNI', 'PPMI']
+dataset_list = ['4RTNI', 'PPMI']
 
 # freesurfer_dir = pjoin(proc_dir, 'freesurfer')
 # subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
@@ -95,6 +95,7 @@ for multi_feature in multi_feature_list:
         incomplete_processing[multi_feature][weight_method] = dict()
         comb_nan_values[multi_feature][weight_method] = dict()
         for ds_name in dataset_list:
+            print('\n{} {}  '.format(ds_name, weight_method), end='')
             proc_dir = pjoin(base_dir, ds_name, 'processed')
             # out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
             out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(expt_prefix, atlas, fwhm))
@@ -112,16 +113,20 @@ for multi_feature in multi_feature_list:
                     idx_nan = np.logical_not(np.isfinite(data))
                     local_flag_nan_exists = np.count_nonzero(idx_nan) > 0
                     if local_flag_nan_exists:
+                        sys.stdout.write('-')
                         flag_nan_exists = True
                         comb_nan_values[multi_feature][weight_method][ds_name].append(sample)
                         # print('NaNs found for {} {} {}'.format(ds_name, weight_method, sample))
                     elif len(data) == num_links_expected:
+                        sys.stdout.write('+')
                         dataset.add_sample(sample, data, numeric_labels[classes[sample]], class_id=classes[sample])
                     else:
                         flag_unexpected = True
+                        sys.stdout.write('-')
                         incomplete_processing[multi_feature][weight_method][ds_name].append(sample)
                 else:
                     flag_incomplete = True
+                    sys.stdout.write('-')
                     incomplete_processing[multi_feature][weight_method][ds_name].append(sample)
                     # print('processing incomplete for {} {} {}'.format(ds_name, weight_method, sample))
 
@@ -129,9 +134,9 @@ for multi_feature in multi_feature_list:
             pass
             # print('{:20} {:25} - processing unusable; totally skipping it.'.format(base_feature, weight_method))
         else:
-            print('{:20} {:5} {:25} - fully usable.'.format(multi_feature, ds_name, weight_method))
-            dataset.description = '{}'.format(weight_method)
-            out_path = pjoin(out_dir,'{}.MLDataset.pkl'.format(weight_method))
+            print('{:20} {:5} {:25} : fully usable.'.format(multi_feature, ds_name, weight_method))
+            dataset.description = '{}_{}'.format(summary_stat, weight_method)
+            out_path = pjoin(out_dir,'{}_{}.MLDataset.pkl'.format(summary_stat,weight_method))
             dataset.save(out_path)
 
     # saving
