@@ -98,15 +98,15 @@ def make_output_path_graph(out_dir, subject, str_prefixes):
     return out_weights_path
 
 
-def save_graph(graph, out_path):
+def save_graph(graph, out_path, identifier=''):
     "Saves the given graph to disk."
 
     if out_path is not None:
         try:
             nx.write_graphml(graph, out_path, encoding='utf-8')
-            print('\nSaved the graph to \n{}'.format(out_path))
+            print('\nSaved the {} graph to \n{}'.format(identifier, out_path))
         except:
-            print('\nUnable to save graph to \n{}'.format(out_path))
+            print('\nUnable to save {} graph to \n{}'.format(identifier, out_path))
             traceback.print_exc()
 
     return out_path
