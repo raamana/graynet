@@ -92,6 +92,17 @@ def test_multi_edge_CLI():
 
     CLI()
 
+def test_multi_edge_summary_stat_CLI():
+
+    ss_list = ' '.join(['prod', 'median', 'max', 'min', 'gmean', 'hmean', 'std'])
+    sys.argv = shlex.split('graynet -s {} -i {} '
+                           ' -f freesurfer_thickness freesurfer_curv'
+                           ' --do_multi_edge --multi_edge_range 0.0 5.0 -0.3 +0.3 '
+                           ' -w manhattan cosine --summary_stat {} '
+                           '-o {} -a {}'.format(sub_list, example_dir, ss_list, out_dir, atlas))
+
+    CLI()
+
 
 def test_run_no_IO():
     edge_weights_all = graynet.extract(subject_id_list,

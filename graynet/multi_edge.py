@@ -349,9 +349,14 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
             else:
                 if multigraph is None:
                     multigraph = nx.read_graphml(out_path_multigraph)
-                summary_multigraph = summarize_multigraph(multigraph, stat_func)
-                add_nodal_positions(summary_multigraph, centroids)
-                save_graph(summary_multigraph, out_path_summary, '{} summary'.format(stat_name))
+
+                try:
+                    summary_multigraph = summarize_multigraph(multigraph, stat_func)
+                    add_nodal_positions(summary_multigraph, centroids)
+                    save_graph(summary_multigraph, out_path_summary, '{} summary'.format(stat_name))
+                except:
+                    print('Summary {} could not be computed - skipping!'.format(stat_name))
+                    traceback.print_exc()
 
     return edge_weights_all
 
