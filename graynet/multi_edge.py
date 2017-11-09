@@ -29,7 +29,7 @@ def extract_multiedge(subject_id_list,
                       input_dir,
                       base_feature_list=cfg.default_features_multi_edge,
                       weight_method_list=cfg.default_weight_method,
-                      summary_stat=cfg.multi_edge_summary_func_default,
+                      summary_stats=cfg.multi_edge_summary_func_default,
                       num_bins=cfg.default_num_bins,
                       edge_range_dict=cfg.edge_range_predefined,
                       atlas=cfg.default_atlas,
@@ -122,8 +122,8 @@ def extract_multiedge(subject_id_list,
 
         *Default* choice: 'manhattan'.
 
-    summary_stat : str
-        A string representing a method (like 'median', 'prod' or 'max'),
+    summary_stats : list of str
+        A string, or list of strings, each representing a method (like 'median', 'prod' or 'max'),
         to compute a summay statistic from the array of multiple weights computed.
 
         This must be available as a member of numpy or scipy.stats.
@@ -192,9 +192,7 @@ def extract_multiedge(subject_id_list,
     weight_method_list, num_weights, max_wtname_width, nd_wm = utils.check_weights(weight_method_list)
 
     # validating the choice and getting a callable
-    stat_callable_list, names_callable, _, _, _ = utils.check_stat_methods(summary_stat)
-    summary_stat = stat_callable_list[0]
-    summary_stat_name = names_callable[0]
+    summary_stats, summary_stat_names, _, _, _ = utils.check_stat_methods(summary_stats)
 
     num_procs = utils.check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
@@ -215,7 +213,7 @@ def extract_multiedge(subject_id_list,
 
     partial_func_extract = partial(per_subject_multi_edge, input_dir, base_feature_list,
                                    roi_labels, centroids,
-                                   weight_method_list, summary_stat, summary_stat_name,
+                                   weight_method_list, summary_stats, summary_stat_names,
                                    atlas, smoothing_param, node_size,
                                    num_bins, edge_range_dict,
                                    out_dir, return_results, overwrite_results, pretty_print_options)
@@ -241,7 +239,7 @@ def extract_multiedge(subject_id_list,
 
 
 def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
-                           weight_method_list, summary_stat, summary_stat_name,
+                           weight_method_list, summary_stats, summary_stat_names,
                            atlas, smoothing_param, node_size,
                            num_bins, edge_range_dict,
                            out_dir, return_results, overwrite_results, pretty_print_options,
@@ -267,6 +265,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
         # skipping the computation if the file exists already
         if not overwrite_results and isfile(out_path_multigraph) and getsize(out_path_multigraph) > 0:
             print('\nMultigraph exists already at\n\t{}\n skipping its computation!'.format(out_path_multigraph))
+            multigraph = None # signal to re-read
         else:
             multigraph = nx.MultiGraph()
 
@@ -340,16 +339,19 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
             # adding position info to nodes (for visualization later)
             add_nodal_positions(multigraph, centroids)
-            save_graph(multigraph, out_path_multigraph)
+            save_graph(multigraph, out_path_multigraph, 'multi-edge')
 
-        # creating single graph with a summary edge weight (like median)
-        out_path_summary = make_output_path_graph(out_dir, subject, [expt_id_multi, summary_stat_name, 'multigraph'])
-        if not overwrite_results and isfile(out_path_summary) and getsize(out_path_summary) > 0:
-            print('Summary {} of multigraph exists already at\n\t{}\n skipping its computation!'.format(summary_stat_name, out_path_summary))
-        else:
-            summary_multigraph = summarize_multigraph(multigraph, summary_stat)
-            add_nodal_positions(summary_multigraph, centroids)
-            save_graph(summary_multigraph, out_path_summary)
+        for stat_func, stat_name in zip(summary_stats, summary_stat_names):
+            # creating single graph with a summary edge weight (like median)
+            out_path_summary = make_output_path_graph(out_dir, subject, [expt_id_multi, stat_name, 'multigraph'])
+            if not overwrite_results and isfile(out_path_summary) and getsize(out_path_summary) > 0:
+                print('Summary {} of multigraph exists already at\n\t{}\n skipping its computation!'.format(stat_name, out_path_summary))
+            else:
+                if multigraph is None:
+                    multigraph = nx.read_graphml(out_path_multigraph)
+                summary_multigraph = summarize_multigraph(multigraph, stat_func)
+                add_nodal_positions(summary_multigraph, centroids)
+                save_graph(summary_multigraph, out_path_summary, '{} summary'.format(stat_name))
 
     return edge_weights_all
 

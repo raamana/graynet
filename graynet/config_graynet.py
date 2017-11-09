@@ -46,7 +46,7 @@ default_num_procs = 2
 
 # multiedge
 
-multi_edge_summary_func_default = 'prod' # 'median'
+multi_edge_summary_func_default = [ 'prod', 'median']
 
 if __name__ == '__main__':
     pass

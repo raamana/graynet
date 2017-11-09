@@ -668,14 +668,14 @@ def cli_run():
     "command line interface!"
 
     subject_ids_path, input_dir, base_feature_list, \
-    weight_method, do_multi_edge, summary_stat, multi_edge_range, \
+    weight_method, do_multi_edge, summary_stats, multi_edge_range, \
     num_bins, edge_range, atlas, out_dir, node_size, smoothing_param, \
     roi_stats, num_procs, overwrite_results = parse_args()
 
     # save options to out folder for future ref
     try:
         user_opt = [subject_ids_path, input_dir, base_feature_list, weight_method,
-                    do_multi_edge, summary_stat, multi_edge_range, num_bins, edge_range,
+                    do_multi_edge, summary_stats, multi_edge_range, num_bins, edge_range,
                     atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs, overwrite_results]
         with open(pjoin(out_dir,'user_options.pkl'), 'wb') as of:
             pickle.dump(user_opt, of)
@@ -693,7 +693,7 @@ def cli_run():
         extract_multiedge(subject_ids_path, input_dir,
                           base_feature_list=base_feature_list,
                           weight_method_list=weight_method,
-                          summary_stat=summary_stat,
+                          summary_stats=summary_stats,
                           num_bins=num_bins, edge_range_dict=multi_edge_range,
                           atlas=atlas, smoothing_param=smoothing_param,
                           node_size=node_size, out_dir=out_dir,
@@ -728,8 +728,8 @@ def get_parser():
     help_text_multi_edge    = "Option to compute multiple edges between ROIs based on different features. " \
                               "Default False. If True, two valid features must be specified. " \
                               "Use --multi_edge_range to specify edge ranges for each feature to be processed."
-    help_text_summary_stat  = "Summary statistic to compute of the weights from multiple edges." \
-                              "This must be a string representing a method (like 'median', 'prod' or 'max'). " \
+    help_text_summary_stat  = "Summary statistic [one or more] to compute on all the weights from multiple edges." \
+                              "This must be a string representing a method (like 'median', 'prod' or 'max'),  " \
                               "that is available as a member of numpy or scipy.stats."
     help_text_weight        = "List of methods used to estimate the weight of the edge between the pair of nodes."  # .format(cfg.default_weight_method)
     help_text_num_bins      = "Number of bins used to construct the histogram within each ROI or group. Default : {}".format(cfg.default_num_bins)
@@ -809,7 +809,7 @@ def get_parser():
                                                 description='Parameters related to computation of multiple edges')
 
     multiedge_args.add_argument("-t", "--summary_stat", action="store", dest="summary_stat",
-                                 default=cfg.multi_edge_summary_func_default, required=False,
+                                nargs='*', default=cfg.multi_edge_summary_func_default, required=False,
                                  help=help_text_summary_stat)
 
     multiedge_args.add_argument("-l", "--multi_edge_range", action="store", dest="multi_edge_range",
