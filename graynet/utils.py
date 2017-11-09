@@ -6,10 +6,12 @@ Common utilities
 import collections
 import logging
 import os
+import sys
 import traceback
 from genericpath import exists as pexists
-
+from os.path import join as pjoin, isfile, realpath, getsize
 import nibabel
+import networkx as nx
 from multiprocessing import cpu_count
 
 import numpy as np
@@ -73,6 +75,41 @@ def unique_order(seq):
             uniq.append(element)
 
     return uniq
+
+
+def make_output_path_graph(out_dir, subject, str_prefixes):
+    "Constructs path to save a multigraph to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if isinstance(str_prefixes, str):
+            str_prefixes = [str_prefixes, ]
+
+        out_file_name = '{}_graynet.graphml'.format('_'.join(str_prefixes))
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+    else:
+        out_weights_path = None
+
+    return out_weights_path
+
+
+def save_graph(graph, out_path):
+    "Saves the given graph to disk."
+
+    if out_path is not None:
+        try:
+            nx.write_graphml(graph, out_path, encoding='utf-8')
+            print('\nSaved the graph to \n{}'.format(out_path))
+        except:
+            print('\nUnable to save graph to \n{}'.format(out_path))
+            traceback.print_exc()
+
+    return out_path
 
 
 def check_num_procs(num_procs=cfg.default_num_procs):
@@ -256,17 +293,18 @@ def check_weight_params(num_bins, edge_range_spec):
 def check_edge_range_dict(edge_range_dict, base_feature_list, predefined_ranges=cfg.edge_range_predefined):
     "Ensures ranges were specified for each feature, and they are valid or automatic(None)"
 
+    print('Setting given edge range ...')
     for feature in base_feature_list:
-        print(' <---- {:20s} ----> '.format(feature))
+        sys.stdout.write('\n <---- {:20s} '.format(feature))
         if feature in edge_range_dict:
             edge_range_dict[feature] = check_edge_range(edge_range_dict[feature])
-            print('Setting given edge range : {}'.format(edge_range_dict[feature]))
+            sys.stdout.write(': {} ----> \n'.format(edge_range_dict[feature]))
         elif feature in predefined_ranges:
-            print('edge range not given! Using predefined: {}'.format(predefined_ranges[feature]))
+            sys.stdout.write('edge range not given! Using predefined: {}'.format(predefined_ranges[feature]))
             edge_range_dict[feature] = predefined_ranges[feature]
         else:
             # covers the case of edge_range_dict being None
-            print('edge range not given or predefined! Setting it automatic (may change for each subject)')
+            sys.stdout.write('edge range not given or predefined! Setting it automatic (may change for each subject)')
             edge_range_dict[feature] = None
 
     return edge_range_dict

@@ -670,13 +670,13 @@ def cli_run():
     subject_ids_path, input_dir, base_feature_list, \
     weight_method, do_multi_edge, summary_stat, multi_edge_range, \
     num_bins, edge_range, atlas, out_dir, node_size, smoothing_param, \
-    roi_stats, num_procs = parse_args()
+    roi_stats, num_procs, overwrite_results = parse_args()
 
     # save options to out folder for future ref
     try:
         user_opt = [subject_ids_path, input_dir, base_feature_list, weight_method,
                     do_multi_edge, summary_stat, multi_edge_range, num_bins, edge_range,
-                    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs]
+                    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs, overwrite_results]
         with open(pjoin(out_dir,'user_options.pkl'), 'wb') as of:
             pickle.dump(user_opt, of)
     except:
@@ -697,7 +697,8 @@ def cli_run():
                           num_bins=num_bins, edge_range_dict=multi_edge_range,
                           atlas=atlas, smoothing_param=smoothing_param,
                           node_size=node_size, out_dir=out_dir,
-                          return_results=return_results, num_procs=num_procs)
+                          return_results=return_results, num_procs=num_procs,
+                          overwrite_results=overwrite_results)
     else:
         base_feature = base_feature_list[0]
         if weight_method is not None:
@@ -754,6 +755,8 @@ def get_parser():
         cfg.default_smoothing_param)
 
     help_text_num_procs = "Number of CPUs to use in parallel to speed up processing. Default : {}, capping at available number of CPUs in the processing node.".format(cfg.default_num_procs)
+
+    help_text_overwrite_results = "Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted)."
 
     parser = argparse.ArgumentParser(prog="graynet")
 
@@ -828,8 +831,12 @@ def get_parser():
                               help=help_text_smoothing)
 
     computing_params = parser.add_argument_group(title='Computing', description='Options related to computing and parallelization.')
+
     computing_params.add_argument('-c', '--num_procs', action='store', dest='num_procs',
                                   default=cfg.default_num_procs, required=False, help=help_text_num_procs)
+    computing_params.add_argument('-d', '--overwrite_results', action='store_true', dest='overwrite_results',
+                                  required=False, help=help_text_overwrite_results)
+
 
     return parser
 
@@ -841,7 +848,7 @@ def parse_args():
 
     if len(sys.argv) < 2:
         parser.print_help()
-        logging.warning('Too few arguments!')
+        print('\nToo few arguments!')
         parser.exit(1)
 
     # parsing
@@ -915,7 +922,8 @@ def parse_args():
            feature_list, weight_method_list, \
            do_multi_edge, summary_stat, multi_edge_range_out, \
            params.num_bins, params.edge_range, \
-           atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, params.num_procs
+           atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, \
+           params.num_procs, params.overwrite_results
 
 
 if __name__ == '__main__':

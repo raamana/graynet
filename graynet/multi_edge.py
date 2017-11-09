@@ -5,7 +5,7 @@ import os
 import sys
 import warnings
 import traceback
-from os.path import join as pjoin, exists as pexists
+from os.path import join as pjoin, exists as pexists, isfile, realpath, getsize
 from multiprocessing import Manager, Pool
 from functools import partial
 
@@ -20,7 +20,7 @@ if version_info.major > 2:
     from graynet import config_graynet as cfg
     from graynet import run_workflow as single_edge
     from graynet import utils
-    from graynet.utils import stamp_expt_multiedge, check_params_multiedge
+    from graynet.utils import stamp_expt_multiedge, check_params_multiedge, make_output_path_graph, save_graph
 else:
     raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
@@ -37,6 +37,7 @@ def extract_multiedge(subject_id_list,
                       node_size=cfg.default_node_size,
                       out_dir=None,
                       return_results=False,
+                      overwrite_results=False,
                       num_procs=cfg.default_num_procs):
     """
     Extracts weighted networks (matrix of pair-wise ROI distances) based on multiple gray matter features based on Freesurfer processing.
@@ -165,6 +166,9 @@ def extract_multiedge(subject_id_list,
         when running from commmand line interface (or HPC). Default: False
         If this is False, out_dir must be specified to save the results to disk.
 
+    overwrite_results : bool
+        Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted).
+
     num_procs : int
         Number of parallel processes to use to speed up computation.
 
@@ -209,16 +213,20 @@ def extract_multiedge(subject_id_list,
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
-    chunk_size = int(np.ceil(num_subjects / num_procs))
-    with Manager():
-        partial_func_extract = partial(per_subject_multi_edge, input_dir, base_feature_list,
-                                       roi_labels, centroids,
-                                       weight_method_list, summary_stat, summary_stat_name,
-                                       atlas, smoothing_param, node_size,
-                                       num_bins, edge_range_dict,
-                                       out_dir, return_results, pretty_print_options)
-        with Pool(processes=num_procs) as pool:
-            edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list, chunk_size)
+    partial_func_extract = partial(per_subject_multi_edge, input_dir, base_feature_list,
+                                   roi_labels, centroids,
+                                   weight_method_list, summary_stat, summary_stat_name,
+                                   atlas, smoothing_param, node_size,
+                                   num_bins, edge_range_dict,
+                                   out_dir, return_results, overwrite_results, pretty_print_options)
+    if num_procs > 1:
+        chunk_size = int(np.ceil(num_subjects / num_procs))
+        with Manager():
+            with Pool(processes=num_procs) as pool:
+                edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list, chunk_size)
+    else:
+        # reverting to sequential processing
+        edge_weights_list_dicts = [partial_func_extract(subject=sub_id) for sub_id in subject_id_list]
 
     if return_results:
         edge_weights_all = dict()
@@ -236,7 +244,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                            weight_method_list, summary_stat, summary_stat_name,
                            atlas, smoothing_param, node_size,
                            num_bins, edge_range_dict,
-                           out_dir, return_results, pretty_print_options,
+                           out_dir, return_results, overwrite_results, pretty_print_options,
                            subject=None):  # purposefully leaving it last to enable partial function creation
     """
     Extracts give set of weights for one subject.
@@ -254,113 +262,96 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
     for ww, weight_method in enumerate(weight_method_list):
 
-        # multigraph = nx.MultiGraph(weight_method=weight_method,
-        #                            subject_id=subject)
-        multigraph = nx.MultiGraph()
+        expt_id_multi = stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method)
+        out_path_multigraph = make_output_path_graph(out_dir, subject, [expt_id_multi, 'multigraph'])
+        # skipping the computation if the file exists already
+        if not overwrite_results and isfile(out_path_multigraph) and getsize(out_path_multigraph) > 0:
+            print('\nMultigraph exists already at\n\t{}\n skipping its computation!'.format(out_path_multigraph))
+        else:
+            multigraph = nx.MultiGraph()
 
-        for base_feature in base_feature_list:
-            try:
-                features = single_edge.import_features(input_dir,
-                                                       [subject, ],
-                                                       base_feature,
-                                                       fwhm=smoothing_param,
-                                                       atlas=atlas)
+            for base_feature in base_feature_list:
+                # # TODO refactor
+                # unigraph, weight_vec = compute_unigraph(input_dir, subject, base_feature, weight_method, roi_labels,
+                #                                         atlas, smoothing_param, node_size, centroids,
+                #                                         num_bins, edge_range_dict,
+                #                                         out_dir, overwrite_results, pretty_print_options)
+                # if return_results:
+                #     edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
 
-            except:
-                traceback.print_exc()
-                warnings.warn('Unable to read {} features'
-                              ' for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
-                return
+                try:
+                    features = single_edge.import_features(input_dir,
+                                                           [subject, ],
+                                                           base_feature,
+                                                           fwhm=smoothing_param,
+                                                           atlas=atlas)
 
-            data, rois = single_edge.mask_background_roi(features[subject], roi_labels,
-                                                         parcellate.null_roi_name)
+                except:
+                    traceback.print_exc()
+                    warnings.warn('Unable to read {} features'
+                                  ' for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
+                    return
 
-            # unique stamp for each subject and weight
-            expt_id_single = single_edge.stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
-            sys.stdout.write('\nProcessing id {:{id_width}} -- weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}}) :'.format(subject, weight_method, ww + 1, num_weights, nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width, wtname_width=max_wtname_width))
+                data, rois = single_edge.mask_background_roi(features[subject], roi_labels,
+                                                             parcellate.null_roi_name)
 
-            # actual computation of pair-wise features
-            try:
-                unigraph = hiwenet.extract(data,
-                                           rois,
-                                           weight_method=weight_method,
-                                           num_bins=num_bins,
-                                           edge_range=edge_range_dict[base_feature],
-                                           return_networkx_graph=True)
+                # unique stamp for each subject and weight
+                expt_id_single = single_edge.stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method)
+                sys.stdout.write('\nProcessing id {:{id_width}} -- weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}}) :'.format(subject, weight_method, ww + 1, num_weights, nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width, wtname_width=max_wtname_width))
 
-                # retrieving edge weights
-                weight_vec = np.array(list(nx.get_edge_attributes(unigraph, 'weight').values()))
-                utils.warn_nan(weight_vec)
-                if return_results:
-                    edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
+                # actual computation of pair-wise features
+                try:
+                    unigraph = hiwenet.extract(data,
+                                               rois,
+                                               weight_method=weight_method,
+                                               num_bins=num_bins,
+                                               edge_range=edge_range_dict[base_feature],
+                                               return_networkx_graph=True)
 
-            except (RuntimeError, RuntimeWarning) as runexc:
-                print(runexc)
-            except KeyboardInterrupt:
-                print('Exiting on keyborad interrupt! \n'
-                      'Abandoning the remaining processing ')
-                sys.exit(1)
-            except:
-                print('Unable to extract {} weights for {} for {}'.format(weight_method, base_feature, subject))
-                traceback.print_exc()
+                    # retrieving edge weights
+                    weight_vec = np.array(list(nx.get_edge_attributes(unigraph, 'weight').values()))
+                    utils.warn_nan(weight_vec)
+                    if return_results:
+                        edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
 
-            print('Done.')
+                except (RuntimeError, RuntimeWarning) as runexc:
+                    print(runexc)
+                except KeyboardInterrupt:
+                    print('Exiting on keyborad interrupt! \n'
+                          'Abandoning the remaining processing ')
+                    sys.exit(1)
+                except:
+                    print('Unable to extract {} weights for {} for {}'.format(weight_method, base_feature, subject))
+                    traceback.print_exc()
 
-            add_nodal_positions(unigraph, centroids)
-            single_edge.save_graph(unigraph, out_dir, subject, expt_id_single)
+                print('Done.')
 
-            # adding edges/weights from each feature to a multigraph
-            # this also encodes the sources
-            for u, v in unigraph.edges():
-                multigraph.add_edge(u, v,
-                                    weight=unigraph[u][v]['weight'],
-                                    base_feature=base_feature)
+                # TODO consider extracting some network features upon user request.
+
+                add_nodal_positions(unigraph, centroids)
+                single_edge.save_graph(unigraph, out_dir, subject, expt_id_single)
+
+                # adding edges/weights from each feature to a multigraph
+                # this also encodes the sources
+                for u, v in unigraph.edges():
+                    multigraph.add_edge(u, v,
+                                        weight=unigraph[u][v]['weight'],
+                                        base_feature=base_feature)
+
+            # adding position info to nodes (for visualization later)
+            add_nodal_positions(multigraph, centroids)
+            save_graph(multigraph, out_path_multigraph)
 
         # creating single graph with a summary edge weight (like median)
-        summary_multigraph = summarize_multigraph(multigraph, summary_stat)
-
-        # adding position info to nodes (for visualization later)
-        add_nodal_positions(multigraph, centroids)
-        add_nodal_positions(summary_multigraph, centroids)
-
-        # saving to disk
-        expt_id_multi = stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method)
-        save_multigraph(multigraph, out_dir, subject, expt_id_multi)
-
-        try:
-            save_summary_graph(summary_multigraph, out_dir, subject,
-                               expt_id_multi, summary_descr=summary_stat_name)
-        except:
-            raise IOError('Unable to save the graph to:\n{}'.format(out_dir))
+        out_path_summary = make_output_path_graph(out_dir, subject, [expt_id_multi, summary_stat_name, 'multigraph'])
+        if not overwrite_results and isfile(out_path_summary) and getsize(out_path_summary) > 0:
+            print('Summary {} of multigraph exists already at\n\t{}\n skipping its computation!'.format(summary_stat_name, out_path_summary))
+        else:
+            summary_multigraph = summarize_multigraph(multigraph, summary_stat)
+            add_nodal_positions(summary_multigraph, centroids)
+            save_graph(summary_multigraph, out_path_summary)
 
     return edge_weights_all
-
-
-def save_multigraph(multigraph, out_dir, subject, str_suffix):
-    "Saves the given multigraph to disk."
-
-    if out_dir is not None:
-        # get outpath returned from hiwenet, based on dist name and all other parameters
-        # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = pjoin(out_dir, subject)
-        if not pexists(out_subject_dir):
-            os.mkdir(out_subject_dir)
-
-        if str_suffix is not None:
-            out_file_name = '{}_multigraph_graynet.graphml'.format(str_suffix)
-        else:
-            out_file_name = '_multigraph_graynet.graphml'
-
-        out_weights_path = pjoin(out_subject_dir, out_file_name)
-
-        try:
-            nx.write_graphml(multigraph, out_weights_path, encoding='utf-8')
-            print('\nSaved the multi-graph to \n{}'.format(out_weights_path))
-        except:
-            print('\nUnable to save multi-graph to \n{}'.format(out_weights_path))
-            traceback.print_exc()
-
-    return
 
 
 def summarize_multigraph(multigraph, func_summary):

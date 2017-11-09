@@ -67,7 +67,8 @@ def test_multi_edge():
                                                     smoothing_param=fwhm,
                                                     out_dir=out_dir,
                                                     return_results=True,
-                                                    num_procs=1)
+                                                    num_procs=1,
+                                                    overwrite_results=True)
 
     num_combinations = len(list(edge_weights_all))
     expected_num_comb = len(subject_id_list) * len(weight_methods)*len(cfg.default_features_multi_edge)
