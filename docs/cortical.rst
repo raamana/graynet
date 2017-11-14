@@ -14,28 +14,28 @@ If graynet is installed without error, you should have ``graynet`` command in yo
 Suppose say
 
   - you already have Freesurfer processing done at ``/work/project/freesurfer_reconall``
-  - for 5 subjects stored in subject_ids.txt
-  - you want analyze covariance features based on cortical thickness, that has been resampled on fsaverage surface (which is the default) at smoothing level of FWHM 10 (default)
+  - for 5 subjects with identifiers are stored in subject_ids.txt (one per line)
+  - you want to analyze network features based on cortical thickness values, which have been resampled on fsaverage surface (which is the default) at smoothing level of FWHM 10 (default)
   - use the ``manhattan`` method to compute histogram distance between two cortical ROIs (assuming all subjects resampled to same atlas)
-  - and store the network features extracted in /work/project/graynet
+  - and store the networks extracted in /work/project/graynet
 
-You could achieve it all with this command:
+You could achieve it all with a single command:
 
 .. code-block:: bash
 
     cd /work/project
     graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan -a fsaverage -p 10 -o /work/project/graynet
 
-Viola! By the time you can get your coffee or stretch your legs, you should have graynet processing done.
+That's it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.
 
-Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation published in Glasser 2016 atlas and also curious to try multiple weight metrics -  ``chebyshev`` and ``cosine``, you can achieve it via:
+Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation published in Glasser 2016 atlas and also curious to try multiple weight metrics -  ``chebyshev`` and ``cosine``, you can achieve it via the following command:
 
 .. code-block:: bash
 
     cd /work/project
     graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p 10 -o /work/project/graynet
 
-You could also study curvature and sulcal depth features by simply changing the ``-f`` option to ``freesurfer_curv`` and ``freesurfer_sulc``.
+You could also study curvature and sulcal depth features by simply adding more features to the ``-f``, such as ``freesurfer_curv`` and ``freesurfer_sulc``.
 
 However, if you have 100s of subjects or your atlas has a large number of ROIs (like the Glasser 2016 which has 360), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this `script <https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py>`_ to process any large dataset at once (produce jobs for processing on a cluster).
 
