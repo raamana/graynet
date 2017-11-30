@@ -29,6 +29,7 @@ elif version_info.major > 2:
     from graynet import freesurfer
     from graynet import config_graynet as cfg
     from graynet import utils
+    from graynet import __version__
 else:
     raise NotImplementedError('graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
 
@@ -836,6 +837,9 @@ def get_parser():
                                   default=cfg.default_num_procs, required=False, help=help_text_num_procs)
     computing_params.add_argument('-d', '--overwrite_results', action='store_true', dest='overwrite_results',
                                   required=False, help=help_text_overwrite_results)
+
+    computing_params.add_argument('-v', '--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
 
 
     return parser

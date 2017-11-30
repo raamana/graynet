@@ -34,7 +34,7 @@ However, this is still a work in progress. Please email me and I will be happy t
 # CHANGE THESE FOR YOUR PROCESSING
 # ---------------------------------
 
-dataset_name = 'PPMI' # '4RTNI' # 'ADNI'  #   A short string identifying the larger dataset at a play
+dataset_name = '4RTNI' # 'ABIDE' # 'PPMI' # 'ADNI'  #   A short string identifying the larger dataset at a play
 
 # the following paths can be derived from any number of ways -
 #   just ensure freesurfer_dir and subject_id_list are defined and exist.
@@ -48,7 +48,7 @@ freesurfer_dir = pjoin(proc_dir, 'freesurfer')
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 
 num_procs = 4
-num_splits_samples = 40  # 10.0
+num_splits_samples = 10 # 25  # 10.0
 num_splits_weights = 2
 
 queue = 'abaqus.q'
@@ -59,7 +59,7 @@ job_type = 'multiedge_{}'.format(cli_name)
 # ---------------------------------#---------------------------------#---------------------------------
 
 atlas = 'fsaverage'  # 'glasser2016' # Choose one of 'fsaverage' and 'glasser2016'
-fwhm = 10
+fwhm = 5 # 10
 num_bins = 25
 
 base_feature_list = ['freesurfer_thickness', 'freesurfer_curv', 'freesurfer_sulc', 'freesurfer_area']
@@ -74,12 +74,13 @@ multi_edge_range_flat = ''
 for feat in base_feature_list:
     multi_edge_range_flat += ' {} {}'.format(edge_range_dict[feat][0], edge_range_dict[feat][1])
 
-expt_prefix = 'thk_curv_sulc_area_nbins25'
+expt_prefix = 'thk_curv_sulc_area'
 # You can choose only one or multiple, but keep them enclosed as a list or array.
 weights = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean',
                            'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski', 'relative_deviation'])
 
-summary_stat = 'prod'
+summary_stat_list = [ 'prod', 'median', 'amax', 'amin', 'gmean', 'std' ]
+summary_stat = ' '.join(summary_stat_list)
 
 cluster_type = 'SGE'
 pe_name = 'dist.pe'  # distributed parallel env, not shared mem
@@ -110,10 +111,8 @@ def specify_hpc_resources(mem, queue, num_procs, job_dir, job_log, cluster_type=
 # ---------------------------------
 
 
-out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(expt_prefix, atlas, fwhm))
-
-if not pexists(out_dir):
-    os.makedirs(out_dir)
+out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_nbins{}'.format(expt_prefix, atlas, fwhm, num_bins))
+os.makedirs(out_dir, exist_ok=True)
 print('Saving the jobs to\n{}'.format(out_dir))
 
 
@@ -181,7 +180,7 @@ for ww in range(num_splits_weights):
 
     for ss in range(num_splits_samples):
 
-        subset_list_path = pjoin(job_dir, '{}_{}th_split_samples.txt'.format(dataset_name.lower(), ss))
+        subset_list_path = pjoin(job_dir, '{}_split{}_samples.txt'.format(dataset_name.lower(), ss))
         with open(subset_list_path, 'w') as sf:
             sf.write('\n'.join(subsets_sub_id[ss]))
 

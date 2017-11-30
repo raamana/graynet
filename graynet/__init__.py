@@ -1,9 +1,11 @@
 
-__all__ = ['run_workflow', 'extract', 'roiwise_stats_indiv',
-           'parcellate', 'freesurfer', 'read_atlas', 'cli_run', 'draw3Dnx']
+__all__ = ['run_workflow', 'extract', 'roiwise_stats_indiv', 'draw3Dnx',
+           'parcellate', 'freesurfer', 'read_atlas', 'cli_run', '__version__']
+
+from ._version import get_versions
+__version__ = get_versions()['version']
 
 from sys import version_info
-
 if version_info.major > 2:
     from graynet import parcellate, freesurfer
     from graynet.run_workflow import extract, roiwise_stats_indiv, cli_run
@@ -12,6 +14,5 @@ if version_info.major > 2:
 else:
     raise NotImplementedError('graynet supports Python 3 or higher only. Please upgrade.')
 
-from ._version import get_versions
-__version__ = get_versions()['version']
 del get_versions
+del version_info

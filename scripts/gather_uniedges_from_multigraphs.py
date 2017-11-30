@@ -58,9 +58,7 @@ expt_prefix = 'thk_curv_sulc_area_nbins25'
 # You can choose only one or multiple, but keep them enclosed as a list or array.
 histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean',
                            'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski', 'relative_deviation'])
-
-summary_stat_list = [ 'prod', 'median', 'amax', 'amin', 'gmean', 'std' ]
-
+summary_stat = 'prod'
 file_ext = 'multigraph_graynet.graphml'
 
 atlas_rois, centroids, vertex_labels = parcellate.roi_labels_centroids(atlas)
@@ -85,65 +83,60 @@ for multi_feature in multi_feature_list:
     for weight_method in histogram_dist: # ['chi_square', 'cosine', 'euclidean', 'histogram_intersection']:
         # print('Gathering data for {}'.format(weight_method))
 
-        for summary_stat in summary_stat_list:
-            # freesurfer_area_fsaverage_smoothing10_sizeNone_edgeweight_minowski_graynet.graphml
-            expt_id = '{}_{}_smth{}_{}_{}_{}'.format(multi_feature, atlas, fwhm, node_size,
-                                                                      weight_method, summary_stat)
+        # freesurfer_area_fsaverage_smoothing10_sizeNone_edgeweight_minowski_graynet.graphml
+        expt_id = '{}_{}_smth{}_{}_{}'.format(multi_feature, atlas, fwhm, node_size, weight_method)
 
-            flag_nan_exists = False
-            flag_incomplete = False
-            flag_unexpected = False
-            dataset = MLDataset()
+        flag_nan_exists = False
+        flag_incomplete = False
+        flag_unexpected = False
+        dataset = MLDataset()
 
-            incomplete_processing[multi_feature][weight_method] = dict()
-            comb_nan_values[multi_feature][weight_method] = dict()
-            for ds_name in dataset_list:
-                print('\n{} {} {} '.format(ds_name, weight_method, summary_stat), end='')
-                proc_dir = pjoin(base_dir, ds_name, 'processed')
-                # out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
-                out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(expt_prefix, atlas, fwhm))
+        incomplete_processing[multi_feature][weight_method] = dict()
+        comb_nan_values[multi_feature][weight_method] = dict()
+        for ds_name in dataset_list:
+            print('\n{} {}  '.format(ds_name, weight_method), end='')
+            proc_dir = pjoin(base_dir, ds_name, 'processed')
+            # out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
+            out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(expt_prefix, atlas, fwhm))
 
-                meta_list = pjoin(proc_dir, 'target_lists', 'meta_{}.csv'.format(ds_name))
-                sample_ids, classes = run_workflow.get_metadata(meta_list)
+            meta_list = pjoin(proc_dir, 'target_lists', 'meta_{}.csv'.format(ds_name))
+            sample_ids, classes = run_workflow.get_metadata(meta_list)
 
-                incomplete_processing[multi_feature][weight_method][ds_name] = list()
-                comb_nan_values[multi_feature][weight_method][ds_name] = list()
-                for ss, sample in enumerate(sample_ids):
-                    feat_path = pjoin(out_dir, sample, '{}_{}'.format(expt_id, file_ext))
-                    if pexists(feat_path):
-                        graph = nx.read_graphml(feat_path)
-                        data = get_weights_order(graph, atlas_rois)
-                        idx_nan = np.logical_not(np.isfinite(data))
-                        local_flag_nan_exists = np.count_nonzero(idx_nan) > 0
-                        if local_flag_nan_exists:
-                            sys.stdout.write('-')
-                            flag_nan_exists = True
-                            comb_nan_values[multi_feature][weight_method][ds_name].append(sample)
-                            # print('NaNs found for {} {} {}'.format(ds_name, weight_method, sample))
-                        elif len(data) == num_links_expected:
-                            sys.stdout.write('+')
-                            dataset.add_sample(sample, data, numeric_labels[classes[sample]], class_id=classes[sample])
-                        else:
-                            flag_unexpected = True
-                            sys.stdout.write('-')
-                            incomplete_processing[multi_feature][weight_method][ds_name].append(sample)
+            incomplete_processing[multi_feature][weight_method][ds_name] = list()
+            comb_nan_values[multi_feature][weight_method][ds_name] = list()
+            for sample in sample_ids:
+                feat_path = pjoin(out_dir, sample, '{}_{}'.format(expt_id, file_ext))
+                if pexists(feat_path):
+                    graph = nx.read_graphml(feat_path)
+                    data = get_weights_order(graph, atlas_rois)
+                    idx_nan = np.logical_not(np.isfinite(data))
+                    local_flag_nan_exists = np.count_nonzero(idx_nan) > 0
+                    if local_flag_nan_exists:
+                        sys.stdout.write('-')
+                        flag_nan_exists = True
+                        comb_nan_values[multi_feature][weight_method][ds_name].append(sample)
+                        # print('NaNs found for {} {} {}'.format(ds_name, weight_method, sample))
+                    elif len(data) == num_links_expected:
+                        sys.stdout.write('+')
+                        dataset.add_sample(sample, data, numeric_labels[classes[sample]], class_id=classes[sample])
                     else:
-                        flag_incomplete = True
+                        flag_unexpected = True
                         sys.stdout.write('-')
                         incomplete_processing[multi_feature][weight_method][ds_name].append(sample)
-                        # print('processing incomplete for {} {} {}'.format(ds_name, weight_method, sample))
+                else:
+                    flag_incomplete = True
+                    sys.stdout.write('-')
+                    incomplete_processing[multi_feature][weight_method][ds_name].append(sample)
+                    # print('processing incomplete for {} {} {}'.format(ds_name, weight_method, sample))
 
-                    if ss % 10 == 0:
-                        sys.stdout.flush()
-
-            if flag_nan_exists or flag_incomplete or flag_unexpected:
-                pass
-                # print('{:20} {:25} - processing unusable; totally skipping it.'.format(base_feature, weight_method))
-            else:
-                print('\n{:20} {:5} {:25} {:10} : fully usable.'.format(multi_feature, ds_name, weight_method, summary_stat))
-                dataset.description = '{}_{}'.format(summary_stat, weight_method)
-                out_path = pjoin(out_dir,'{}_{}.MLDataset.pkl'.format(summary_stat,weight_method))
-                dataset.save(out_path)
+        if flag_nan_exists or flag_incomplete or flag_unexpected:
+            pass
+            # print('{:20} {:25} - processing unusable; totally skipping it.'.format(base_feature, weight_method))
+        else:
+            print('{:20} {:5} {:25} : fully usable.'.format(multi_feature, ds_name, weight_method))
+            dataset.description = '{}_{}'.format(summary_stat, weight_method)
+            out_path = pjoin(out_dir,'{}_{}.MLDataset.pkl'.format(summary_stat,weight_method))
+            dataset.save(out_path)
 
     # saving
     with open(pjoin(out_dir, 'incomplete_unusable_processing.pkl'), 'wb') as ipf:
