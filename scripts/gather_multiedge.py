@@ -34,7 +34,7 @@ dataset_list = ['4RTNI', 'PPMI']
 numeric_labels = {'CN' : 1, 'PARK' : 2, 'CBS' : 3, 'PSP': 4}
 
 atlas = 'fsaverage' # 'glasser2016' # 'fsaverage' # 'glasser2016' #
-fwhm = 10
+fwhm = 5 # 10
 node_size = None
 
 num_rois = {'glasser2016': 360, 'fsaverage': 68}
@@ -54,7 +54,7 @@ edge_range = {'freesurfer_thickness': (0.0, 5.0),
                    'freesurfer_area'     : (0.0, 1.5)
                    }
 
-expt_prefix = 'thk_curv_sulc_area_nbins25'
+expt_prefix = 'thk_curv_sulc_area'
 # You can choose only one or multiple, but keep them enclosed as a list or array.
 histogram_dist = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean',
                            'histogram_intersection', 'jensen_shannon', 'manhattan', 'minowski', 'relative_deviation'])
@@ -100,8 +100,7 @@ for multi_feature in multi_feature_list:
             for ds_name in dataset_list:
                 print('\n{} {} {} '.format(ds_name, weight_method, summary_stat), end='')
                 proc_dir = pjoin(base_dir, ds_name, 'processed')
-                # out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
-                out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(expt_prefix, atlas, fwhm))
+                out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_nbins{}'.format(expt_prefix, atlas, fwhm, num_bins))
 
                 meta_list = pjoin(proc_dir, 'target_lists', 'meta_{}.csv'.format(ds_name))
                 sample_ids, classes = run_workflow.get_metadata(meta_list)

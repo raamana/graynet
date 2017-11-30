@@ -34,7 +34,7 @@ However, this is still a work in progress. Please email me and I will be happy t
 # CHANGE THESE FOR YOUR PROCESSING
 # ---------------------------------
 
-dataset_name = '4RTNI' # 'ABIDE' # 'PPMI' # 'ADNI'  #   A short string identifying the larger dataset at a play
+dataset_name = 'PPMI' # '4RTNI' # 'ABIDE' #  'ADNI'  #   A short string identifying the larger dataset at a play
 
 # the following paths can be derived from any number of ways -
 #   just ensure freesurfer_dir and subject_id_list are defined and exist.
@@ -48,7 +48,7 @@ freesurfer_dir = pjoin(proc_dir, 'freesurfer')
 subject_id_list = pjoin(target_list_dir, 'graynet.compute.list')
 
 num_procs = 4
-num_splits_samples = 10 # 25  # 10.0
+num_splits_samples = 25  # 10.0
 num_splits_weights = 2
 
 queue = 'abaqus.q'
