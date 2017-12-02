@@ -16,7 +16,10 @@ default_features_multi_edge = ['freesurfer_thickness', 'freesurfer_curv']
 
 default_weight_method = ('manhattan',)
 
-implemented_weights = [
+weights_on_original_features = ['diff_medians', 'diff_medians_abs',
+                                'diff_means',   'diff_means_abs']
+
+histogram_weights = [
     'chebyshev', 'chebyshev_neg', 'chi_square',
     'correlate', 'correlate_1',
     'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
@@ -25,6 +28,8 @@ implemented_weights = [
     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
     'relative_bin_deviation', 'relative_deviation']
+
+implemented_weights = histogram_weights + weights_on_original_features
 
 default_minimum_num_bins = 5
 default_num_bins = 25

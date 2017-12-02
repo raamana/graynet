@@ -132,6 +132,8 @@ for multi_feature in multi_feature_list:
                         incomplete_processing[multi_feature][weight_method][ds_name].append(sample)
                         # print('processing incomplete for {} {} {}'.format(ds_name, weight_method, sample))
 
+                    if ss % 80 == 0:
+                        sys.stdout.write('\n')
                     if ss % 10 == 0:
                         sys.stdout.flush()
 

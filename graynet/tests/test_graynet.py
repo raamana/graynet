@@ -125,6 +125,28 @@ def test_run_no_IO():
                 raise ValueError('invalid results : # links')
 
 
+def test_run_API_on_original_features():
+
+    edge_weights_all = graynet.extract(subject_id_list,
+                                       fs_dir,
+                                       base_feature=base_feature,
+                                       weight_method_list= cfg.weights_on_original_features,
+                                       atlas=atlas,
+                                       smoothing_param=fwhm,
+                                       out_dir=out_dir,
+                                       return_results=True,
+                                       num_procs=4)
+    num_combinations = len(list(edge_weights_all))
+
+    if num_combinations != len(subject_id_list) * len(cfg.weights_on_original_features):
+        raise ValueError('invalid results : # subjects')
+
+    for wm in cfg.weights_on_original_features:
+        for sub in subject_id_list:
+            if edge_weights_all[(wm, sub)].size != num_links:
+                raise ValueError('invalid results : # links')
+
+
 def test_run_roi_stats_via_API():
     "Tests whether roi stats can be computed (not their accuracy) and the return values match in size."
 
@@ -212,10 +234,10 @@ def test_invalid_nbins():
 
 
 # test_multi_edge()
-test_multi_edge_CLI()
-
+# test_multi_edge_CLI()
 # test_empty_subject_list()
 # test_run_no_IO()
 # test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
+test_run_API_on_original_features()
