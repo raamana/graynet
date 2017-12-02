@@ -1,3 +1,8 @@
+"""
+Module with handling the parcellation of different cortical atlases.
+
+"""
+
 __all__ = ['read_atlas', 'freesurfer_roi_labels', 'null_roi_name', 'atlas_list']
 
 import os

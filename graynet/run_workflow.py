@@ -724,8 +724,10 @@ def get_parser():
     "Method to specify arguments and defaults. "
 
     help_text_subject_ids   = "Path to file containing list of subject IDs (one per line)"
-    help_text_input_dir     = "Path to a folder containing input data. It could ,for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
-    help_text_feature       = "Type of feature to be used for analysis. Default: '{}'. Choices: {}".format(cfg.default_feature_single_edge[0], cfg.base_feature_list)
+    help_text_input_dir     = "Path to a folder containing input data. It could, for example, " \
+                              "be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output."
+    help_text_feature       = "Type of feature to be used for analysis. Default: '{}'. " \
+                              "Choices: {}".format(cfg.default_feature_single_edge[0], cfg.base_feature_list)
     help_text_multi_edge    = "Option to compute multiple edges between ROIs based on different features. " \
                               "Default False. If True, two valid features must be specified. " \
                               "Use --multi_edge_range to specify edge ranges for each feature to be processed."
@@ -748,16 +750,21 @@ def get_parser():
     help_text_roi_stats = "Option to compute summary statistics within each ROI of the chosen parcellation. " \
                           "These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. " \
                           "Options for summary statistics include 'median', 'entropy', 'kurtosis' and " \
-                          "any other appropriate summary statistics listed under scipy.stats: https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . " \
-                          "When this option is chosen, network computation is not allowed. You need to compute networks and ROI stats separately."
+                          "any other appropriate summary statistics listed under scipy.stats: " \
+                          " https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . " \
+                          "When this option is chosen, network computation is not allowed. " \
+                          "You need to compute networks and ROI stats separately."
     help_text_atlas     = "Name of the atlas to define parcellation of nodes/ROIs. Default: '{}'".format(cfg.default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. Default : {}".format(cfg.default_node_size)
     help_text_smoothing = "Smoothing parameter for feature. Default: FWHM of {} for Freesurfer thickness".format(
         cfg.default_smoothing_param)
 
-    help_text_num_procs = "Number of CPUs to use in parallel to speed up processing. Default : {}, capping at available number of CPUs in the processing node.".format(cfg.default_num_procs)
+    help_text_num_procs = "Number of CPUs to use in parallel to speed up processing. " \
+                          "Default : {}, capping at available number of CPUs in the processing node.".format(cfg.default_num_procs)
 
-    help_text_overwrite_results = "Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted)."
+    help_text_overwrite_results = "Flag to request overwriting of existing results, in case of reruns/failed jobs. " \
+                                  "By default, if the expected output file exists and is of non-zero size, " \
+                                  "its computation is skipped (assuming the file is complete, usable and not corrupted)."
 
     parser = argparse.ArgumentParser(prog="graynet")
 
