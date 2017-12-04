@@ -8,7 +8,7 @@
 
 Individualized single-subject (covariance) networks from T1 mri features such as cortical thickness, gray matter density, subcortical morphometric features, gyrification and curvature. 
 
-Applicable for biomarker development for the detection of many brain disorders such as Alzheimer's, Parkinson's, Schizophrenia and the like - see below.
+Applicable for whenever network-level features are useful, among which common use cases are biomarker development and brain-behaviour relationships (e.g. for the diagnosis and prognosis of many brain disorders such as Alzheimer's, Parkinson's, Schizophrenia and the like).
 
 Docs: http://graynet.readthedocs.io
 
