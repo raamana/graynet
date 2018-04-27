@@ -51,6 +51,26 @@ default_num_procs = 2
 
 # multiedge
 
+
+# -----------------------------------------------------------------------------------------------
+#  atlas and parcellation related
+# -----------------------------------------------------------------------------------------------
+
+atlas_list = ['fsaverage', 'glasser2016']
+
+# roi labelled ?? in Glasser parcellation has label 16777215
+# fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
+ignore_roi_labels = {'glasser2016': [16777215, ], 'fsaverage': [1639705, 3294840]}
+ignore_roi_names = {'glasser2016': ['??', '???', 'lh_???', 'rh_???', 'lh_???', 'rh_???'],
+                    'fsaverage': ['unknown', 'corpuscallosum',
+                                  'lh_unknown', 'lh_corpuscallosum',
+                                  'rh_unknown', 'rh_corpuscallosum']}
+
+null_roi_index = 0
+null_roi_name = 'null_roi_ignore'
+
+# -----------------------------------------------------------------------------------------------
+
 multi_edge_summary_func_default = ('prod', 'median')
 
 if __name__ == '__main__':

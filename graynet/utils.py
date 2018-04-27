@@ -16,7 +16,7 @@ from multiprocessing import cpu_count
 
 import numpy as np
 
-from graynet import config_graynet as cfg, parcellate
+from graynet import config_graynet as cfg
 
 
 def check_features(base_feature_list):
@@ -46,11 +46,11 @@ def check_atlas(atlas):
     if isinstance(atlas, str):
         if not pexists(atlas):  # just a name
             atlas = atlas.lower()
-            if atlas not in parcellate.atlas_list:
+            if atlas not in cfg.atlas_list:
                 raise ValueError(
-                    'Invalid choice of atlas. Accepted : {}'.format(parcellate.atlas_list))
+                    'Invalid choice of atlas. Accepted : {}'.format(cfg.atlas_list))
         elif os.path.isdir(atlas):  # cortical atlas in Freesurfer org
-            if not parcellate.check_atlas_annot_exist(atlas):
+            if not check_atlas_annot_exist(atlas):
                 raise ValueError(
                     'Given atlas folder does not contain Freesurfer label annot files. '
                     'Needed : given_atlas_dir/label/?h.aparc.annot')
@@ -331,8 +331,8 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node
 
     check_features(base_features)
 
-    if atlas.lower() not in parcellate.atlas_list:
-        raise ValueError('Invalid atlas choice. Use one of {}'.format(parcellate.atlas_list))
+    if atlas.lower() not in cfg.atlas_list:
+        raise ValueError('Invalid atlas choice. Use one of {}'.format(cfg.atlas_list))
 
     if not pexists(in_dir):
         raise IOError('Input directory at {} does not exist.'.format(in_dir))
@@ -367,8 +367,8 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
 
     check_features(base_feature_list)
 
-    if atlas.lower() not in parcellate.atlas_list:
-        raise ValueError('Invalid atlas choice. Use one of {}'.format(parcellate.atlas_list))
+    if atlas.lower() not in cfg.atlas_list:
+        raise ValueError('Invalid atlas choice. Use one of {}'.format(cfg.atlas_list))
 
     if not pexists(input_dir):
         raise IOError('Input directory at {} does not exist.'.format(input_dir))
@@ -383,3 +383,70 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
     # no checks on subdivison size yet, as its not implemented
 
     return
+
+
+def calc_roi_statistics(data, rois, uniq_rois, given_callable=np.median):
+    "Returns the requested ROI statistics."
+
+    roi_stats = np.array([given_callable(data[rois == roi]) for roi in uniq_rois])
+
+    return roi_stats
+
+
+def get_triu_handle_inf_nan(weights_matrix):
+    "Issue a warning when NaNs or Inf are found."
+
+    if weights_matrix is None:
+        raise ValueError('Computation failed.')
+
+    upper_tri_vec = weights_matrix[np.triu_indices_from(weights_matrix, 1)]
+
+    warn_nan(upper_tri_vec)
+
+    return upper_tri_vec
+
+
+def mask_background_roi(data, labels, ignore_label):
+    "Returns everything but specified label"
+
+    if data.size != labels.size or data.shape != labels.shape:
+        raise ValueError('features and membership/group labels differ in length/shape!')
+
+    mask = labels != ignore_label
+    masked_data = data[mask]
+    masked_labels = labels[mask]
+
+    if masked_data.size != masked_labels.size or masked_data.shape != masked_labels.shape:
+        raise ValueError(
+            'features and membership/group labels (after removing background ROI) differ in length/shape!')
+
+    return masked_data, masked_labels
+
+
+def roi_info(roi_labels):
+    "Unique ROIs in a given atlas parcellation, count and size. Excludes the background"
+
+    uniq_rois_temp, roi_size_temp = np.unique(roi_labels, return_counts=True)
+
+    # removing the background label
+    index_bkgnd = np.argwhere(uniq_rois_temp == cfg.null_roi_name)[0]
+    uniq_rois = np.delete(uniq_rois_temp, index_bkgnd)
+    roi_size = np.delete(roi_size_temp, index_bkgnd)
+
+    num_nodes = len(uniq_rois)
+
+    return uniq_rois, roi_size, num_nodes
+
+
+def check_atlas_annot_exist(atlas_dir, hemi_list=None):
+    " Checks for the presence of atlas annotations "
+
+    if hemi_list is None:
+        hemi_list = ['lh', 'rh']
+
+    for hemi in hemi_list:
+        annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
+        if not pexists(annot_path) or os.path.getsize(annot_path) == 0:
+            return False
+
+    return True

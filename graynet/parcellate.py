@@ -3,27 +3,14 @@ Module with handling the parcellation of different cortical atlases.
 
 """
 
-__all__ = ['read_atlas', 'freesurfer_roi_labels', 'null_roi_name', 'atlas_list']
+__all__ = ['read_atlas', 'freesurfer_roi_labels']
 
 import os
-from os.path import join as pjoin, exists as pexists, dirname, isdir, realpath
+from os.path import join as pjoin, isdir, realpath
 import numpy as np
 import nibabel as nib
-from .run_workflow import roi_info
-
-atlas_list = ['fsaverage', 'glasser2016']
-
-# roi labelled ?? in Glasser parcellation has label 16777215
-# fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
-ignore_roi_labels = {'glasser2016': [16777215, ], 'fsaverage': [1639705, 3294840]}
-ignore_roi_names = {'glasser2016': ['??', '???', 'lh_???', 'rh_???', 'lh_???', 'rh_???'],
-                    'fsaverage': ['unknown', 'corpuscallosum',
-                                  'lh_unknown', 'lh_corpuscallosum',
-                                  'rh_unknown', 'rh_corpuscallosum']}
-
-null_roi_index = 0
-null_roi_name = 'null_roi_ignore'
-
+from graynet.utils import roi_info
+from graynet import config_graynet as cfg
 
 def check_atlas_name(atlas_name=None):
     "Validates the atlas name and returs its location"
@@ -69,7 +56,7 @@ def __combine_annotations(annot, atlas_name):
 
     ignore_list = list()
     max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])),
-                      len(null_roi_name))
+                      len(cfg.null_roi_name))
     str_dtype = np.dtype('U{}'.format(max_len))
 
     named_labels = dict()
@@ -77,7 +64,7 @@ def __combine_annotations(annot, atlas_name):
         named_labels[hemi] = np.empty(annot[hemi]['labels'].shape, str_dtype)
         uniq_labels = np.unique(annot[hemi]['labels'])
         for label in uniq_labels:
-            if not (label == null_roi_index or label in ignore_roi_labels[
+            if not (label == cfg.null_roi_index or label in cfg.ignore_roi_labels[
                 atlas_name]):  # to be ignored
                 idx_roi = np.nonzero(annot[hemi]['ctab'][:, 4] == label)[0][0]
                 mask_label = annot[hemi]['labels'] == label
@@ -85,31 +72,17 @@ def __combine_annotations(annot, atlas_name):
 
         # setting the non-accessed vertices (part of non-cortex) to specific label to ignore later
         null_mask = named_labels[hemi] == ''
-        named_labels[hemi][null_mask] = null_roi_name
+        named_labels[hemi][null_mask] = cfg.null_roi_name
 
     wholebrain_named_labels = np.hstack((named_labels['lh'], named_labels['rh']))
 
-    for ignore_label in ignore_roi_names[atlas_name]:
-        wholebrain_named_labels[wholebrain_named_labels == ignore_label] = null_roi_name
+    for ignore_label in cfg.ignore_roi_names[atlas_name]:
+        wholebrain_named_labels[wholebrain_named_labels == ignore_label] = cfg.null_roi_name
 
     # # original implementation for glasser2016, with labels in different hemi coded differently
     # roi_labels = np.hstack((annot['lh']['labels'], annot['rh']['labels']))
 
     return wholebrain_named_labels
-
-
-def check_atlas_annot_exist(atlas_dir, hemi_list=None):
-    " Checks for the presence of atlas annotations "
-
-    if hemi_list is None:
-        hemi_list = ['lh', 'rh']
-
-    for hemi in hemi_list:
-        annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
-        if not pexists(annot_path) or os.path.getsize(annot_path) == 0:
-            return False
-
-    return True
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):

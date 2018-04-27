@@ -1,8 +1,8 @@
 from graynet.utils import check_atlas, check_num_procs, check_stat_methods, warn_nan, \
     check_subjects, check_weights, \
-    check_weight_params, check_params_single_edge
+    check_weight_params, check_params_single_edge, calc_roi_statistics, mask_background_roi
 
-__all__ = ['extract', 'roiwise_stats_indiv', 'roi_info', 'cli_run']
+__all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
 
 import os
 import sys
@@ -452,7 +452,6 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         except:
             raise IOError(
                 'Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
-            continue
 
         data, rois = mask_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
         for ss, stat_func in enumerate(stat_func_list):
@@ -487,14 +486,6 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             roi_stats_all[subject] = roi_stats
 
     return roi_stats_all
-
-
-def calc_roi_statistics(data, rois, uniq_rois, given_callable=np.median):
-    "Returns the requested ROI statistics."
-
-    roi_stats = np.array([given_callable(data[rois == roi]) for roi in uniq_rois])
-
-    return roi_stats
 
 
 def import_features(input_dir,
@@ -532,51 +523,6 @@ def fsl_import(input_dir,
         raise NotImplementedError
 
     return
-
-
-def get_triu_handle_inf_nan(weights_matrix):
-    "Issue a warning when NaNs or Inf are found."
-
-    if weights_matrix is None:
-        raise ValueError('Computation failed.')
-
-    upper_tri_vec = weights_matrix[np.triu_indices_from(weights_matrix, 1)]
-
-    warn_nan(upper_tri_vec)
-
-    return upper_tri_vec
-
-
-def mask_background_roi(data, labels, ignore_label):
-    "Returns everything but specified label"
-
-    if data.size != labels.size or data.shape != labels.shape:
-        raise ValueError('features and membership/group labels differ in length/shape!')
-
-    mask = labels != ignore_label
-    masked_data = data[mask]
-    masked_labels = labels[mask]
-
-    if masked_data.size != masked_labels.size or masked_data.shape != masked_labels.shape:
-        raise ValueError(
-            'features and membership/group labels (after removing background ROI) differ in length/shape!')
-
-    return masked_data, masked_labels
-
-
-def roi_info(roi_labels):
-    "Unique ROIs in a given atlas parcellation, count and size. Excludes the background"
-
-    uniq_rois_temp, roi_size_temp = np.unique(roi_labels, return_counts=True)
-
-    # removing the background label
-    index_bkgnd = np.argwhere(uniq_rois_temp == parcellate.null_roi_name)[0]
-    uniq_rois = np.delete(uniq_rois_temp, index_bkgnd)
-    roi_size = np.delete(roi_size_temp, index_bkgnd)
-
-    num_nodes = len(uniq_rois)
-
-    return uniq_rois, roi_size, num_nodes
 
 
 def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_suffix=None):

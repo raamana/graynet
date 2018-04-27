@@ -18,9 +18,10 @@ if version_info.major > 2:
     from graynet import parcellate
     from graynet import config_graynet as cfg
     from graynet import run_workflow as single_edge
-    from graynet import utils
     from graynet.utils import stamp_expt_multiedge, check_params_multiedge, make_output_path_graph, \
-        save_graph
+        save_graph, check_subjects, check_stat_methods, check_num_bins, check_weights, \
+        check_num_procs, check_atlas, check_edge_range_dict, mask_background_roi, warn_nan, \
+        stamp_expt_weight
 else:
     raise NotImplementedError(
         'graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
@@ -185,19 +186,19 @@ def extract_multiedge(subject_id_list,
     # All the checks must happen here, as this is key function in the API
     check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param, node_size, out_dir,
                            return_results)
-    atlas = utils.check_atlas(atlas)
+    atlas = check_atlas(atlas)
 
-    subject_id_list, num_subjects, max_id_width, nd_id = utils.check_subjects(subject_id_list)
+    subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
 
-    num_bins = utils.check_num_bins(num_bins)
-    edge_range_dict = utils.check_edge_range_dict(edge_range_dict, base_feature_list)
-    weight_method_list, num_weights, max_wtname_width, nd_wm = utils.check_weights(
+    num_bins = check_num_bins(num_bins)
+    edge_range_dict = check_edge_range_dict(edge_range_dict, base_feature_list)
+    weight_method_list, num_weights, max_wtname_width, nd_wm = check_weights(
         weight_method_list)
 
     # validating the choice and getting a callable
-    summary_stats, summary_stat_names, _, _, _ = utils.check_stat_methods(summary_stats)
+    summary_stats, summary_stat_names, _, _, _ = check_stat_methods(summary_stats)
 
-    num_procs = utils.check_num_procs(num_procs)
+    num_procs = check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
 
     # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
@@ -302,8 +303,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                   UserWarning)
                     return
 
-                data, rois = single_edge.mask_background_roi(features[subject], roi_labels,
-                                                             parcellate.null_roi_name)
+                data, rois = mask_background_roi(features[subject], roi_labels,
+                                                               parcellate.null_roi_name)
 
                 # unique stamp for each subject and weight
                 expt_id_single = single_edge.stamp_expt_weight(base_feature, atlas, smoothing_param,
@@ -325,7 +326,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
                     # retrieving edge weights
                     weight_vec = np.array(list(nx.get_edge_attributes(unigraph, 'weight').values()))
-                    utils.warn_nan(weight_vec)
+                    warn_nan(weight_vec)
                     if return_results:
                         edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
 
