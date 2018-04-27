@@ -26,7 +26,7 @@ def check_features(base_feature_list):
         raise ValueError('feature list can not be empty.')
 
     # when a string is specified, making it a list
-    if isinstance(base_feature_list,str):
+    if isinstance(base_feature_list, str):
         base_feature_list = [base_feature_list, ]
 
     given_list = unique_order(base_feature_list)
@@ -44,24 +44,28 @@ def check_atlas(atlas):
 
     # when its a name for pre-defined atlas
     if isinstance(atlas, str):
-        if not pexists(atlas): # just a name
+        if not pexists(atlas):  # just a name
             atlas = atlas.lower()
             if atlas not in parcellate.atlas_list:
-                raise ValueError('Invalid choice of atlas. Accepted : {}'.format(parcellate.atlas_list))
-        elif os.path.isdir(atlas): # cortical atlas in Freesurfer org
+                raise ValueError(
+                    'Invalid choice of atlas. Accepted : {}'.format(parcellate.atlas_list))
+        elif os.path.isdir(atlas):  # cortical atlas in Freesurfer org
             if not parcellate.check_atlas_annot_exist(atlas):
-                raise ValueError('Given atlas folder does not contain Freesurfer label annot files. '
-                                 'Needed : given_atlas_dir/label/?h.aparc.annot')
-        elif pexists(atlas): # may be a volumetric atlas?
+                raise ValueError(
+                    'Given atlas folder does not contain Freesurfer label annot files. '
+                    'Needed : given_atlas_dir/label/?h.aparc.annot')
+        elif pexists(atlas):  # may be a volumetric atlas?
             try:
                 atlas = nibabel.load(atlas)
             except:
                 traceback.print_exc()
-                raise ValueError('Unable to read the provided image volume. Must be a nifti 2d volume, readable by nibabel.')
+                raise ValueError('Unable to read the provided image volume. '
+                                 'Must be a nifti 2d volume, readable by nibabel.')
         else:
             raise ValueError('Unable to decipher or use the given atlas.')
     else:
-        raise NotImplementedError('Atlas must be a string, providing a name or path to Freesurfer folder or a 3D nifti volume.')
+        raise NotImplementedError('Atlas must be a string, providing a name or '
+                                  'path to Freesurfer folder or a 3D nifti volume.')
 
     return atlas
 
@@ -115,7 +119,7 @@ def save_graph(graph, out_path, identifier=''):
 def check_num_procs(num_procs=cfg.default_num_procs):
     "Ensures num_procs is finite and <= available cpu count."
 
-    num_procs  = int(num_procs)
+    num_procs = int(num_procs)
     avail_cpu_count = cpu_count()
     if num_procs < 1 or not np.isfinite(num_procs) or num_procs is None:
         num_procs = 1
@@ -141,7 +145,8 @@ def check_stat_methods(stat_list=None):
         if isinstance(stat_list, str) or callable(stat_list):
             stat_list = [stat_list, ]
         else:
-            raise ValueError('Unrecognized stat method: must be a str or callable or a list of them.')
+            raise ValueError(
+                'Unrecognized stat method: must be a str or callable or a list of them.')
 
     stat_callable_list = list()
     for stat in stat_list:
@@ -152,7 +157,8 @@ def check_stat_methods(stat_list=None):
             elif hasattr(sp_stats, stat):
                 summary_callable = getattr(sp_stats, stat)
             else:
-                raise AttributeError('Chosen measure {} is not a member of numpy or scipy.stats.'.format(stat))
+                raise AttributeError('Chosen measure {} is not a member of numpy '
+                                     'or scipy.stats.'.format(stat))
         elif callable(stat):
             summary_callable = stat
         else:
@@ -203,7 +209,8 @@ def check_subjects(subjects_info):
         subjects_list = subjects_info
     else:
         raise ValueError('Invalid value provided for subject list. \n '
-                         'Must be a list of paths, or path to file containing list of paths, one for each subject.')
+                         'Must be a list of paths, or '
+                         'path to a file containing one path per line for each subject.')
 
     subject_id_list = np.atleast_1d(subjects_list)
     num_subjects = subject_id_list.size
@@ -226,12 +233,14 @@ def check_weights(weight_method_list):
         if len(weight_method_list) < 1:
             raise ValueError('Empty weight list. Atleast one weight must be provided.')
     else:
-        raise ValueError('Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
+        raise ValueError(
+            'Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
 
     for weight in weight_method_list:
         if weight not in cfg.implemented_weights:
             raise NotImplementedError('Method {} not implemented. '
-                                      'Choose one of : \n {}'.format(weight, cfg.implemented_weights))
+                                      'Choose one of : \n {}'.format(weight,
+                                                                     cfg.implemented_weights))
 
     num_weights = len(weight_method_list)
     num_digits_wm_size = len(str(num_weights))
@@ -249,7 +258,9 @@ def check_edge_range(edge_range_spec):
         if len(edge_range_spec) != 2:
             raise ValueError('edge_range must be a tuple of two values: (min, max)')
         if edge_range_spec[0] >= edge_range_spec[1]:
-            raise ValueError('edge_range : min {} is not less than max {} !'.format(edge_range_spec[0], edge_range_spec[1]))
+            raise ValueError(
+                'edge_range : min {} is not less than max {} !'.format(edge_range_spec[0],
+                                                                       edge_range_spec[1]))
 
         # CLI args are strings unless converted to numeric
         edge_range = np.float64(edge_range_spec)
@@ -275,7 +286,8 @@ def check_num_bins(num_bins):
     num_bins = np.rint(num_bins)
 
     if np.isnan(num_bins) or np.isinf(num_bins):
-        raise ValueError('Invalid value for number of bins! Choose a natural number >= {}'.format(cfg.default_minimum_num_bins))
+        raise ValueError('Invalid value for number of bins! '
+                         'Choose a natural number >= {}'.format(cfg.default_minimum_num_bins))
 
     return num_bins
 
@@ -290,7 +302,8 @@ def check_weight_params(num_bins, edge_range_spec):
     return num_bins, edge_range
 
 
-def check_edge_range_dict(edge_range_dict, base_feature_list, predefined_ranges=cfg.edge_range_predefined):
+def check_edge_range_dict(edge_range_dict, base_feature_list,
+                          predefined_ranges=cfg.edge_range_predefined):
     "Ensures ranges were specified for each feature, and they are valid or automatic(None)"
 
     print('Setting given edge range ...')
@@ -300,17 +313,20 @@ def check_edge_range_dict(edge_range_dict, base_feature_list, predefined_ranges=
             edge_range_dict[feature] = check_edge_range(edge_range_dict[feature])
             sys.stdout.write(': {} ----> \n'.format(edge_range_dict[feature]))
         elif feature in predefined_ranges:
-            sys.stdout.write('edge range not given! Using predefined: {}'.format(predefined_ranges[feature]))
+            sys.stdout.write(
+                'edge range not given! Using predefined: {}'.format(predefined_ranges[feature]))
             edge_range_dict[feature] = predefined_ranges[feature]
         else:
             # covers the case of edge_range_dict being None
-            sys.stdout.write('edge range not given or predefined! Setting it automatic (may change for each subject)')
+            sys.stdout.write('edge range not given or predefined! '
+                             'Setting it automatic (may change for each subject)')
             edge_range_dict[feature] = None
 
     return edge_range_dict
 
 
-def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node_size, out_dir, return_results):
+def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node_size, out_dir,
+                             return_results):
     """"""
 
     check_features(base_features)
@@ -339,7 +355,8 @@ def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, w
     import re
     all_words = re.split('_|; |, |\*|\n| ', ' '.join(base_feature_list))
     feat_repr = '_'.join(unique_order(all_words))
-    expt_id   = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param, node_size, weight_method)
+    expt_id = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param, node_size,
+                                          weight_method)
 
     return expt_id
 

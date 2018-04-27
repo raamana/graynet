@@ -17,9 +17,9 @@ atlas_list = ['fsaverage', 'glasser2016']
 # fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
 ignore_roi_labels = {'glasser2016': [16777215, ], 'fsaverage': [1639705, 3294840]}
 ignore_roi_names = {'glasser2016': ['??', '???', 'lh_???', 'rh_???', 'lh_???', 'rh_???'],
-                    'fsaverage'  : ['unknown', 'corpuscallosum',
-                                    'lh_unknown', 'lh_corpuscallosum',
-                                    'rh_unknown', 'rh_corpuscallosum']}
+                    'fsaverage': ['unknown', 'corpuscallosum',
+                                  'lh_unknown', 'lh_corpuscallosum',
+                                  'rh_unknown', 'rh_corpuscallosum']}
 
 null_roi_index = 0
 null_roi_name = 'null_roi_ignore'
@@ -35,7 +35,8 @@ def check_atlas_name(atlas_name=None):
 
     if atlas_name in ['glasser2016']:
         this_dir = os.path.dirname(os.path.realpath(__file__))
-        atlas_path = os.path.realpath(pjoin(this_dir, 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446'))
+        atlas_path = os.path.realpath(
+            pjoin(this_dir, 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446'))
     elif atlas_name in ['fsaverage']:
         this_dir = os.path.dirname(os.path.realpath(__file__))
         atlas_path = os.path.realpath(pjoin(this_dir, 'atlases', 'fsaverage'))
@@ -67,7 +68,8 @@ def __combine_annotations(annot, atlas_name):
     "Combines named labels from two hemisphers, ignoring non-cortex"
 
     ignore_list = list()
-    max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])), len(null_roi_name))
+    max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])),
+                      len(null_roi_name))
     str_dtype = np.dtype('U{}'.format(max_len))
 
     named_labels = dict()
@@ -75,7 +77,8 @@ def __combine_annotations(annot, atlas_name):
         named_labels[hemi] = np.empty(annot[hemi]['labels'].shape, str_dtype)
         uniq_labels = np.unique(annot[hemi]['labels'])
         for label in uniq_labels:
-            if not (label == null_roi_index or label in ignore_roi_labels[atlas_name]):  # to be ignored
+            if not (label == null_roi_index or label in ignore_roi_labels[
+                atlas_name]):  # to be ignored
                 idx_roi = np.nonzero(annot[hemi]['ctab'][:, 4] == label)[0][0]
                 mask_label = annot[hemi]['labels'] == label
                 named_labels[hemi][mask_label] = '{}_{}'.format(hemi, annot[hemi]['names'][idx_roi])
@@ -119,8 +122,8 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
     for hemi in hemi_list:
         annot[hemi] = dict()
         annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
-        annot[hemi]['labels'], annot[hemi]['ctab'], annot[hemi]['names'] = nib.freesurfer.io.read_annot(annot_path,
-                                                                                                        orig_ids=True)
+        annot[hemi]['labels'], annot[hemi]['ctab'], \
+            annot[hemi]['names'] = nib.freesurfer.io.read_annot(annot_path, orig_ids=True)
 
         # ensuring names are plainstring
         if isinstance(annot[hemi]['names'][0], np.bytes_):
@@ -144,7 +147,8 @@ def read_atlas(atlas_spec, hemi_list=None):
 
     for hemi in hemi_list:
         hemi_path = os.path.join(atlas_dir, 'surf', '{}.orig'.format(hemi))
-        coords[hemi], faces[hemi], info[hemi] = nib.freesurfer.io.read_geometry(hemi_path, read_metadata=True)
+        coords[hemi], faces[hemi], info[hemi] = nib.freesurfer.io.read_geometry(hemi_path,
+                                                                                read_metadata=True)
 
     num_vertices_left_hemi = coords['lh'].shape[0]
 
@@ -188,11 +192,9 @@ def subdivide_cortex(atlas_dir, hemi_list=None):
     labels_to_remove = ['corpuscallosum', 'unknown']
     null_label = 0
 
-
     def ismember(A, B):
         B_unique_sorted, B_idx = np.unique(B, return_index=True)
         B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)
-
 
     cortex_label = dict()
     for hemi in hemi_list:
