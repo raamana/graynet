@@ -1,25 +1,25 @@
 
-features_freesurfer = ['freesurfer_thickness',
+features_freesurfer = ('freesurfer_thickness',
                        'freesurfer_sulc',
                        'freesurfer_curv',
                        'freesurfer_area',
                        'freesurfer_pial_area',
                        'freesurfer_pial_lgi',
                        'freesurfer_jacobian_white',
-                       'freesurfer_volume']
-features_fsl = ['gmdensity', ]
+                       'freesurfer_volume')
+features_fsl = ('gmdensity', )
 
 base_feature_list = features_freesurfer + features_fsl
 
-default_feature_single_edge = ['freesurfer_thickness', ]
-default_features_multi_edge = ['freesurfer_thickness', 'freesurfer_curv']
+default_feature_single_edge = ('freesurfer_thickness', )
+default_features_multi_edge = ('freesurfer_thickness', 'freesurfer_curv')
 
 default_weight_method = ('manhattan',)
 
-weights_on_original_features = ['diff_medians', 'diff_medians_abs',
-                                'diff_means',   'diff_means_abs']
+weights_on_original_features = ('diff_medians', 'diff_medians_abs',
+                                'diff_means',   'diff_means_abs')
 
-histogram_weights = [
+histogram_weights = (
     'chebyshev', 'chebyshev_neg', 'chi_square',
     'correlate', 'correlate_1',
     'cosine', 'cosine_1', 'cosine_2', 'cosine_alt',
@@ -27,7 +27,7 @@ histogram_weights = [
     'histogram_intersection', 'histogram_intersection_1',
     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-    'relative_bin_deviation', 'relative_deviation']
+    'relative_bin_deviation', 'relative_deviation')
 
 implemented_weights = histogram_weights + weights_on_original_features
 
@@ -51,7 +51,7 @@ default_num_procs = 2
 
 # multiedge
 
-multi_edge_summary_func_default = [ 'prod', 'median']
+multi_edge_summary_func_default = ('prod', 'median')
 
 if __name__ == '__main__':
     pass
