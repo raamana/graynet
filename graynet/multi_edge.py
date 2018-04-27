@@ -15,13 +15,13 @@ import hiwenet
 from sys import version_info
 
 if version_info.major > 2:
-    from graynet import parcellate
-    from graynet import config_graynet as cfg
-    from graynet import run_workflow as single_edge
     from graynet.utils import stamp_expt_multiedge, check_params_multiedge, make_output_path_graph, \
         save_graph, check_subjects, check_stat_methods, check_num_bins, check_weights, \
         check_num_procs, check_atlas, check_edge_range_dict, mask_background_roi, warn_nan, \
         stamp_expt_weight
+    from graynet import parcellate
+    from graynet import config_graynet as cfg
+    from graynet import run_workflow as single_edge
 else:
     raise NotImplementedError(
         'graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
@@ -304,11 +304,11 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                     return
 
                 data, rois = mask_background_roi(features[subject], roi_labels,
-                                                               parcellate.null_roi_name)
+                                                               cfg.null_roi_name)
 
                 # unique stamp for each subject and weight
-                expt_id_single = single_edge.stamp_expt_weight(base_feature, atlas, smoothing_param,
-                                                               node_size, weight_method)
+                expt_id_single = stamp_expt_weight(base_feature, atlas, smoothing_param,
+                                                                 node_size, weight_method)
                 sys.stdout.write('\nProcessing id {:{id_width}} --'
                                  ' weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
                                  ' :'.format(subject, weight_method, ww + 1, num_weights,

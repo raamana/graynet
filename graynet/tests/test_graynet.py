@@ -17,10 +17,10 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(pkg_dir)
 
 if version_info.major > 2:
-    from graynet import run_workflow as graynet
-    from graynet import cli_run as CLI
-    from graynet import multi_edge
     from graynet import config_graynet as cfg
+    from graynet.run_workflow import cli_run as CLI
+    from graynet import run_workflow as graynet
+    from graynet import multi_edge
 else:
     raise NotImplementedError('graynet requires Python 3+.')
 
@@ -237,7 +237,7 @@ def test_invalid_nbins():
 # test_multi_edge_CLI()
 # test_empty_subject_list()
 # test_run_no_IO()
-# test_run_roi_stats_via_API()
+test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
-test_run_API_on_original_features()
+# test_run_API_on_original_features()

@@ -1,6 +1,7 @@
 from graynet.utils import check_atlas, check_num_procs, check_stat_methods, warn_nan, \
     check_subjects, check_weights, \
-    check_weight_params, check_params_single_edge, calc_roi_statistics, mask_background_roi
+    check_weight_params, check_params_single_edge, calc_roi_statistics, mask_background_roi, \
+    stamp_experiment, stamp_expt_weight
 
 __all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
 
@@ -21,15 +22,11 @@ import networkx as nx
 
 from sys import version_info
 
-if version_info.major == 2 and version_info.minor == 7:
-    import freesurfer
-    import parcellate
-    import config_graynet as cfg
-elif version_info.major > 2:
+if version_info.major > 2:
+    from graynet import utils
     from graynet import parcellate
     from graynet import freesurfer
     from graynet import config_graynet as cfg
-    from graynet import utils
     from graynet import __version__
 else:
     raise NotImplementedError(
@@ -273,7 +270,7 @@ def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
                       ' for {}\n Skipping it.'.format(base_feature, subject), UserWarning)
         return
 
-    data, rois = mask_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+    data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
 
     max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
 
@@ -453,7 +450,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             raise IOError(
                 'Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
 
-        data, rois = mask_background_roi(features[subject], roi_labels, parcellate.null_roi_name)
+        data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
         for ss, stat_func in enumerate(stat_func_list):
             sys.stdout.write(
                 '\nProcessing id {sid:{id_width}} ({sidnum:{nd_id}}/{numsub:{nd_id}}) -- '
@@ -609,27 +606,6 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
             traceback.print_exc()
 
     return
-
-
-def stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size):
-    "Constructs a string to uniquely identify a given feature extraction method."
-
-    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
-    expt_id = '{}_{}_{}_smoothing{}_size{}'.format(method_name, base_feature, atlas,
-                                                   smoothing_param, node_size)
-
-    return expt_id
-
-
-def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method):
-    "Constructs a string to uniquely identify a given feature extraction method."
-
-    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
-    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}'.format(base_feature, atlas, smoothing_param,
-                                                              node_size,
-                                                              weight_method)
-
-    return expt_id
 
 
 def cli_run():

@@ -140,7 +140,7 @@ def check_stat_methods(stat_list=None):
     if stat_list is None:
         stat_list = [np.median, ]
 
-    if not isinstance(stat_list, list):
+    if not isinstance(stat_list, (list, tuple, set)):
         # when a single method is specified by a str or callable
         if isinstance(stat_list, str) or callable(stat_list):
             stat_list = [stat_list, ]
@@ -450,3 +450,24 @@ def check_atlas_annot_exist(atlas_dir, hemi_list=None):
             return False
 
     return True
+
+
+def stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size):
+    "Constructs a string to uniquely identify a given feature extraction method."
+
+    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
+    expt_id = '{}_{}_{}_smoothing{}_size{}'.format(method_name, base_feature, atlas,
+                                                   smoothing_param, node_size)
+
+    return expt_id
+
+
+def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method):
+    "Constructs a string to uniquely identify a given feature extraction method."
+
+    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
+    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}'.format(base_feature, atlas, smoothing_param,
+                                                              node_size,
+                                                              weight_method)
+
+    return expt_id
