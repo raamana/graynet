@@ -15,6 +15,10 @@ Applicable for whenever network-level features are useful, among which common us
 
 Docs: http://graynet.readthedocs.io
 
+Poster:
+
+![graynet_flyer](docs/vis/graynet_flyer.jpg)
+
 ## Installation
 
 `pip install -U graynet`
