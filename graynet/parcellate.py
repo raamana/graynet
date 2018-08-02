@@ -6,37 +6,47 @@ Module with handling the parcellation of different cortical atlases.
 __all__ = ['read_atlas', 'freesurfer_roi_labels']
 
 import os
-from os.path import join as pjoin, isdir, realpath
+import os.path
+from os.path import join as pjoin, isdir, realpath, dirname, basename
 import numpy as np
 import nibabel as nib
-from graynet.utils import roi_info
+from graynet.utils import roi_info, check_atlas, check_atlas_annot_exist
 from graynet import config_graynet as cfg
 
-def check_atlas_name(atlas_name=None):
+def get_atlas_path(atlas_name=None):
     "Validates the atlas name and returs its location"
 
     if atlas_name in [None, 'None', '']:
         atlas_name = 'fsaverage'
 
-    atlas_name = atlas_name.lower()
+    atlas_name = check_atlas(atlas_name)
 
-    if atlas_name in ['glasser2016']:
-        this_dir = os.path.dirname(os.path.realpath(__file__))
-        atlas_path = os.path.realpath(
-            pjoin(this_dir, 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446'))
-    elif atlas_name in ['fsaverage']:
-        this_dir = os.path.dirname(os.path.realpath(__file__))
-        atlas_path = os.path.realpath(pjoin(this_dir, 'atlases', 'fsaverage'))
+    if atlas_name  in cfg.atlas_list:
+
+        if atlas_name in ['glasser2016']:
+            this_dir = dirname(realpath(__file__))
+            atlas_path = pjoin(this_dir, 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446')
+        elif atlas_name in ['fsaverage', 'yeo2011_fsaverage5', 'yeo2011_fsaverage6',
+                            'yeo2011_fsaverage_highres']:
+            this_dir = dirname(realpath(__file__))
+            atlas_path = pjoin(this_dir, 'atlases', atlas_name)
+        else:
+            raise NotImplementedError('Requested atlas is not implemented or unreadable.')
+
+    # cortical atlas in Freesurfer org
+    elif os.path.isdir(atlas_name) and check_atlas_annot_exist(atlas_name):
+        atlas_path = dirname(realpath(atlas_name))
+        atlas_name = basename(atlas_name)
     else:
-        raise NotImplementedError('Requested atlas is not implemented or unreadable.')
+        raise NotImplementedError('Invalid choice for atlas!')
 
-    return atlas_path, atlas_name
+    return realpath(atlas_path), atlas_name
 
 
 def get_atlas_annot(atlas_name=None):
     "High level wrapper to get all the info just by using a name."
 
-    atlas_path, atlas_name = check_atlas_name(atlas_name)
+    atlas_path, atlas_name = get_atlas_path(atlas_name)
     annot = read_atlas_annot(atlas_path)
 
     return annot, atlas_path
@@ -114,7 +124,7 @@ def read_atlas(atlas_spec, hemi_list=None):
     if isdir(atlas_spec):
         atlas_dir = realpath(atlas_spec)
     else:
-        atlas_dir, atlas_name = check_atlas_name(atlas_spec)
+        atlas_dir, atlas_name = get_atlas_path(atlas_spec)
 
     coords, faces, info = dict(), dict(), dict()
 
@@ -138,7 +148,7 @@ def read_atlas(atlas_spec, hemi_list=None):
 def roi_labels_centroids(atlas_name):
     "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
 
-    atlas_dir, atlas_name = check_atlas_name(atlas_name)
+    atlas_dir, atlas_name = get_atlas_path(atlas_name)
     coords, faces, annot = read_atlas(atlas_dir)
     vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name)
     uniq_rois, roi_size, num_nodes = roi_info(vertex_labels)
