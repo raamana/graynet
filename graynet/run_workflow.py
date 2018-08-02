@@ -445,7 +445,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     for sub_idx, subject in enumerate(subject_id_list):
 
         try:
-            features = import_features(input_dir, [subject, ], base_feature)
+            features = import_features(input_dir, [subject, ], base_feature,
+                                       atlas=atlas,
+                                       fwhm=smoothing_param)
         except:
             raise IOError(
                 'Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
