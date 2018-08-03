@@ -884,8 +884,11 @@ def parse_args():
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
 
-    atlas = params.atlas.lower()
+    atlas = check_atlas(params.atlas)
     # num_procs will be validated inside in the functions using it.
+
+    # TODO should we check atlas compatibility with data for two subjects randomly
+    #       load data for subjects, and check atlas parcellation is compatible in size with data
 
     return subject_ids_path, input_dir, \
            feature_list, weight_method_list, \
