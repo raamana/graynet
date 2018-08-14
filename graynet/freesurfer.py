@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-__all__ = ['import_features',]
+__all__ = ['import_features', 'get_data']
 
 from graynet import config_graynet as cfg
 
@@ -37,7 +37,7 @@ def import_features(fs_dir,
     for subject_id in subjects_list:
         try:
             print('Reading {} for {} ... '.format(base_feature, subject_id), end='')
-            features[subject_id] = __get_data(fs_dir, subject_id, base_feature, fwhm, atlas)
+            features[subject_id] = get_data(fs_dir, subject_id, base_feature, fwhm, atlas)
             print(' Done.')
         except:
             traceback.print_exc()
@@ -46,7 +46,7 @@ def import_features(fs_dir,
     return features
 
 
-def __get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
+def get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
     "Reads the specified features from both hemispheres for a given subject."
 
     feat_name = base_feature.lower()
