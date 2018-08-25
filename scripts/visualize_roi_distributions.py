@@ -46,7 +46,7 @@ for dataset_name in ['4RTNI', 'PPMI' ]:
             ds = MLDataset(filepath=out_path)
         except:
             traceback.print_exc()
-            id_data = import_features(freesurfer_dir, id_list, base_feature)
+            id_data = import_features(freesurfer_dir, id_list, base_feature, atlas=atlas, fwhm=fwhm)
             ds = MLDataset(data=id_data, labels=labels, classes=classes)
             ds.save(out_path)
 

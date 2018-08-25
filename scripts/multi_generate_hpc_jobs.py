@@ -51,9 +51,10 @@ num_procs = 4
 num_splits_samples = 25  # 10.0
 num_splits_weights = 2
 
-queue = 'abaqus.q'
+queue = 'standard' # 'abaqus.q'
 mem = '8G'
 walltime_per_subject = 0.5  # in hours -> 15 mins
+
 cli_name = 'graynet'
 job_type = 'multiedge_{}'.format(cli_name)
 # ---------------------------------#---------------------------------#---------------------------------
@@ -82,7 +83,7 @@ weights = np.array(['chebyshev', 'chi_square', 'correlate', 'cosine', 'euclidean
 summary_stat_list = [ 'prod', 'median', 'amax', 'amin', 'gmean', 'std' ]
 summary_stat = ' '.join(summary_stat_list)
 
-cluster_type = 'SGE'
+cluster_type = 'SLURM' # 'SGE'
 pe_name = 'dist.pe'  # distributed parallel env, not shared mem
 
 
@@ -91,13 +92,19 @@ def specify_hpc_resources(mem, queue, num_procs, job_dir, job_log, cluster_type=
 
     lines = list()
     if cluster_type.upper() in ['SGE', 'SUNGRIDENGINE']:
-        parallel_str = ''
-        if num_procs > 1:
-            parallel_str = '-pe {} {}'.format(pe_name, num_procs)
+        parallel_str = '-pe {} {}'.format(pe_name, num_procs) if num_procs > 1 else ''
         lines.append('#$ -l mf={} -q {} {}'.format(mem, queue, parallel_str))
         lines.append('#$ -wd {}'.format(job_dir))
         lines.append('#$ -j yes -o {}'.format(job_log))
         lines.append('cd {}\n'.format(job_dir))
+
+    elif cluster_type.upper() in ['SLURM',]:
+        parallel_str = '--cpus-per-task {}'.format(num_procs) if num_procs > 1 else ''
+        lines.append('#SBATCH --mem={} --partition {} {}'.format(mem, queue, parallel_str))
+        lines.append('#SBATCH --workdir {}'.format(job_dir))
+        lines.append('#SBATCH --output {}'.format(job_log))
+        lines.append('cd {}\n'.format(job_dir))
+
     else:
         # add other lines below accommodating to your own HPC
         # contact me if you need help - its not an obscure HPC, i can quickly help you with this.

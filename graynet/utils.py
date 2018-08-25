@@ -331,8 +331,7 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node
 
     check_features(base_features)
 
-    if atlas.lower() not in cfg.atlas_list:
-        raise ValueError('Invalid atlas choice. Use one of {}'.format(cfg.atlas_list))
+    check_atlas(atlas)
 
     if not pexists(in_dir):
         raise IOError('Input directory at {} does not exist.'.format(in_dir))
@@ -367,8 +366,7 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
 
     check_features(base_feature_list)
 
-    if atlas.lower() not in cfg.atlas_list:
-        raise ValueError('Invalid atlas choice. Use one of {}'.format(cfg.atlas_list))
+    check_atlas(atlas)
 
     if not pexists(input_dir):
         raise IOError('Input directory at {} does not exist.'.format(input_dir))

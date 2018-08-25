@@ -1,0 +1,48 @@
+this is originally Yeo_JNeurophysiol11_FreeSurfer/fsaverage6 in the zip file downloaded from
+https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation_Yeo2011
+
+---------------------
+
+Background
+==========
+Resting state fMRI data from 1000 subjects were registered using surface-based alignment. A clustering approach was employed to identify and replicate 7 and 17 networks of functionally coupled regions across the cerebral cortex. The results revealed local networks confined to sensory and motor cortices as well as distributed networks of association regions that form interdigitated circuits. Within the sensory and motor cortices, functional connectivity followed topographic representations across adjacent areas. In association cortex, the connectivity patterns often showed abrupt transitions between network boundaries, forming largely parallel circuits.
+
+
+Information about Downloads
+===========================
+There are three folders in "Yeo_JNeurophysiol11_FreeSurfer.zip", corresponding to the "fsaverage", "fsaverage5" and "fsaverage6" surface space. "fsaverage" contains the high resolution version of the parcellation, while "fsaverage6" and "fsaverage5" contain lower resolution versions of the parcellation. The parcellations were computed in "fsaverage5" space and upsampled to "fsaverage6" and "fsaverage".
+
+The structure of each folder follows that of a preprocessed freesurfer subject. In particular, "fsaverage/label/", "fsaverage5/label/", "fsaverage6/label/" contain all the parcellation and confidence files. For example, "fsaverage/label/rh.Yeo2011_7Networks_N1000.annot" is the 7-network parcellation for 1000 subjects on the right hemisphere and "fsaverage/label/lh.Yeo2011_17NetworksConfidence_N1000.mgz" is the confidence map for the 17-network parcellation for 1000 subjects on the left hemisphere.
+
+As of 07/13/2011, these subjects are also currently in the developmental version of FreeSurfer which can be assessed from the Martinos center network (/autofs/cluster/freesurfer/centos4.0_x86_64/dev/subjects/). These subjects will be officially included in some future FreeSurfer release. Note however, the data in this zip file corresponds exactly to that from the reference, while functional parcellations in the developmental and official release versions of FreeSurfer are subjected to modifications/improvements.
+
+Example Usage
+=============
+1) Once unzipped, make sure freesurfer has been set up and configured as usual (http://surfer.nmr.mgh.harvard.edu/fswiki/SetupConfiguration).
+2) In terminal (ASSUMING shell is csh or tcsh),
+   a) "cd" to unzipped folder containing this README file, fsaverage, fsaverage6, fsaverage5
+   b) setenv SUBJECTS_DIR `pwd`
+   c) tksurfer fsaverage5 lh inflated -annotation fsaverage5/label/lh.Yeo2011_7Networks_N1000.annot
+
+3) In terminal (ASSUMING shell is bash),
+   a) "cd" to unzipped folder containing this README file, fsaverage, fsaverage6, fsaverage5
+   b) export SUBJECTS_DIR=`pwd`
+   c) tksurfer fsaverage5 lh inflated -annotation fsaverage5/label/lh.Yeo2011_7Networks_N1000.annot
+
+
+Other Downloads
+===============
+1) The surface parcellations in Caret space can be viewed using Webcaret here: http://sumsdb.wustl.edu:8081/sums/directory.do?id=8286317
+
+2) The parcellation in FSL MNI152 1mm volumetric space can be downloaded here: http://sumsdb.wustl.edu:8081/sums/directory.do?id=8286317
+
+3) Seed-based fcMRI Movies can be downloaded here: http://www.youtube.com/YeoKrienen
+
+
+References
+==========
+Yeo BT, Krienen FM, Sepulcre J, Sabuncu MR, Lashkari D, Hollinshead M, Roffman JL, Smoller JW, Zollei L., Polimeni JR, Fischl B, Liu H, Buckner RL (2011) The organization of the human cerebral cortex estimated by functional connectivity. J. Neurophysiol. In Press.
+
+The paper can be downloaded from PubMed here: http://www.ncbi.nlm.nih.gov/pubmed/21653723
+
+Also see http://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation_Yeo2011

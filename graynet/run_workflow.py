@@ -445,7 +445,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     for sub_idx, subject in enumerate(subject_id_list):
 
         try:
-            features = import_features(input_dir, [subject, ], base_feature)
+            features = import_features(input_dir, [subject, ], base_feature,
+                                       atlas=atlas,
+                                       fwhm=smoothing_param)
         except:
             raise IOError(
                 'Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
@@ -882,8 +884,11 @@ def parse_args():
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
 
-    atlas = params.atlas.lower()
+    atlas = check_atlas(params.atlas)
     # num_procs will be validated inside in the functions using it.
+
+    # TODO should we check atlas compatibility with data for two subjects randomly
+    #       load data for subjects, and check atlas parcellation is compatible in size with data
 
     return subject_ids_path, input_dir, \
            feature_list, weight_method_list, \
