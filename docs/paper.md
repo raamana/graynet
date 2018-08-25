@@ -1,5 +1,5 @@
 ---
-title: 'single-subject morphometric networks for neuroscience connectivity applications'
+title: 'graynet: single-subject morphometric networks for neuroscience connectivity applications'
 tags:
   - neuroscience
   - network
@@ -32,7 +32,7 @@ Connectivity, and network-level features in general, have proven to be valuable 
 
 However, deriving these network-level features from input T1w-MRI data is non-trivial. With this fully-open-source and pure-python library `graynet`, we attempt to make this task relatively much easier and extend it support all currently available morphometric features. Currently, it interfaces directly with the outputs produced by Freesurfer [@fischl2012freesurfer] and supports vertex-wise data. We plan to extend this to support volumetric atlases and voxel-wise features such as gray matter density. Together with many convenience scripts (e.g. to launch jobs on the high-performance cluster and assemble the outputs produced), we believe `graynet` makes an useful addition to the neuroimaging in python open source ecosystem.
 
-`graynet` is dependent on the following libraries: `nibabel` [@brett2016nibabel], `networkx` [@hunter2007matplotlib], `numpy` [@oliphant2007python,@walt2011numpy] and `hiwenet` [@raamana2017hiwenet].
+`graynet` is dependent on the following libraries: `nibabel` [@brett2016nibabel], `networkx` [@hagberg2005networkx], `numpy` [@oliphant2007python,@walt2011numpy] and `hiwenet` [@raamana2017hiwenet].
 
 # Acknowledgement
 
