@@ -1,0 +1,1139 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>graynet.run_workflow &mdash; graynet 0.3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="../../about.html"/>
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="graynet 0.3 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> graynet
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cortical.html#how-to-run-freesurfer">How to run Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cortical.html#qcache-recon-all-flag">Qcache recon-all flag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citation.html">Citation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">graynet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>graynet.run_workflow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for graynet.run_workflow</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">graynet.utils</span> <span class="k">import</span> <span class="n">check_atlas</span><span class="p">,</span> <span class="n">check_num_procs</span><span class="p">,</span> <span class="n">check_stat_methods</span><span class="p">,</span> <span class="n">warn_nan</span><span class="p">,</span> \
+    <span class="n">check_subjects</span><span class="p">,</span> <span class="n">check_weights</span><span class="p">,</span> \
+    <span class="n">check_weight_params</span><span class="p">,</span> <span class="n">check_params_single_edge</span><span class="p">,</span> <span class="n">calc_roi_statistics</span><span class="p">,</span> <span class="n">mask_background_roi</span><span class="p">,</span> \
+    <span class="n">stamp_experiment</span><span class="p">,</span> <span class="n">stamp_expt_weight</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;extract&#39;</span><span class="p">,</span> <span class="s1">&#39;roiwise_stats_indiv&#39;</span><span class="p">,</span> <span class="s1">&#39;cli_run&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">exists</span> <span class="k">as</span> <span class="n">pexists</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="kn">import</span> <span class="nn">hiwenet</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="kn">from</span> <span class="nn">sys</span> <span class="k">import</span> <span class="n">version_info</span>
+
+<span class="k">if</span> <span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">utils</span>
+    <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">parcellate</span>
+    <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">freesurfer</span>
+    <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">config_graynet</span> <span class="k">as</span> <span class="n">cfg</span>
+    <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">__version__</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s1">&#39;graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.&#39;</span><span class="p">)</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)</span>
+
+<div class="viewcode-block" id="extract"><a class="viewcode-back" href="../../graynet.html#graynet.run_workflow.extract">[docs]</a><span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span>
+            <span class="n">input_dir</span><span class="p">,</span>
+            <span class="n">base_feature</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">,</span>
+            <span class="n">weight_method_list</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_weight_method</span><span class="p">,</span>
+            <span class="n">num_bins</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">,</span>
+            <span class="n">edge_range</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">,</span>
+            <span class="n">atlas</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">,</span>
+            <span class="n">node_size</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">,</span>
+            <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_procs</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subject_id_list : str or list</span>
+<span class="sd">         must be path to a file containing subject IDs, or a list of subject IDs</span>
+<span class="sd">    input_dir : str</span>
+<span class="sd">        Path to the input directory where features can be read.</span>
+<span class="sd">        For example, this can be Freesurfer&#39;s SUBJECTS_DIR, where output processing is stored.</span>
+<span class="sd">        Or another directory with a structure that graynet can parse.</span>
+<span class="sd">    base_feature : str</span>
+<span class="sd">        Specific type of feature to read for each subject from the input directory.</span>
+
+<span class="sd">    weight_method : string(s), optional</span>
+<span class="sd">        Type of distance (or metric) to compute between the pair of histograms.</span>
+
+<span class="sd">        It must be one of the following methods:</span>
+
+<span class="sd">        - &#39;chebyshev&#39;</span>
+<span class="sd">        - &#39;chebyshev_neg&#39;</span>
+<span class="sd">        - &#39;chi_square&#39;</span>
+<span class="sd">        - &#39;correlate&#39;</span>
+<span class="sd">        - &#39;correlate_1&#39;</span>
+<span class="sd">        - &#39;cosine&#39;</span>
+<span class="sd">        - &#39;cosine_1&#39;</span>
+<span class="sd">        - &#39;cosine_2&#39;</span>
+<span class="sd">        - &#39;cosine_alt&#39;</span>
+<span class="sd">        - &#39;euclidean&#39;</span>
+<span class="sd">        - &#39;fidelity_based&#39;</span>
+<span class="sd">        - &#39;histogram_intersection&#39;</span>
+<span class="sd">        - &#39;histogram_intersection_1&#39;</span>
+<span class="sd">        - &#39;jensen_shannon&#39;</span>
+<span class="sd">        - &#39;kullback_leibler&#39;</span>
+<span class="sd">        - &#39;manhattan&#39;</span>
+<span class="sd">        - &#39;minowski&#39;</span>
+<span class="sd">        - &#39;noelle_1&#39;</span>
+<span class="sd">        - &#39;noelle_2&#39;</span>
+<span class="sd">        - &#39;noelle_3&#39;</span>
+<span class="sd">        - &#39;noelle_4&#39;</span>
+<span class="sd">        - &#39;noelle_5&#39;</span>
+<span class="sd">        - &#39;relative_bin_deviation&#39;</span>
+<span class="sd">        - &#39;relative_deviation&#39;</span>
+
+<span class="sd">        Note only the following are *metrics*:</span>
+
+<span class="sd">        - &#39;manhattan&#39;</span>
+<span class="sd">        - &#39;minowski&#39;</span>
+<span class="sd">        - &#39;euclidean&#39;</span>
+<span class="sd">        - &#39;noelle_2&#39;</span>
+<span class="sd">        - &#39;noelle_4&#39;</span>
+<span class="sd">        - &#39;noelle_5&#39;</span>
+
+<span class="sd">        The following are *semi- or quasi-metrics*:</span>
+
+<span class="sd">        - &#39;kullback_leibler&#39;</span>
+<span class="sd">        - &#39;jensen_shannon&#39;</span>
+<span class="sd">        - &#39;chi_square&#39;</span>
+<span class="sd">        - &#39;chebyshev&#39;</span>
+<span class="sd">        - &#39;cosine_1&#39;</span>
+<span class="sd">        - &#39;chebyshev_neg&#39;</span>
+<span class="sd">        - &#39;correlate_1&#39;</span>
+<span class="sd">        - &#39;histogram_intersection_1&#39;</span>
+<span class="sd">        - &#39;relative_deviation&#39;</span>
+<span class="sd">        - &#39;relative_bin_deviation&#39;</span>
+<span class="sd">        - &#39;noelle_1&#39;</span>
+<span class="sd">        - &#39;noelle_3&#39;</span>
+
+<span class="sd">        The following are  classified to be similarity functions:</span>
+
+<span class="sd">        - &#39;histogram_intersection&#39;</span>
+<span class="sd">        - &#39;correlate&#39;</span>
+<span class="sd">        - &#39;cosine&#39;</span>
+<span class="sd">        - &#39;cosine_2&#39;</span>
+<span class="sd">        - &#39;cosine_alt&#39;</span>
+<span class="sd">        - &#39;fidelity_based&#39;</span>
+
+<span class="sd">        *Default* choice: &#39;manhattan&#39;.</span>
+
+<span class="sd">    num_bins : int</span>
+<span class="sd">        Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</span>
+
+<span class="sd">    edge_range : tuple or list</span>
+<span class="sd">        The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 5``.</span>
+<span class="sd">        This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.</span>
+
+<span class="sd">        Default :</span>
+
+<span class="sd">            - ( 0.0, 5.0) for ``freesurfer_thickness`` and</span>
+<span class="sd">            - (-0.3, 0.3) for ``freesurfer_curv``.</span>
+
+<span class="sd">    atlas : str</span>
+<span class="sd">        Name of the atlas whose parcellation to be used.</span>
+<span class="sd">        Choices for cortical parcellation: [&#39;fsaverage&#39;, &#39;glasser2016&#39;], which are primary cortical.</span>
+<span class="sd">        Volumetric whole-brain atlases will be added soon.</span>
+
+<span class="sd">    smoothing_param : scalar</span>
+<span class="sd">        Smoothing parameter, which could be fwhm for Freesurfer cortical features,</span>
+<span class="sd">        or another relevant for the chosen base_feature.</span>
+<span class="sd">        Default: assumed as fwhm=10mm for the default feature choice &#39;thickness&#39;</span>
+
+<span class="sd">    node_size : scalar, optional</span>
+<span class="sd">        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.</span>
+<span class="sd">        This feature is not implemented yet, just a placeholder and to enable default computation.</span>
+
+<span class="sd">    out_dir : str, optional</span>
+<span class="sd">        Path to output directory to store results.</span>
+<span class="sd">        Default: None, results are returned, but not saved to disk.</span>
+<span class="sd">        If this is None, return_results must be true.</span>
+
+<span class="sd">    return_results : bool</span>
+<span class="sd">        Flag to indicate whether to return the results to be returned.</span>
+<span class="sd">        This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or</span>
+<span class="sd">        the number of subjects or weight methods are large, as it doesn&#39;t retain results for all combinations,</span>
+<span class="sd">        when running from commmand line interface (or HPC). Default: False</span>
+<span class="sd">        If this is False, out_dir must be specified to save the results to disk.</span>
+
+<span class="sd">    num_procs : int</span>
+<span class="sd">        Number of parallel processes to use to speed up computation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    edge_weights_all : dict, None</span>
+<span class="sd">        If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)</span>
+<span class="sd">        The value of each edge_weights_all[(weight method, subject_ID)] is</span>
+<span class="sd">        a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.</span>
+<span class="sd">        If return_results is False, this will be None, which is the default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># All the checks must happen here, as this is key function in the API</span>
+    <span class="n">check_params_single_edge</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span>
+                             <span class="n">return_results</span><span class="p">)</span>
+    <span class="n">atlas</span> <span class="o">=</span> <span class="n">check_atlas</span><span class="p">(</span><span class="n">atlas</span><span class="p">)</span>
+
+    <span class="n">subject_id_list</span><span class="p">,</span> <span class="n">num_subjects</span><span class="p">,</span> <span class="n">max_id_width</span><span class="p">,</span> <span class="n">nd_id</span> <span class="o">=</span> <span class="n">check_subjects</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">)</span>
+
+    <span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range</span> <span class="o">=</span> <span class="n">check_weight_params</span><span class="p">(</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">)</span>
+    <span class="n">weight_method_list</span><span class="p">,</span> <span class="n">num_weights</span><span class="p">,</span> <span class="n">max_wtname_width</span><span class="p">,</span> <span class="n">nd_wm</span> <span class="o">=</span> <span class="n">check_weights</span><span class="p">(</span><span class="n">weight_method_list</span><span class="p">)</span>
+
+    <span class="n">num_procs</span> <span class="o">=</span> <span class="n">check_num_procs</span><span class="p">(</span><span class="n">num_procs</span><span class="p">)</span>
+    <span class="n">pretty_print_options</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_id_width</span><span class="p">,</span> <span class="n">nd_id</span><span class="p">,</span> <span class="n">num_weights</span><span class="p">,</span> <span class="n">max_wtname_width</span><span class="p">,</span> <span class="n">nd_wm</span><span class="p">)</span>
+
+    <span class="c1"># roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)</span>
+    <span class="c1"># uniq_rois, roi_size, num_nodes = roi_info(roi_labels)</span>
+    <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">parcellate</span><span class="o">.</span><span class="n">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Processing </span><span class="si">{}</span><span class="s1"> features resampled to </span><span class="si">{}</span><span class="s1"> atlas,&#39;</span>
+          <span class="s1">&#39; smoothed at </span><span class="si">{}</span><span class="s1"> with node size </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span>
+                                                     <span class="n">node_size</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">return_results</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;When return_results=False, out_dir must be specified to be able to save the results.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pexists</span><span class="p">(</span><span class="n">out_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
+
+    <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">num_subjects</span> <span class="o">/</span> <span class="n">num_procs</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">Manager</span><span class="p">():</span>
+        <span class="n">partial_func_extract</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">extract_per_subject</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">roi_labels</span><span class="p">,</span>
+                                       <span class="n">centroids</span><span class="p">,</span> <span class="n">weight_method_list</span><span class="p">,</span>
+                                       <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">,</span>
+                                       <span class="n">out_dir</span><span class="p">,</span>
+                                       <span class="n">return_results</span><span class="p">,</span> <span class="n">pretty_print_options</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">num_procs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="n">edge_weights_list_dicts</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">partial_func_extract</span><span class="p">,</span> <span class="n">subject_id_list</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_results</span><span class="p">:</span>
+        <span class="n">edge_weights_all</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">combo</span> <span class="ow">in</span> <span class="n">edge_weights_list_dicts</span><span class="p">:</span>
+            <span class="c1"># each element from output of parallel loop is a dict keyed in by {subject, weight)</span>
+            <span class="n">edge_weights_all</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">combo</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">edge_weights_all</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">graynet computation done.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">edge_weights_all</span></div>
+
+
+<span class="k">def</span> <span class="nf">extract_per_subject</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">roi_labels</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span>
+                        <span class="n">weight_method_list</span><span class="p">,</span>
+                        <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span>
+                        <span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">,</span>
+                        <span class="n">out_dir</span><span class="p">,</span> <span class="n">return_results</span><span class="p">,</span> <span class="n">pretty_print_options</span><span class="p">,</span>
+                        <span class="n">subject</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># purposefully leaving it last to enable partial function creation</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts give set of weights for one subject.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subject</span>
+<span class="sd">    input_dir</span>
+<span class="sd">    base_feature</span>
+<span class="sd">    roi_labels</span>
+<span class="sd">    weight_method_list</span>
+<span class="sd">    atlas</span>
+<span class="sd">    smoothing_param</span>
+<span class="sd">    node_size</span>
+<span class="sd">    num_bins</span>
+<span class="sd">    edge_range</span>
+<span class="sd">    out_dir</span>
+<span class="sd">    return_results</span>
+<span class="sd">    pretty_print_options</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">subject</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">import_features</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span>
+                                   <span class="p">[</span><span class="n">subject</span><span class="p">,</span> <span class="p">],</span>
+                                   <span class="n">base_feature</span><span class="p">,</span>
+                                   <span class="n">fwhm</span><span class="o">=</span><span class="n">smoothing_param</span><span class="p">,</span>
+                                   <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to read </span><span class="si">{}</span><span class="s1"> features&#39;</span>
+                      <span class="s1">&#39; for </span><span class="si">{}</span><span class="se">\n</span><span class="s1"> Skipping it.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">subject</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">data</span><span class="p">,</span> <span class="n">rois</span> <span class="o">=</span> <span class="n">mask_background_roi</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">subject</span><span class="p">],</span> <span class="n">roi_labels</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span><span class="p">)</span>
+
+    <span class="n">max_id_width</span><span class="p">,</span> <span class="n">nd_id</span><span class="p">,</span> <span class="n">num_weights</span><span class="p">,</span> <span class="n">max_wtname_width</span><span class="p">,</span> <span class="n">nd_wm</span> <span class="o">=</span> <span class="n">pretty_print_options</span>
+
+    <span class="k">if</span> <span class="n">return_results</span><span class="p">:</span>
+        <span class="n">edge_weights_all</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">edge_weights_all</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">ww</span><span class="p">,</span> <span class="n">weight_method</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">weight_method_list</span><span class="p">):</span>
+        <span class="c1"># unique stamp for each subject and weight</span>
+        <span class="n">expt_id</span> <span class="o">=</span> <span class="n">stamp_expt_weight</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">weight_method</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Processing id {:</span><span class="si">{id_width}</span><span class="s1">} -- weight {:</span><span class="si">{wtname_width}</span><span class="s1">} ({:</span><span class="si">{nd_wm}</span><span class="s1">}/{:</span><span class="si">{nd_wm}</span><span class="s1">})&#39;</span>
+            <span class="s1">&#39; :&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">weight_method</span><span class="p">,</span> <span class="n">ww</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_weights</span><span class="p">,</span> <span class="n">nd_id</span><span class="o">=</span><span class="n">nd_id</span><span class="p">,</span> <span class="n">nd_wm</span><span class="o">=</span><span class="n">nd_wm</span><span class="p">,</span>
+                        <span class="n">id_width</span><span class="o">=</span><span class="n">max_id_width</span><span class="p">,</span> <span class="n">wtname_width</span><span class="o">=</span><span class="n">max_wtname_width</span><span class="p">))</span>
+
+        <span class="c1"># actual computation of pair-wise features</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">hiwenet</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
+                                    <span class="n">rois</span><span class="p">,</span>
+                                    <span class="n">weight_method</span><span class="o">=</span><span class="n">weight_method</span><span class="p">,</span>
+                                    <span class="n">num_bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span>
+                                    <span class="n">edge_range</span><span class="o">=</span><span class="n">edge_range</span><span class="p">,</span>
+                                    <span class="n">return_networkx_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># retrieving edge weights</span>
+            <span class="n">weight_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">get_edge_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+            <span class="n">warn_nan</span><span class="p">(</span><span class="n">weight_vec</span><span class="p">)</span>
+            <span class="c1"># weight_vec = get_triu_handle_inf_nan(edge_weights)</span>
+
+            <span class="c1"># adding position info to nodes (for visualization later)</span>
+            <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">centroids</span><span class="p">:</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">return_results</span><span class="p">:</span>
+                <span class="n">edge_weights_all</span><span class="p">[(</span><span class="n">weight_method</span><span class="p">,</span> <span class="n">subject</span><span class="p">)]</span> <span class="o">=</span> <span class="n">weight_vec</span>
+
+            <span class="c1"># saving to disk</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">save</span><span class="p">(</span><span class="n">weight_vec</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">expt_id</span><span class="p">)</span>
+                <span class="n">save_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">expt_id</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="s1">&#39;Unable to save the network/vectorized weights to:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_dir</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span> <span class="k">as</span> <span class="n">runexc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">runexc</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exiting on keyborad interrupt! </span><span class="se">\n</span><span class="s1">&#39;</span>
+                  <span class="s1">&#39;Abandoning the remaining processing for </span><span class="si">{}</span><span class="s1"> weights:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                  <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_weights</span> <span class="o">-</span> <span class="n">ww</span><span class="p">,</span> <span class="n">weight_method_list</span><span class="p">[</span><span class="n">ww</span><span class="p">:]))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unable to extract </span><span class="si">{}</span><span class="s1"> features for </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">weight_method</span><span class="p">,</span> <span class="n">subject</span><span class="p">))</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Done.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">edge_weights_all</span>
+
+
+<div class="viewcode-block" id="roiwise_stats_indiv"><a class="viewcode-back" href="../../graynet.html#graynet.run_workflow.roiwise_stats_indiv">[docs]</a><span class="k">def</span> <span class="nf">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span>
+                        <span class="n">base_feature</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">,</span>
+                        <span class="n">chosen_roi_stats</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_roi_statistic</span><span class="p">,</span>
+                        <span class="n">atlas</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">,</span>
+                        <span class="n">node_size</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">,</span>
+                        <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the chosen summary statistics within each ROI.</span>
+<span class="sd">    These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.</span>
+
+<span class="sd">    Options for summary statistics include &#39;median&#39;, &#39;entropy&#39;, &#39;kurtosis&#39; and</span>
+<span class="sd">    any other appropriate summary statistics listed under scipy.stats:</span>
+<span class="sd">    https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subject_id_list : str or list</span>
+<span class="sd">        must be path to a file containing subject IDs, or a list of subject IDs</span>
+
+<span class="sd">    input_dir : str</span>
+<span class="sd">        Path to the input directory where features can be read.</span>
+<span class="sd">        For example, this can be Freesurfer&#39;s SUBJECTS_DIR, where output processing is stored.</span>
+<span class="sd">        Or another directory with a structure that graynet can parse.</span>
+
+<span class="sd">    base_feature : str</span>
+<span class="sd">        Specific type of feature to read for each subject from the input directory.</span>
+
+<span class="sd">    chosen_roi_stats : list of str or callable</span>
+<span class="sd">        If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).</span>
+<span class="sd">        Default: &#39;median&#39;. Supported summary statistics include &#39;median&#39;, &#39;mode&#39;, &#39;mean&#39;, &#39;std&#39;, &#39;gmean&#39;, &#39;hmean&#39;, &#39;variation&#39;,</span>
+<span class="sd">        &#39;entropy&#39;, &#39;skew&#39; and &#39;kurtosis&#39;.</span>
+
+<span class="sd">        Other appropriate summary statistics listed under scipy.stats could used</span>
+<span class="sd">        by passing in a callable with their parameters encapsulated:</span>
+<span class="sd">        https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</span>
+<span class="sd">        For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing ``third_kstat`` as in the argument:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</span>
+<span class="sd">            roi_medians = roiwise_stats_indiv(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat,</span>
+<span class="sd">                atlas, fwhm, out_dir=None, return_results=True)</span>
+
+<span class="sd">        Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:</span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">            trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)</span>
+<span class="sd">            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</span>
+
+<span class="sd">        Notes: &#39;hmean&#39; requires all values be positive.</span>
+
+<span class="sd">    atlas : str</span>
+<span class="sd">        Name of the atlas whose parcellation to be used.</span>
+<span class="sd">        Available choices for cortical parcellation: [&#39;fsaverage&#39;, &#39;glasser2016&#39;].</span>
+<span class="sd">        Volumetric whole-brain atlases will be added soon.</span>
+
+<span class="sd">    smoothing_param : scalar</span>
+<span class="sd">        Smoothing parameter, which could be fwhm for Freesurfer cortical features,</span>
+<span class="sd">        or another relevant for the chosen base_feature.</span>
+<span class="sd">        Default: assumed as fwhm=10mm for the default feature choice &#39;thickness&#39;</span>
+
+<span class="sd">    node_size : scalar, optional</span>
+<span class="sd">        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.</span>
+<span class="sd">        Not implemented.</span>
+
+<span class="sd">    out_dir : str, optional</span>
+<span class="sd">        Path to output directory to store results.</span>
+<span class="sd">        Default: None, results are returned, but not saved to disk.</span>
+<span class="sd">        If this is None, return_results must be true.</span>
+
+<span class="sd">    return_results : bool</span>
+<span class="sd">        Flag to indicating whether to keep the results to be returned to caller method.</span>
+<span class="sd">        Helps to save memory (as it doesn&#39;t retain results all subjects and weight combinations),</span>
+<span class="sd">        when running from command line interface (or HPC). Default: False</span>
+<span class="sd">        If this is False, out_dir must be specified to save the results to disk.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    roi_stats_all : dict, None</span>
+<span class="sd">        If return_results is True, this will be a dictionary keyed in by subject_ID</span>
+<span class="sd">        The value of each key roi_summary_all[subject] is</span>
+<span class="sd">        a numpy array of length k, with k = number of nodes in the atlas parcellation.</span>
+<span class="sd">        If return_results is False, this will be None, which is the default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">check_params_single_edge</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span>
+                             <span class="n">return_results</span><span class="p">)</span>
+    <span class="n">subject_id_list</span><span class="p">,</span> <span class="n">num_subjects</span><span class="p">,</span> <span class="n">max_id_width</span><span class="p">,</span> <span class="n">nd_id</span> <span class="o">=</span> <span class="n">check_subjects</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">)</span>
+    <span class="n">stat_func_list</span><span class="p">,</span> <span class="n">stat_func_names</span><span class="p">,</span> <span class="n">num_stats</span><span class="p">,</span> <span class="n">max_stat_width</span><span class="p">,</span> <span class="n">nd_st</span> <span class="o">=</span> <span class="n">check_stat_methods</span><span class="p">(</span>
+        <span class="n">chosen_roi_stats</span><span class="p">)</span>
+
+    <span class="c1"># roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)</span>
+    <span class="c1"># uniq_rois, roi_size, num_nodes = roi_info(roi_labels)</span>
+    <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">parcellate</span><span class="o">.</span><span class="n">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Processing </span><span class="si">{}</span><span class="s1"> features resampled to </span><span class="si">{}</span><span class="s1"> atlas,&#39;</span>
+          <span class="s1">&#39; smoothed at </span><span class="si">{}</span><span class="s1"> with node size </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span>
+                                                     <span class="n">node_size</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">return_results</span><span class="p">:</span>
+        <span class="n">roi_stats_all</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">roi_stats_all</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;When return_results=False, out_dir must be specified to be able to save the results.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pexists</span><span class="p">(</span><span class="n">out_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">sub_idx</span><span class="p">,</span> <span class="n">subject</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">import_features</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="p">[</span><span class="n">subject</span><span class="p">,</span> <span class="p">],</span> <span class="n">base_feature</span><span class="p">,</span>
+                                       <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">,</span>
+                                       <span class="n">fwhm</span><span class="o">=</span><span class="n">smoothing_param</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="s1">&#39;Unable to read </span><span class="si">{}</span><span class="s1"> features for </span><span class="si">{}</span><span class="se">\n</span><span class="s1"> Skipping it.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">subject</span><span class="p">))</span>
+
+        <span class="n">data</span><span class="p">,</span> <span class="n">rois</span> <span class="o">=</span> <span class="n">mask_background_roi</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">subject</span><span class="p">],</span> <span class="n">roi_labels</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ss</span><span class="p">,</span> <span class="n">stat_func</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stat_func_list</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Processing id {sid:</span><span class="si">{id_width}</span><span class="s1">} ({sidnum:</span><span class="si">{nd_id}</span><span class="s1">}/{numsub:</span><span class="si">{nd_id}</span><span class="s1">}) -- &#39;</span>
+                <span class="s1">&#39;statistic {stname:</span><span class="si">{stat_name_width}</span><span class="s1">} ({statnum:</span><span class="si">{nd_st}</span><span class="s1">}/{numst:</span><span class="si">{nd_st}</span><span class="s1">})&#39;</span>
+                <span class="s1">&#39; :&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">sidnum</span><span class="o">=</span><span class="n">sub_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">numsub</span><span class="o">=</span><span class="n">num_subjects</span><span class="p">,</span>
+                            <span class="n">stname</span><span class="o">=</span><span class="n">stat_func_names</span><span class="p">[</span><span class="n">ss</span><span class="p">],</span> <span class="n">statnum</span><span class="o">=</span><span class="n">ss</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">numst</span><span class="o">=</span><span class="n">num_stats</span><span class="p">,</span>
+                            <span class="n">id_width</span><span class="o">=</span><span class="n">max_id_width</span><span class="p">,</span> <span class="n">stat_name_width</span><span class="o">=</span><span class="n">max_stat_width</span><span class="p">,</span> <span class="n">nd_id</span><span class="o">=</span><span class="n">nd_id</span><span class="p">,</span>
+                            <span class="n">nd_st</span><span class="o">=</span><span class="n">nd_st</span><span class="p">))</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">roi_stats</span> <span class="o">=</span> <span class="n">calc_roi_statistics</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rois</span><span class="p">,</span> <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">stat_func</span><span class="p">)</span>
+                <span class="n">expt_id_no_network</span> <span class="o">=</span> <span class="n">stamp_experiment</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">stat_func_names</span><span class="p">[</span><span class="n">ss</span><span class="p">],</span> <span class="n">atlas</span><span class="p">,</span>
+                                                      <span class="n">smoothing_param</span><span class="p">,</span>
+                                                      <span class="n">node_size</span><span class="p">)</span>
+                <span class="n">save_summary_stats</span><span class="p">(</span><span class="n">roi_stats</span><span class="p">,</span> <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">stat_func_names</span><span class="p">[</span><span class="n">ss</span><span class="p">],</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span>
+                                   <span class="n">expt_id_no_network</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Done.&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exiting on keyborad interrupt! </span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;Abandoning the remaining processing for </span><span class="si">{}</span><span class="s1"> stats:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_stats</span> <span class="o">-</span> <span class="n">ss</span><span class="p">,</span> <span class="n">stat_func_names</span><span class="p">[</span><span class="n">ss</span><span class="p">:]))</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s1">&#39;Error : unable to compute roi-wise </span><span class="si">{}</span><span class="s1"> for </span><span class="si">{}</span><span class="s1">. Skipping it.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">stat_func_names</span><span class="p">[</span><span class="n">ss</span><span class="p">],</span> <span class="n">subject</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">return_results</span><span class="p">:</span>
+            <span class="n">roi_stats_all</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi_stats</span>
+
+    <span class="k">return</span> <span class="n">roi_stats_all</span></div>
+
+
+<span class="k">def</span> <span class="nf">import_features</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span>
+                    <span class="n">subject_id_list</span><span class="p">,</span>
+                    <span class="n">base_feature</span><span class="p">,</span>
+                    <span class="n">fwhm</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">,</span>
+                    <span class="n">atlas</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">):</span>
+    <span class="s2">&quot;Wrapper to support input data of multiple types and multiple packages.&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">subject_id_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="p">]</span>
+
+    <span class="n">base_feature</span> <span class="o">=</span> <span class="n">base_feature</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">base_feature</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">features_freesurfer</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">freesurfer</span><span class="o">.</span><span class="n">import_features</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">subject_id_list</span><span class="p">,</span>
+                                              <span class="n">base_feature</span><span class="o">=</span><span class="n">base_feature</span><span class="p">,</span>
+                                              <span class="n">fwhm</span><span class="o">=</span><span class="n">fwhm</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">base_feature</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">features_fsl</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">fsl_import</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">subject_id_list</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="n">fwhm</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Invalid or choice not implemented!</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                  <span class="s1">&#39;Choose one of </span><span class="se">\n</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">base_feature_list</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">features</span>
+
+
+<span class="k">def</span> <span class="nf">fsl_import</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span>
+               <span class="n">subject_id_list</span><span class="p">,</span>
+               <span class="n">base_feature</span><span class="p">,</span>
+               <span class="n">fwhm</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">,</span>
+               <span class="n">atlas</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">):</span>
+    <span class="s2">&quot;To be implemented.&quot;</span>
+
+    <span class="k">if</span> <span class="n">base_feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">features_fsl</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">save_summary_stats</span><span class="p">(</span><span class="n">roi_values</span><span class="p">,</span> <span class="n">roi_labels</span><span class="p">,</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">str_suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="s2">&quot;Saves the ROI medians to disk.&quot;</span>
+
+    <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get outpath returned from hiwenet, based on dist name and all other parameters</span>
+        <span class="c1"># choose out_dir name  based on dist name and all other parameters</span>
+        <span class="n">out_subject_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pexists</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">str_suffix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out_file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_roi_stats.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_suffix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_file_name</span> <span class="o">=</span> <span class="s1">&#39;roi_stats.csv&#39;</span>
+
+        <span class="n">out_weights_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">,</span> <span class="n">out_file_name</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">of</span><span class="p">:</span>
+                <span class="n">of</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#roi,</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">stat_name</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">roi_labels</span><span class="p">,</span> <span class="n">roi_values</span><span class="p">):</span>
+                    <span class="n">of</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">,</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="c1"># np.savetxt(out_weights_path, roi_values, fmt=&#39;%.5f&#39;)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Saved roi stats to </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Unable to save extracted features to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">))</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+    <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">save_graph</span><span class="p">(</span><span class="n">graph_nx</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">str_suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="s2">&quot;Saves the features to disk.&quot;</span>
+
+    <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get outpath returned from hiwenet, based on dist name and all other parameters</span>
+        <span class="c1"># choose out_dir name  based on dist name and all other parameters</span>
+        <span class="n">out_subject_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pexists</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">str_suffix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out_file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_graynet.graphml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_suffix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_file_name</span> <span class="o">=</span> <span class="s1">&#39;graynet.graphml&#39;</span>
+
+        <span class="n">out_weights_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">,</span> <span class="n">out_file_name</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">nx</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">graph_nx</span><span class="p">)</span>
+            <span class="n">nx</span><span class="o">.</span><span class="n">write_graphml</span><span class="p">(</span><span class="n">graph_nx</span><span class="p">,</span> <span class="n">out_weights_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Saved the graph to </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Unable to save graph to </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">))</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+    <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">weight_vec</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">str_suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="s2">&quot;Saves the features to disk.&quot;</span>
+
+    <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get outpath returned from hiwenet, based on dist name and all other parameters</span>
+        <span class="c1"># choose out_dir name  based on dist name and all other parameters</span>
+        <span class="n">out_subject_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pexists</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">str_suffix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out_file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_graynet.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_suffix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_file_name</span> <span class="o">=</span> <span class="s1">&#39;graynet.csv&#39;</span>
+
+        <span class="n">out_weights_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">out_subject_dir</span><span class="p">,</span> <span class="n">out_file_name</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">,</span> <span class="n">weight_vec</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Saved the features to </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Unable to save features to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_weights_path</span><span class="p">))</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+    <span class="k">return</span>
+
+
+<div class="viewcode-block" id="cli_run"><a class="viewcode-back" href="../../graynet.html#graynet.run_workflow.cli_run">[docs]</a><span class="k">def</span> <span class="nf">cli_run</span><span class="p">():</span>
+    <span class="s2">&quot;command line interface!&quot;</span>
+
+    <span class="n">subject_ids_path</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="n">base_feature_list</span><span class="p">,</span> \
+    <span class="n">weight_method</span><span class="p">,</span> <span class="n">do_multi_edge</span><span class="p">,</span> <span class="n">summary_stats</span><span class="p">,</span> <span class="n">multi_edge_range</span><span class="p">,</span> \
+    <span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> \
+    <span class="n">roi_stats</span><span class="p">,</span> <span class="n">num_procs</span><span class="p">,</span> <span class="n">overwrite_results</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># save options to out folder for future ref</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">user_opt</span> <span class="o">=</span> <span class="p">[</span><span class="n">subject_ids_path</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="n">base_feature_list</span><span class="p">,</span> <span class="n">weight_method</span><span class="p">,</span>
+                    <span class="n">do_multi_edge</span><span class="p">,</span> <span class="n">summary_stats</span><span class="p">,</span> <span class="n">multi_edge_range</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">,</span>
+                    <span class="n">atlas</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> <span class="n">roi_stats</span><span class="p">,</span> <span class="n">num_procs</span><span class="p">,</span>
+                    <span class="n">overwrite_results</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s1">&#39;user_options.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">of</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">user_opt</span><span class="p">,</span> <span class="n">of</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="c1"># ignore</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+    <span class="c1"># when run from CLI, results will not be received</span>
+    <span class="c1"># so no point in wasting memory maintaining a very big array</span>
+    <span class="n">return_results</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">do_multi_edge</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">graynet.multi_edge</span> <span class="k">import</span> <span class="n">extract_multiedge</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing multiple edges ... &#39;</span><span class="p">)</span>
+        <span class="n">extract_multiedge</span><span class="p">(</span><span class="n">subject_ids_path</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span>
+                          <span class="n">base_feature_list</span><span class="o">=</span><span class="n">base_feature_list</span><span class="p">,</span>
+                          <span class="n">weight_method_list</span><span class="o">=</span><span class="n">weight_method</span><span class="p">,</span>
+                          <span class="n">summary_stats</span><span class="o">=</span><span class="n">summary_stats</span><span class="p">,</span>
+                          <span class="n">num_bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range_dict</span><span class="o">=</span><span class="n">multi_edge_range</span><span class="p">,</span>
+                          <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="o">=</span><span class="n">smoothing_param</span><span class="p">,</span>
+                          <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+                          <span class="n">return_results</span><span class="o">=</span><span class="n">return_results</span><span class="p">,</span> <span class="n">num_procs</span><span class="o">=</span><span class="n">num_procs</span><span class="p">,</span>
+                          <span class="n">overwrite_results</span><span class="o">=</span><span class="n">overwrite_results</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base_feature</span> <span class="o">=</span> <span class="n">base_feature_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">weight_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing single edge ... &#39;</span><span class="p">)</span>
+            <span class="n">extract</span><span class="p">(</span><span class="n">subject_ids_path</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span>
+                    <span class="n">base_feature</span><span class="o">=</span><span class="n">base_feature</span><span class="p">,</span>
+                    <span class="n">weight_method_list</span><span class="o">=</span><span class="n">weight_method</span><span class="p">,</span>
+                    <span class="n">num_bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">edge_range</span><span class="o">=</span><span class="n">edge_range</span><span class="p">,</span>
+                    <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="o">=</span><span class="n">smoothing_param</span><span class="p">,</span>
+                    <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+                    <span class="n">return_results</span><span class="o">=</span><span class="n">return_results</span><span class="p">,</span> <span class="n">num_procs</span><span class="o">=</span><span class="n">num_procs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing ROI summary stats -- skipping computation of any network weights.&#39;</span><span class="p">)</span>
+            <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_ids_path</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span>
+                                <span class="n">roi_stats</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">smoothing_param</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span>
+                                <span class="n">out_dir</span><span class="p">,</span> <span class="n">return_results</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
+
+<span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="s2">&quot;Method to specify arguments and defaults. &quot;</span>
+
+    <span class="n">help_text_subject_ids</span> <span class="o">=</span> <span class="s2">&quot;Path to file containing list of subject IDs (one per line)&quot;</span>
+    <span class="n">help_text_input_dir</span> <span class="o">=</span> <span class="s2">&quot;Path to a folder containing input data. It could, for example, &quot;</span> \
+                          <span class="s2">&quot;be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output.&quot;</span>
+    <span class="n">help_text_feature</span> <span class="o">=</span> <span class="s2">&quot;Type of feature to be used for analysis. Default: &#39;</span><span class="si">{}</span><span class="s2">&#39;. &quot;</span> \
+                        <span class="s2">&quot;Choices: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                             <span class="n">cfg</span><span class="o">.</span><span class="n">base_feature_list</span><span class="p">)</span>
+    <span class="n">help_text_multi_edge</span> <span class="o">=</span> <span class="s2">&quot;Option to compute multiple edges between ROIs based on different features. &quot;</span> \
+                           <span class="s2">&quot;Default False. If True, two valid features must be specified. &quot;</span> \
+                           <span class="s2">&quot;Use --multi_edge_range to specify edge ranges for each feature to be processed.&quot;</span>
+    <span class="n">help_text_summary_stat</span> <span class="o">=</span> <span class="s2">&quot;Summary statistic [one or more] to compute on all the weights from multiple edges.&quot;</span> \
+                             <span class="s2">&quot;This must be a string representing a method (like &#39;median&#39;, &#39;prod&#39; or &#39;max&#39;),  &quot;</span> \
+                             <span class="s2">&quot;that is available as a member of numpy or scipy.stats.&quot;</span>
+    <span class="n">help_text_weight</span> <span class="o">=</span> <span class="s2">&quot;List of methods used to estimate the weight of the edge between the pair of nodes.&quot;</span>  <span class="c1"># .format(cfg.default_weight_method)</span>
+    <span class="n">help_text_num_bins</span> <span class="o">=</span> <span class="s2">&quot;Number of bins used to construct the histogram within each ROI or group. Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">)</span>
+    <span class="n">help_text_edge_range</span> <span class="o">=</span> <span class="s2">&quot;The range of edges (two finite values) within which to bin the given values &quot;</span> \
+                           <span class="s2">&quot;e.g. --edge_range 0.0 5.0 - this can be helpful (and important) to ensure correspondence &quot;</span> \
+                           <span class="s2">&quot;across multiple invocations of graynet (for different subjects), &quot;</span> \
+                           <span class="s2">&quot;in terms of range across all bins as well as individual bin edges. &quot;</span> \
+                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, to automatically compute from the given values.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">)</span>
+
+    <span class="n">help_text_multi_edge_range</span> <span class="o">=</span> <span class="s2">&quot;Set of edge ranges (for each of the features) within which to bin the given values - see above. &quot;</span> \
+                                 <span class="s2">&quot;e.g. -f freesurfer_thickness freesurfer_curv --edge_range 0.0 5.0 -0.3 +0.3 &quot;</span> \
+                                 <span class="s2">&quot;will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curvature.&quot;</span> \
+                                 <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">edge_range_predefined</span><span class="p">)</span>
+
+    <span class="n">help_text_roi_stats</span> <span class="o">=</span> <span class="s2">&quot;Option to compute summary statistics within each ROI of the chosen parcellation. &quot;</span> \
+                          <span class="s2">&quot;These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. &quot;</span> \
+                          <span class="s2">&quot;Options for summary statistics include &#39;median&#39;, &#39;entropy&#39;, &#39;kurtosis&#39; and &quot;</span> \
+                          <span class="s2">&quot;any other appropriate summary statistics listed under scipy.stats: &quot;</span> \
+                          <span class="s2">&quot; https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions . &quot;</span> \
+                          <span class="s2">&quot;When this option is chosen, network computation is not allowed. &quot;</span> \
+                          <span class="s2">&quot;You need to compute networks and ROI stats separately.&quot;</span>
+    <span class="n">help_text_atlas</span> <span class="o">=</span> <span class="s2">&quot;Name of the atlas to define parcellation of nodes/ROIs. Default: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">)</span>
+    <span class="n">help_text_parc_size</span> <span class="o">=</span> <span class="s2">&quot;Size of individual node for the atlas parcellation. Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">)</span>
+    <span class="n">help_text_smoothing</span> <span class="o">=</span> <span class="s2">&quot;Smoothing parameter for feature. Default: FWHM of </span><span class="si">{}</span><span class="s2"> for Freesurfer thickness&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">)</span>
+
+    <span class="n">help_text_num_procs</span> <span class="o">=</span> <span class="s2">&quot;Number of CPUs to use in parallel to speed up processing. &quot;</span> \
+                          <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, capping at available number of CPUs in the processing node.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">)</span>
+
+    <span class="n">help_text_overwrite_results</span> <span class="o">=</span> <span class="s2">&quot;Flag to request overwriting of existing results, in case of reruns/failed jobs. &quot;</span> \
+                                  <span class="s2">&quot;By default, if the expected output file exists and is of non-zero size, &quot;</span> \
+                                  <span class="s2">&quot;its computation is skipped (assuming the file is complete, usable and not corrupted).&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;graynet&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--subject_ids_path&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;subject_ids_path&quot;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="n">help_text_subject_ids</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--input_dir&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;input_dir&quot;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help_text_input_dir</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;--feature&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+                        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span>
+                        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="n">help_text_feature</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--out_dir&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;out_dir&quot;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Where to save the extracted features. &quot;</span><span class="p">)</span>
+
+    <span class="n">method_selector</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Type of computation&#39;</span><span class="p">,</span>
+                                                <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Choose one among single edge, multiedge or simply ROI stats.&#39;</span><span class="p">)</span>
+    <span class="c1"># method_selector = parser.add_argument_group(required=True)</span>
+    <span class="n">method_selector</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--weight_method&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+                                 <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;weight_methods&quot;</span><span class="p">,</span>
+                                 <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
+                                 <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help_text_weight</span><span class="p">)</span>
+
+    <span class="n">method_selector</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--roi_stats&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;roi_stats&quot;</span><span class="p">,</span>
+                                 <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help_text_roi_stats</span><span class="p">)</span>
+
+    <span class="n">method_selector</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--do_multi_edge&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;do_multi_edge&quot;</span><span class="p">,</span>
+                                 <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                 <span class="n">help</span><span class="o">=</span><span class="n">help_text_multi_edge</span><span class="p">)</span>
+
+    <span class="n">method_params</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Weight parameters&#39;</span><span class="p">,</span>
+                                              <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Parameters relevant to histogram edge weight calculations&#39;</span><span class="p">)</span>
+
+    <span class="n">method_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;--num_bins&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;num_bins&quot;</span><span class="p">,</span>
+                               <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="n">help_text_num_bins</span><span class="p">)</span>
+
+    <span class="n">method_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--edge_range&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;edge_range&quot;</span><span class="p">,</span>
+                               <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">),</span>
+                               <span class="n">help</span><span class="o">=</span><span class="n">help_text_edge_range</span><span class="p">)</span>
+
+    <span class="n">multiedge_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Multi-edge&#39;</span><span class="p">,</span>
+                                               <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Parameters related to computation of multiple edges&#39;</span><span class="p">)</span>
+
+    <span class="n">multiedge_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--summary_stat&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;summary_stat&quot;</span><span class="p">,</span>
+                                <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">multi_edge_summary_func_default</span><span class="p">,</span>
+                                <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">help</span><span class="o">=</span><span class="n">help_text_summary_stat</span><span class="p">)</span>
+
+    <span class="n">multiedge_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;--multi_edge_range&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;multi_edge_range&quot;</span><span class="p">,</span>
+                                <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;min max&#39;</span><span class="p">),</span>
+                                <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help_text_multi_edge_range</span><span class="p">)</span>
+
+    <span class="n">atlas_params</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Atlas&#39;</span><span class="p">,</span>
+                                             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Parameters describing the atlas, its parcellation and any smoothing of features.&quot;</span><span class="p">)</span>
+    <span class="n">atlas_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;--atlas&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;atlas&quot;</span><span class="p">,</span>
+                              <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">help</span><span class="o">=</span><span class="n">help_text_atlas</span><span class="p">)</span>
+
+    <span class="n">atlas_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--node_size&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;node_size&quot;</span><span class="p">,</span>
+                              <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">help</span><span class="o">=</span><span class="n">help_text_parc_size</span><span class="p">)</span>
+
+    <span class="n">atlas_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--smoothing_param&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;smoothing_param&quot;</span><span class="p">,</span>
+                              <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">help</span><span class="o">=</span><span class="n">help_text_smoothing</span><span class="p">)</span>
+
+    <span class="n">computing_params</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Computing&#39;</span><span class="p">,</span>
+                                                 <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Options related to computing and parallelization.&#39;</span><span class="p">)</span>
+
+    <span class="n">computing_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--num_procs&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;num_procs&#39;</span><span class="p">,</span>
+                                  <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">help</span><span class="o">=</span><span class="n">help_text_num_procs</span><span class="p">)</span>
+    <span class="n">computing_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--overwrite_results&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                                  <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;overwrite_results&#39;</span><span class="p">,</span>
+                                  <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help_text_overwrite_results</span><span class="p">)</span>
+
+    <span class="n">computing_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--version&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;version&#39;</span><span class="p">,</span>
+                                  <span class="n">version</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(prog)s</span><span class="s1"> </span><span class="si">{version}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">__version__</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Parser/validator for the cmd line args.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Too few arguments!&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># parsing</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unable to parse command-line arguments.&#39;</span><span class="p">)</span>
+
+    <span class="n">subject_ids_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">subject_ids_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">subject_ids_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Given subject IDs file doesn&#39;t exist.&quot;</span><span class="p">)</span>
+
+    <span class="n">input_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">input_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_dir</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Given input directory doesn&#39;t exist.&quot;</span><span class="p">)</span>
+
+    <span class="n">out_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">out_dir</span>
+    <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pexists</span><span class="p">(</span><span class="n">out_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
+
+    <span class="n">feature_list</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_features</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+
+    <span class="n">do_multi_edge</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">do_multi_edge</span><span class="p">)</span>
+    <span class="n">summary_stat</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">summary_stat</span>
+    <span class="n">multi_edge_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">multi_edge_range</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">multi_edge_range_out</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">do_multi_edge</span><span class="p">:</span>
+        <span class="c1"># ensure atleast two features</span>
+        <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_features</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;To enable multi-edge computation, specify atleast two valid features.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">multi_edge_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nvals_per_feat</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">multi_edge_range</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nvals_per_feat</span> <span class="o">*</span> <span class="n">num_features</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Insufficient specification of edge ranges for multiple features!</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;Needed : </span><span class="si">{}</span><span class="s1"> exactly, given : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nvals_per_feat</span> <span class="o">*</span> <span class="n">num_features</span><span class="p">,</span>
+                                                             <span class="nb">len</span><span class="p">(</span><span class="n">multi_edge_range</span><span class="p">)))</span>
+            <span class="n">indiv_ranges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">multi_edge_range</span><span class="p">,</span>
+                                    <span class="nb">range</span><span class="p">(</span><span class="n">nvals_per_feat</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">multi_edge_range</span><span class="p">),</span> <span class="n">nvals_per_feat</span><span class="p">))</span>
+
+            <span class="n">multi_edge_range_out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">feature_list</span><span class="p">):</span>
+                <span class="n">multi_edge_range_out</span><span class="p">[</span><span class="n">feat</span><span class="p">]</span> <span class="o">=</span> <span class="n">indiv_ranges</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+
+        <span class="n">utils</span><span class="o">.</span><span class="n">check_stat_methods</span><span class="p">(</span><span class="n">summary_stat</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">summary_stat</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;For single edge computation, only one feature can be specified.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># validating choices and doing only one of the two</span>
+    <span class="n">weight_methods</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">weight_methods</span>
+    <span class="n">roi_stats</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">roi_stats</span>
+    <span class="k">if</span> <span class="n">weight_methods</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">weight_method_list</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">check_weights</span><span class="p">(</span><span class="n">weight_methods</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">roi_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ROI stats requested with network weights computation - not allowed.&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">roi_stats</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">roi_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">roi_stats</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">check_stat_methods</span><span class="p">(</span><span class="n">roi_stats</span><span class="p">)</span>
+        <span class="n">weight_method_list</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;One of weight_method and roi_stats must be chosen.&#39;</span><span class="p">)</span>
+
+    <span class="n">atlas</span> <span class="o">=</span> <span class="n">check_atlas</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">atlas</span><span class="p">)</span>
+    <span class="c1"># num_procs will be validated inside in the functions using it.</span>
+
+    <span class="c1"># TODO should we check atlas compatibility with data for two subjects randomly</span>
+    <span class="c1">#       load data for subjects, and check atlas parcellation is compatible in size with data</span>
+
+    <span class="k">return</span> <span class="n">subject_ids_path</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> \
+           <span class="n">feature_list</span><span class="p">,</span> <span class="n">weight_method_list</span><span class="p">,</span> \
+           <span class="n">do_multi_edge</span><span class="p">,</span> <span class="n">summary_stat</span><span class="p">,</span> <span class="n">multi_edge_range_out</span><span class="p">,</span> \
+           <span class="n">params</span><span class="o">.</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">edge_range</span><span class="p">,</span> \
+           <span class="n">atlas</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">node_size</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">smoothing_param</span><span class="p">,</span> <span class="n">roi_stats</span><span class="p">,</span> \
+           <span class="n">params</span><span class="o">.</span><span class="n">num_procs</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">overwrite_results</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">cli_run</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Pradeep Reddy Raamana.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

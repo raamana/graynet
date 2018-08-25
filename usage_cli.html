@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command line interface &mdash; graynet 0.3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="about.html"/>
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="graynet 0.3 documentation" href="index.html"/>
+        <link rel="next" title="API" href="API.html"/>
+        <link rel="prev" title="Volumetric graynet" href="volumetric.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> graynet
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html#how-to-run-freesurfer">How to run Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html#qcache-recon-all-flag">Qcache recon-all flag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command line interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Type of computation">Type of computation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Weight parameters">Weight parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Multi-edge">Multi-edge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Atlas">Atlas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Computing">Computing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">graynet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Command line interface</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/usage_cli.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-line-interface">
+<h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<p>The command line interface for graynet (preferred interface, given its target is HPC) is shown below. Check the bottom of this page for examples.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="o">...</span><span class="p">]]]</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span> <span class="n">NUM_BINS</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="nb">min</span> <span class="nb">max</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="p">[</span><span class="n">SUMMARY_STAT</span> <span class="p">[</span><span class="n">SUMMARY_STAT</span> <span class="o">...</span><span class="p">]]]</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="p">[</span><span class="nb">min</span> <span class="nb">max</span> <span class="p">[</span><span class="nb">min</span> <span class="nb">max</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ATLAS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">NODE_SIZE</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">SMOOTHING_PARAM</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">NUM_PROCS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="Named Arguments">
+<h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd>-s, --subject_ids_path</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Path to file containing list of subject IDs (one per line)</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-i, --input_dir</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Path to a folder containing input data. It could, for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output.</td></tr>
+<tr><td class="option-group">
+<kbd>-f, --feature</kbd></td>
+<td>Type of feature to be used for analysis. Default: ‘freesurfer_thickness’. Choices: (‘freesurfer_thickness’, ‘freesurfer_sulc’, ‘freesurfer_curv’, ‘freesurfer_area’, ‘freesurfer_pial_area’, ‘freesurfer_pial_lgi’, ‘freesurfer_jacobian_white’, ‘freesurfer_volume’, ‘gmdensity’)</td></tr>
+<tr><td class="option-group">
+<kbd>-o, --out_dir</kbd></td>
+<td>Where to save the extracted features.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="Type of computation">
+<h2>Type of computation<a class="headerlink" href="#Type of computation" title="Permalink to this headline">¶</a></h2>
+<p>Choose one among single edge, multiedge or simply ROI stats.</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd>-w, --weight_method</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>List of methods used to estimate the weight of the edge between the pair of nodes.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-r, --roi_stats</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and any other appropriate summary statistics listed under scipy.stats:  <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a> . When this option is chosen, network computation is not allowed. You need to compute networks and ROI stats separately.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-m, --do_multi_edge</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Option to compute multiple edges between ROIs based on different features. Default False. If True, two valid features must be specified. Use –multi_edge_range to specify edge ranges for each feature to be processed.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="Weight parameters">
+<h2>Weight parameters<a class="headerlink" href="#Weight parameters" title="Permalink to this headline">¶</a></h2>
+<p>Parameters relevant to histogram edge weight calculations</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd>-b, --num_bins</kbd></td>
+<td>Number of bins used to construct the histogram within each ROI or group. Default : 25</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-e, --edge_range</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The range of edges (two finite values) within which to bin the given values e.g. –edge_range 0.0 5.0 - this can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : None, to automatically compute from the given values.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="Multi-edge">
+<h2>Multi-edge<a class="headerlink" href="#Multi-edge" title="Permalink to this headline">¶</a></h2>
+<p>Parameters related to computation of multiple edges</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd>-t, --summary_stat</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Summary statistic [one or more] to compute on all the weights from multiple edges.This must be a string representing a method (like ‘median’, ‘prod’ or ‘max’),  that is available as a member of numpy or scipy.stats.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-l, --multi_edge_range</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Set of edge ranges (for each of the features) within which to bin the given values - see above. e.g. -f freesurfer_thickness freesurfer_curv –edge_range 0.0 5.0 -0.3 +0.3 will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curvature.Default : {‘freesurfer_thickness’: (0.0, 5.0), ‘freesurfer_curv’: (-0.3, 0.3), ‘freesurfer_sulc’: (-1.5, 1.5), ‘freesurfer_area’: (0.0, 1.5)}.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="Atlas">
+<h2>Atlas<a class="headerlink" href="#Atlas" title="Permalink to this headline">¶</a></h2>
+<p>Parameters describing the atlas, its parcellation and any smoothing of features.</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd>-a, --atlas</kbd></td>
+<td>Name of the atlas to define parcellation of nodes/ROIs. Default: ‘fsaverage’</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-n, --node_size</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Size of individual node for the atlas parcellation. Default : None</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-p, --smoothing_param</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="Computing">
+<h2>Computing<a class="headerlink" href="#Computing" title="Permalink to this headline">¶</a></h2>
+<p>Options related to computing and parallelization.</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd>-c, --num_procs</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Number of CPUs to use in parallel to speed up processing. Default : 2, capping at available number of CPUs in the processing node.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd>-d, --overwrite_results</kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted).</td></tr>
+<tr><td class="option-group">
+<kbd>-v, --version</kbd></td>
+<td>show program’s version number and exit</td></tr>
+</tbody>
+</table>
+</div>
+<p>A rough example of usage can be:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#$ -l mf=2G -q queue_name.q -wd /work/project</span>
+<span class="nb">cd</span> /work/project
+graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan eucledian chebyshev -a GLASSER2016 -p <span class="m">10</span> -o /work/project/graynet_processing
+</pre></div>
+</div>
+<p>Note you can specify mulitple weight metrics to save on I/O activity and walltime on HPC.</p>
+<p>To automate the the process of generating the above job files and their submission for processing on HPC clusters, I have included a <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> . Please read the instructions inside and run it.</p>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="API.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="volumetric.html" class="btn btn-neutral" title="Volumetric graynet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Pradeep Reddy Raamana.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

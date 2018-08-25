@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; graynet 0.3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="about.html"/>
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="graynet 0.3 documentation" href="index.html"/>
+        <link rel="next" title="Getting started" href="getstarted.html"/>
+        <link rel="prev" title="About" href="about.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> graynet
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#citation">Citation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html#how-to-run-freesurfer">How to run Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html#qcache-recon-all-flag">Qcache recon-all flag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">graynet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>This package could easily be installed via:</p>
+<p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">graynet</span></code></p>
+<p><code class="docutils literal"><span class="pre">graynet</span></code> is written in Python completely and is distributed via the Python Package Index. It requires python (Free and awsome!) to be installed and <cite>pip</cite> to install. You most likley have them already. If you do not have python or pip installed, please follow the links below for instructions on installing them:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Python 3 or higher: <a class="reference external" href="https://www.python.org/downloads/">https://www.python.org/downloads/</a> (pip comes packaged with Python)</li>
+<li>Windows users:<ul>
+<li>can follow this guide <a class="reference external" href="https://www.ics.uci.edu/~pattis/common/handouts/pythoneclipsejava/python.html">https://www.ics.uci.edu/~pattis/common/handouts/pythoneclipsejava/python.html</a> or <a class="reference external" href="https://www.python.org/downloads/windows/">https://www.python.org/downloads/windows/</a></li>
+<li>and read these FAQ to familiarize themselves with typical questions using these FAQ: <a class="reference external" href="https://docs.python.org/3/faq/windows.html">https://docs.python.org/3/faq/windows.html</a></li>
+</ul>
+</li>
+<li>Note as this package is mainly geared towards batch processing (typically done on high-performance computing clusters). Hence, this has been tested only on Linux, and has not been tested on Windows. The API should work similarly, but the command line interface on Windows might be slightly less easy compared to Windows.</li>
+</ul>
+</div></blockquote>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>numpy</li>
+<li>nibabel</li>
+<li>hiwenet</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
+<p>If you found any parts of graynet to be useful in your research, I’d appreciate if you could cite one or more of the following papers in that order:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Raamana, P. R. &amp; Strother, S. C., (2018). <em>graynet: single-subject morphometric networks for neuroscience connectivity applications</em> (Version 0.3.9). Zenodo. <a class="reference external" href="http://doi.org/10.5281/zenodo.1403304">http://doi.org/10.5281/zenodo.1403304</a></li>
+<li>Pradeep Reddy Raamana. <em>graynet: Subject-wise networks from structural shape and morphological features</em>. Zenodo. <a class="reference external" href="http://doi.org/10.5281/zenodo.997358">http://doi.org/10.5281/zenodo.997358</a></li>
+<li>Raamana, P.R. and Strother, S.C., 2017, Impact of spatial scale and edge weight on predictive power of cortical thickness networks bioRxiv 170381 <a class="reference external" href="http://www.biorxiv.org/content/early/2017/07/31/170381">http://www.biorxiv.org/content/early/2017/07/31/170381</a>.</li>
+<li>Raamana, P. R., Weiner, M. W., Wang, L., Beg, M. F., &amp; Alzheimer’s Disease Neuroimaging Initiative. (2015). Thickness network features for prognostic applications in dementia. Neurobiology of aging, 36, S91-S102.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="getstarted.html" class="btn btn-neutral float-right" title="Getting started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="about.html" class="btn btn-neutral" title="About" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Pradeep Reddy Raamana.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

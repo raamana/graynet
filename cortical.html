@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cortical graynet &mdash; graynet 0.3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="about.html"/>
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="graynet 0.3 documentation" href="index.html"/>
+        <link rel="next" title="Volumetric graynet" href="volumetric.html"/>
+        <link rel="prev" title="Getting started" href="getstarted.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> graynet
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getstarted.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#how-to-run-freesurfer">How to run Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#qcache-recon-all-flag">Qcache recon-all flag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">graynet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Cortical graynet</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cortical.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cortical-graynet">
+<h1>Cortical graynet<a class="headerlink" href="#cortical-graynet" title="Permalink to this headline">¶</a></h1>
+<p>For the cortical stream of processing, <code class="docutils literal"><span class="pre">graynet</span></code> relies on outputs from Freesurfer processing. If you processed your data (to produce thickness values), just resample them on fsaverage atlas and store it in a format readable by <code class="docutils literal"><span class="pre">nibabel</span></code> package.</p>
+<p>The following steps should help you get started and going quickly:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>Ensure Freesurfer processing is complete.</dt>
+<dd><ul class="first last">
+<li>You can easily inspect whether the outputs are complete and accurate using <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>Ensure you ran <code class="docutils literal"><span class="pre">recon-all</span></code> with <code class="docutils literal"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.</li>
+<li>check <a class="reference internal" href="#run-fs"><span class="std std-ref">How to run Freesurfer</span></a> for more details.</li>
+</ul>
+</div></blockquote>
+<p>If graynet is installed without error, you should have <code class="docutils literal"><span class="pre">graynet</span></code> command in your path. Just type <code class="docutils literal"><span class="pre">graynet</span></code> and you should see it display options and usage instructions, as presented in <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> page.</p>
+<p>Suppose say</p>
+<blockquote>
+<div><ul class="simple">
+<li>you already have Freesurfer processing done at <code class="docutils literal"><span class="pre">/work/project/freesurfer_reconall</span></code></li>
+<li>for 5 subjects with identifiers are stored in subject_ids.txt (one per line)</li>
+<li>you want to analyze network features based on cortical thickness values, which have been resampled on fsaverage surface (which is the default) at smoothing level of FWHM 10 (default)</li>
+<li>use the <code class="docutils literal"><span class="pre">manhattan</span></code> method to compute histogram distance between two cortical ROIs (assuming all subjects resampled to same atlas)</li>
+<li>and store the networks extracted in /work/project/graynet</li>
+</ul>
+</div></blockquote>
+<p>You could achieve it all with a single command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
+graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan -a fsaverage -p <span class="m">10</span> -o /work/project/graynet
+</pre></div>
+</div>
+<p>That’s it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.</p>
+<p>Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation published in Glasser 2016 atlas and also curious to try multiple weight metrics -  <code class="docutils literal"><span class="pre">chebyshev</span></code> and <code class="docutils literal"><span class="pre">cosine</span></code>, you can achieve it via the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
+graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p <span class="m">10</span> -o /work/project/graynet
+</pre></div>
+</div>
+<p>You could also study curvature and sulcal depth features by simply adding more features to the <code class="docutils literal"><span class="pre">-f</span></code>, such as <code class="docutils literal"><span class="pre">freesurfer_curv</span></code> and <code class="docutils literal"><span class="pre">freesurfer_sulc</span></code>.</p>
+<p>However, if you have 100s of subjects or your atlas has a large number of ROIs (like the Glasser 2016 which has 360), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
+<blockquote>
+<div><ul class="simple">
+<li>If you have access to a computer cluster, you can submit the generated jobs to the cluster.</li>
+<li>If you don’t have access to a cluster, you could still use the generated job/script files to run them locally - few at a time.</li>
+</ul>
+</div></blockquote>
+<p>After processing is done (on the cluster or locally), and assuming no other errors, you should see a CSV file for each subject, with <code class="docutils literal"><span class="pre">n*(n-1)/2</span></code> values corresponding to the upper-triangular part of the connectivity matrix, where n is the number of ROIs in a atlas you chose (68 for fsaverage or 360 for Glasser2016).</p>
+<p>The output folder will be graynet within <code class="docutils literal"><span class="pre">proc_dir</span></code> you choose in the script - determined by this statement in the above script:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_fwhm{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>which after expansion looks something like based on your choices: <code class="docutils literal"><span class="pre">/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/</span></code></p>
+<p><code class="docutils literal"><span class="pre">graynet</span></code> also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the <code class="docutils literal"><span class="pre">-r</span></code> or <code class="docutils literal"><span class="pre">--roi_stats</span></code> flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.</p>
+</div>
+<div class="section" id="how-to-run-freesurfer">
+<span id="run-fs"></span><h1>How to run Freesurfer<a class="headerlink" href="#how-to-run-freesurfer" title="Permalink to this headline">¶</a></h1>
+<p>If you are new to Freesurfer, please:</p>
+<blockquote>
+<div><ul class="simple">
+<li>follow this <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferBeginnersGuide">beginners guide</a></li>
+<li>leverage various <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all">options</a> available</li>
+<li>include <code class="docutils literal"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default) - see <a class="reference internal" href="#qcache-flag"><span class="std std-ref">Qcache recon-all flag</span></a>.</li>
+<li>process the subjects till “recon-all is finished without error”</li>
+</ul>
+</div></blockquote>
+<p>In typical scenarios (when T1 mri scans do not <em>special</em> processing to handle any artefacts), running Freesurfer would boil down to running command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>recon-all -all -sd /project/processed/freesurfer -subjid ABC_0001 -i /project/raw/ABC_0001/mri.nii -qcache
+</pre></div>
+</div>
+</div>
+<div class="section" id="qcache-recon-all-flag">
+<span id="qcache-flag"></span><h1>Qcache recon-all flag<a class="headerlink" href="#qcache-recon-all-flag" title="Permalink to this headline">¶</a></h1>
+<p>The Qcache recon-all flag does the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li>resample data (e.g. thickness, curv, sulc) onto the average subject (called fsaverage)</li>
+<li>smooth it at a range of FWHM (full-width/half-max) values, usually 0, 5, 10, 15, 20, and 25mm.</li>
+</ul>
+</div></blockquote>
+<p>We encourage the use of default behaviour (simple inclusion of <code class="docutils literal"><span class="pre">-qcache</span></code>), which will smooth the surface data for thickness, curv, sulc, area and jacobian_white at 0, 5, 10, 15, 20, and 25 mm FWHM.</p>
+<p>If you are interested in resampling the data on to a different atlas or process features outside Freesurfer structure, check <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/qcache">https://surfer.nmr.mgh.harvard.edu/fswiki/qcache</a> for more info.</p>
+<p>The parcellation for the <a class="reference external" href="http://www.nature.com/nature/journal/vaop/ncurrent/full/nature18933.html">Glasser et al 2016</a> atlas has been resampled onto the fsaverage space already, courtesy of <a class="reference external" href="https://figshare.com/articles/HCP-MMP1_0_projected_on_fsaverage/3498446">Kathryn Mills</a>.</p>
+<p>If you run into any issues, or have a feature you would like, please let me know here <a class="reference external" href="https://github.com/raamana/graynet/issues/new">by opening an issue</a>.</p>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="volumetric.html" class="btn btn-neutral float-right" title="Volumetric graynet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getstarted.html" class="btn btn-neutral" title="Getting started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Pradeep Reddy Raamana.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

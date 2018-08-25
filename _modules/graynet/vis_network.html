@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>graynet.vis_network &mdash; graynet 0.3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="../../about.html"/>
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="graynet 0.3 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> graynet
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cortical.html#how-to-run-freesurfer">How to run Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cortical.html#qcache-recon-all-flag">Qcache recon-all flag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citation.html">Citation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">graynet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>graynet.vis_network</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for graynet.vis_network</h1><div class="highlight"><pre>
+<span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;draw3Dnx&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">plotly</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">plotly.graph_objs</span> <span class="k">import</span> <span class="p">(</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Scatter3d</span><span class="p">,</span> <span class="n">XAxis</span><span class="p">,</span> <span class="n">YAxis</span><span class="p">,</span> <span class="n">ZAxis</span><span class="p">,</span>
+    <span class="n">Scene</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Annotations</span><span class="p">,</span> <span class="n">Marker</span><span class="p">,</span> <span class="n">Font</span><span class="p">,</span> <span class="n">Margin</span><span class="p">,</span> <span class="n">Layout</span><span class="p">,</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">Data</span> <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">plotly.offline</span> <span class="k">import</span> <span class="n">init_notebook_mode</span><span class="p">,</span> <span class="n">iplot</span><span class="p">,</span> <span class="n">plot</span>
+
+<div class="viewcode-block" id="draw3Dnx"><a class="viewcode-back" href="../../graynet.html#graynet.draw3Dnx">[docs]</a><span class="k">def</span> <span class="nf">draw3Dnx</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">perc_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">positions_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">positions_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">plot_title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+             <span class="n">plot_description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+             <span class="n">colorscale</span><span class="o">=</span><span class="s1">&#39;Set3&#39;</span><span class="p">,</span>
+             <span class="n">notebook_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">auto_open</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draws a given graph in 3D&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_empty</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;input graph can not be empty!&#39;</span><span class="p">)</span>
+        <span class="c1"># graph = nx.random_geometric_graph(200, 0.05)</span>
+
+    <span class="k">if</span> <span class="n">notebook_mode</span><span class="p">:</span>
+        <span class="n">init_notebook_mode</span><span class="p">()</span>
+
+    <span class="n">marker_size</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">marker_edge_width</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">link_width</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">colorbar_title</span> <span class="o">=</span> <span class="s1">&#39;Node Connections&#39;</span>
+    <span class="n">hover_description</span> <span class="o">=</span> <span class="s1">&#39;# connections: &#39;</span>
+
+    <span class="n">position_attr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">positions_array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">position_attr</span><span class="p">):</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions_array</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">ix</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">positions_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">position_attr</span><span class="p">:</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions_array</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">position_attr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Position attribute </span><span class="si">{}</span><span class="s1"> missing. &#39;</span>
+                             <span class="s1">&#39;Add it to graph or supply with one of the position inputs&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr</span><span class="p">))</span>
+
+    <span class="n">edge_threshold</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
+    <span class="k">if</span> <span class="n">perc_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">eval_distr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">get_edge_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">edge_threshold</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">eval_distr</span><span class="p">,</span> <span class="n">perc_threshold</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;threshold to prune edges can not be determined.&#39;</span><span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+            <span class="k">return</span>
+
+    <span class="n">edge_trace</span> <span class="o">=</span> <span class="n">Scatter3d</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">y</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">z</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;lines&#39;</span><span class="p">,</span>
+            <span class="n">line</span><span class="o">=</span><span class="n">Line</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">marker_edge_width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#888&#39;</span><span class="p">),</span>
+            <span class="n">hoverinfo</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="n">gnode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Helper to retun the x, y, z coords of a node&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gnode</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">gnode</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">gnode</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+        <span class="c1"># adding only the strongest edges</span>
+        <span class="k">if</span> <span class="n">perc_threshold</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">edge_threshold</span><span class="p">:</span>
+            <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span> <span class="o">=</span> <span class="n">get_position</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">src</span> <span class="p">])</span>  <span class="c1"># [&#39;position&#39;]</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span> <span class="o">=</span> <span class="n">get_position</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">dest</span><span class="p">])</span>  <span class="c1"># [&#39;position&#39;]</span>
+            <span class="n">edge_trace</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+            <span class="n">edge_trace</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+            <span class="n">edge_trace</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+
+    <span class="c1"># empty lists here will be appended with data to be plotted</span>
+    <span class="n">node_trace</span> <span class="o">=</span> <span class="n">Scatter3d</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="p">[],</span> <span class="n">y</span><span class="o">=</span><span class="p">[],</span> <span class="n">z</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">text</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;markers&#39;</span><span class="p">,</span>
+            <span class="n">hoverinfo</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="n">Marker</span><span class="p">(</span>
+                    <span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;dot&#39;</span><span class="p">,</span>
+                    <span class="n">showscale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">colorscale</span><span class="o">=</span><span class="n">colorscale</span><span class="p">,</span>
+                    <span class="n">reversescale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="p">[],</span>
+                    <span class="n">size</span><span class="o">=</span><span class="n">marker_size</span><span class="p">,</span>
+                    <span class="n">colorbar</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                            <span class="n">thickness</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                            <span class="n">title</span><span class="o">=</span><span class="n">colorbar_title</span><span class="p">,</span>
+                            <span class="n">xanchor</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+                            <span class="n">titleside</span><span class="o">=</span><span class="s1">&#39;right&#39;</span>
+                            <span class="p">),</span>
+                    <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># setting nodal positions and info</span>
+    <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">get_position</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">])</span>
+        <span class="n">node_trace</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">node_trace</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">node_trace</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">node_trace</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">node_trace</span><span class="p">[</span><span class="s1">&#39;marker&#39;</span><span class="p">][</span><span class="s1">&#39;color&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ix</span><span class="p">)</span>
+
+    <span class="n">axis</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">showbackground</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">showline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+                <span class="p">)</span>
+
+    <span class="n">scene</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">(</span><span class="n">xaxis</span><span class="o">=</span><span class="n">XAxis</span><span class="p">(</span><span class="n">axis</span><span class="p">),</span>
+                  <span class="n">yaxis</span><span class="o">=</span><span class="n">YAxis</span><span class="p">(</span><span class="n">axis</span><span class="p">),</span>
+                  <span class="n">zaxis</span><span class="o">=</span><span class="n">ZAxis</span><span class="p">(</span><span class="n">axis</span><span class="p">))</span>
+
+    <span class="n">annotations</span> <span class="o">=</span> <span class="n">Annotations</span><span class="p">([</span>
+        <span class="n">Annotation</span><span class="p">(</span><span class="n">showarrow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">plot_description</span><span class="p">,</span>
+                   <span class="n">xref</span><span class="o">=</span><span class="s1">&#39;paper&#39;</span><span class="p">,</span> <span class="n">yref</span><span class="o">=</span><span class="s1">&#39;paper&#39;</span><span class="p">,</span>
+                   <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># z=0.05,</span>
+                   <span class="n">xanchor</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">yanchor</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span>  <span class="c1"># zanchor=&#39;bottom&#39;,</span>
+                   <span class="n">font</span><span class="o">=</span><span class="n">Font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">))</span>
+        <span class="p">])</span>
+
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">plot_title</span><span class="p">,</span>
+            <span class="n">titlefont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+            <span class="c1"># width=1000,</span>
+            <span class="c1"># height=1000,</span>
+            <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">hovermode</span><span class="o">=</span><span class="s1">&#39;closest&#39;</span><span class="p">,</span>
+            <span class="n">scene</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span>
+            <span class="n">margin</span><span class="o">=</span><span class="n">Margin</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+            <span class="c1"># margin=dict(b=20,l=5,r=5,t=40),</span>
+            <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="n">fig_data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">([</span><span class="n">edge_trace</span><span class="p">,</span> <span class="n">node_trace</span><span class="p">])</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">fig_data</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">out_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">auto_open</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">auto_open</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">notebook_mode</span><span class="p">:</span>
+        <span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">out_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">out_path</span><span class="p">,</span> <span class="n">auto_open</span><span class="o">=</span><span class="n">auto_open</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Pradeep Reddy Raamana.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.3',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
