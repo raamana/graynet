@@ -32,6 +32,7 @@ graynet
    usage_cli
    API
    usage_api
+   results_howto
    citation
 
 
