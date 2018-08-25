@@ -2,7 +2,7 @@
 About
 --------------------------------------------------------------------------------------------------
 
-Individualized single-subject (covariance) networks from T1 mri features such as cortical thickness, gray matter density, subcortical morphometric features, gyrification and curvature.
+``graynet`` helps you easily extract single-subject network-level features from T1-weighted mri features such as cortical thickness, gray matter density, subcortical morphometric features, gyrification and curvature.
 
 .. image:: https://zenodo.org/badge/98567518.svg
    :target: https://zenodo.org/badge/latestdoi/98567518

@@ -3,9 +3,11 @@ Examples using API
 ------------------
 
 
-A rough example of usage when using the graynet API is shown below, although I strongly recommend using the command line interface given it is geared towards batch processing on HPC clusters and there is a `script <https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py>`_ to help you with large amount of processing.
+A rough example of usage when using the graynet API is shown below. However, we recommend using the command line interface given it is geared towards batch processing on HPC clusters and there is a `script <https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py>`_ to help you with large amount of processing.
+
 
 .. code-block:: python
+
 
     import graynet
     import os
@@ -23,4 +25,5 @@ A rough example of usage when using the graynet API is shown below, although I s
 
 
 
-**TODO** add more examples
+
+
