@@ -13,7 +13,7 @@ Applicable for whenever network-level features are useful, among which common us
  - brain-behaviour relationships (e.g. for the diagnosis and prognosis of many brain disorders such as Alzheimer's, Parkinson's, Schizophrenia and the like).
  - aging (changes in network properties over age and their relations to other variables)
 
-Docs: http://graynet.readthedocs.io
+Docs: https://raamana.github.io/graynet/
 
 Poster:
 
