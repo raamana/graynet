@@ -6,6 +6,7 @@ For the cortical stream of processing, ``graynet`` relies on outputs from Freesu
 The following steps should help you get started and going quickly:
 
     - Ensure Freesurfer processing is complete.
+        - You can easily inspect whether the outputs are complete and accurate using `visualqc <https://raamana.github.io/visualqc/readme.html>`_
     - Ensure you ran ``recon-all`` with ``-qcache`` flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.
     - check :ref:`run_fs` for more details.
 

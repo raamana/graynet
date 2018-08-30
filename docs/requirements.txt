@@ -1,6 +1,4 @@
-sphinx-argparse
-numpydoc
+networkx
 numpy
 nibabel
-medpy
 hiwenet
