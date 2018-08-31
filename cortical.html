@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Cortical graynet &mdash; graynet 0.4 documentation</title>
+  <title>Cortical graynet &mdash; graynet 0.4+1.g07bec72.dirty documentation</title>
   
 
   
@@ -37,7 +37,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="graynet 0.4 documentation" href="index.html"/>
+    <link rel="top" title="graynet 0.4+1.g07bec72.dirty documentation" href="index.html"/>
         <link rel="next" title="Volumetric graynet" href="volumetric.html"/>
         <link rel="prev" title="Getting started" href="getstarted.html"/> 
 
@@ -68,7 +68,7 @@
             
             
               <div class="version">
-                0.4
+                0.4+1.g07bec72.dirty
               </div>
             
           
@@ -171,7 +171,7 @@
             
   <div class="section" id="cortical-graynet">
 <h1>Cortical graynet<a class="headerlink" href="#cortical-graynet" title="Permalink to this headline">¶</a></h1>
-<p>For the cortical stream of processing, <code class="docutils literal"><span class="pre">graynet</span></code> relies on outputs from Freesurfer processing. If you processed your data (to produce thickness values), just resample them on fsaverage atlas and store it in a format readable by <code class="docutils literal"><span class="pre">nibabel</span></code> package.</p>
+<p>For the cortical stream of processing, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> relies on outputs from Freesurfer processing. If you processed your data (to produce thickness values), just resample them on fsaverage atlas and store it in a format readable by <code class="docutils literal notranslate"><span class="pre">nibabel</span></code> package.</p>
 <p>The following steps should help you get started and going quickly:</p>
 <blockquote>
 <div><ul class="simple">
@@ -183,33 +183,33 @@
 </dd>
 </dl>
 </li>
-<li>Ensure you ran <code class="docutils literal"><span class="pre">recon-all</span></code> with <code class="docutils literal"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.</li>
+<li>Ensure you ran <code class="docutils literal notranslate"><span class="pre">recon-all</span></code> with <code class="docutils literal notranslate"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.</li>
 <li>check <a class="reference internal" href="#run-fs"><span class="std std-ref">How to run Freesurfer</span></a> for more details.</li>
 </ul>
 </div></blockquote>
-<p>If graynet is installed without error, you should have <code class="docutils literal"><span class="pre">graynet</span></code> command in your path. Just type <code class="docutils literal"><span class="pre">graynet</span></code> and you should see it display options and usage instructions, as presented in <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> page.</p>
+<p>If graynet is installed without error, you should have <code class="docutils literal notranslate"><span class="pre">graynet</span></code> command in your path. Just type <code class="docutils literal notranslate"><span class="pre">graynet</span></code> and you should see it display options and usage instructions, as presented in <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> page.</p>
 <p>Suppose say</p>
 <blockquote>
 <div><ul class="simple">
-<li>you already have Freesurfer processing done at <code class="docutils literal"><span class="pre">/work/project/freesurfer_reconall</span></code></li>
+<li>you already have Freesurfer processing done at <code class="docutils literal notranslate"><span class="pre">/work/project/freesurfer_reconall</span></code></li>
 <li>for 5 subjects with identifiers are stored in subject_ids.txt (one per line)</li>
 <li>you want to analyze network features based on cortical thickness values, which have been resampled on fsaverage surface (which is the default) at smoothing level of FWHM 10 (default)</li>
-<li>use the <code class="docutils literal"><span class="pre">manhattan</span></code> method to compute histogram distance between two cortical ROIs (assuming all subjects resampled to same atlas)</li>
+<li>use the <code class="docutils literal notranslate"><span class="pre">manhattan</span></code> method to compute histogram distance between two cortical ROIs (assuming all subjects resampled to same atlas)</li>
 <li>and store the networks extracted in /work/project/graynet</li>
 </ul>
 </div></blockquote>
 <p>You could achieve it all with a single command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
 graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan -a fsaverage -p <span class="m">10</span> -o /work/project/graynet
 </pre></div>
 </div>
 <p>That’s it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.</p>
-<p>Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation published in Glasser 2016 atlas and also curious to try multiple weight metrics -  <code class="docutils literal"><span class="pre">chebyshev</span></code> and <code class="docutils literal"><span class="pre">cosine</span></code>, you can achieve it via the following command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
+<p>Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation published in Glasser 2016 atlas and also curious to try multiple weight metrics -  <code class="docutils literal notranslate"><span class="pre">chebyshev</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine</span></code>, you can achieve it via the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
 graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p <span class="m">10</span> -o /work/project/graynet
 </pre></div>
 </div>
-<p>You could also study curvature and sulcal depth features by simply adding more features to the <code class="docutils literal"><span class="pre">-f</span></code>, such as <code class="docutils literal"><span class="pre">freesurfer_curv</span></code> and <code class="docutils literal"><span class="pre">freesurfer_sulc</span></code>.</p>
+<p>You could also study curvature and sulcal depth features by simply adding more features to the <code class="docutils literal notranslate"><span class="pre">-f</span></code>, such as <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code> and <code class="docutils literal notranslate"><span class="pre">freesurfer_sulc</span></code>.</p>
 <p>However, if you have 100s of subjects or your atlas has a large number of ROIs (like the Glasser 2016 which has 360), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
 <blockquote>
 <div><ul class="simple">
@@ -217,13 +217,13 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 <li>If you don’t have access to a cluster, you could still use the generated job/script files to run them locally - few at a time.</li>
 </ul>
 </div></blockquote>
-<p>After processing is done (on the cluster or locally), and assuming no other errors, you should see a CSV file for each subject, with <code class="docutils literal"><span class="pre">n*(n-1)/2</span></code> values corresponding to the upper-triangular part of the connectivity matrix, where n is the number of ROIs in a atlas you chose (68 for fsaverage or 360 for Glasser2016).</p>
-<p>The output folder will be graynet within <code class="docutils literal"><span class="pre">proc_dir</span></code> you choose in the script - determined by this statement in the above script:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_fwhm{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
+<p>After processing is done (on the cluster or locally), and assuming no other errors, you should see a CSV file for each subject, with <code class="docutils literal notranslate"><span class="pre">n*(n-1)/2</span></code> values corresponding to the upper-triangular part of the connectivity matrix, where n is the number of ROIs in a atlas you chose (68 for fsaverage or 360 for Glasser2016).</p>
+<p>The output folder will be graynet within <code class="docutils literal notranslate"><span class="pre">proc_dir</span></code> you choose in the script - determined by this statement in the above script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_fwhm{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>which after expansion looks something like based on your choices: <code class="docutils literal"><span class="pre">/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/</span></code></p>
-<p><code class="docutils literal"><span class="pre">graynet</span></code> also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the <code class="docutils literal"><span class="pre">-r</span></code> or <code class="docutils literal"><span class="pre">--roi_stats</span></code> flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.</p>
+<p>which after expansion looks something like based on your choices: <code class="docutils literal notranslate"><span class="pre">/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">graynet</span></code> also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the <code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--roi_stats</span></code> flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.</p>
 </div>
 <div class="section" id="how-to-run-freesurfer">
 <span id="run-fs"></span><h1>How to run Freesurfer<a class="headerlink" href="#how-to-run-freesurfer" title="Permalink to this headline">¶</a></h1>
@@ -232,12 +232,12 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 <div><ul class="simple">
 <li>follow this <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferBeginnersGuide">beginners guide</a></li>
 <li>leverage various <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all">options</a> available</li>
-<li>include <code class="docutils literal"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default) - see <a class="reference internal" href="#qcache-flag"><span class="std std-ref">Qcache recon-all flag</span></a>.</li>
+<li>include <code class="docutils literal notranslate"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default) - see <a class="reference internal" href="#qcache-flag"><span class="std std-ref">Qcache recon-all flag</span></a>.</li>
 <li>process the subjects till “recon-all is finished without error”</li>
 </ul>
 </div></blockquote>
 <p>In typical scenarios (when T1 mri scans do not <em>special</em> processing to handle any artefacts), running Freesurfer would boil down to running command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>recon-all -all -sd /project/processed/freesurfer -subjid ABC_0001 -i /project/raw/ABC_0001/mri.nii -qcache
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>recon-all -all -sd /project/processed/freesurfer -subjid ABC_0001 -i /project/raw/ABC_0001/mri.nii -qcache
 </pre></div>
 </div>
 </div>
@@ -250,7 +250,7 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 <li>smooth it at a range of FWHM (full-width/half-max) values, usually 0, 5, 10, 15, 20, and 25mm.</li>
 </ul>
 </div></blockquote>
-<p>We encourage the use of default behaviour (simple inclusion of <code class="docutils literal"><span class="pre">-qcache</span></code>), which will smooth the surface data for thickness, curv, sulc, area and jacobian_white at 0, 5, 10, 15, 20, and 25 mm FWHM.</p>
+<p>We encourage the use of default behaviour (simple inclusion of <code class="docutils literal notranslate"><span class="pre">-qcache</span></code>), which will smooth the surface data for thickness, curv, sulc, area and jacobian_white at 0, 5, 10, 15, 20, and 25 mm FWHM.</p>
 <p>If you are interested in resampling the data on to a different atlas or process features outside Freesurfer structure, check <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/qcache">https://surfer.nmr.mgh.harvard.edu/fswiki/qcache</a> for more info.</p>
 <p>The parcellation for the <a class="reference external" href="http://www.nature.com/nature/journal/vaop/ncurrent/full/nature18933.html">Glasser et al 2016</a> atlas has been resampled onto the fsaverage space already, courtesy of <a class="reference external" href="https://figshare.com/articles/HCP-MMP1_0_projected_on_fsaverage/3498446">Kathryn Mills</a>.</p>
 <p>If you run into any issues, or have a feature you would like, please let me know here <a class="reference external" href="https://github.com/raamana/graynet/issues/new">by opening an issue</a>.</p>
@@ -300,7 +300,7 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.4',
+            VERSION:'0.4+1.g07bec72.dirty',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

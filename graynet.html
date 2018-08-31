@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>graynet package &mdash; graynet 0.4 documentation</title>
+  <title>graynet package &mdash; graynet 0.4+1.g07bec72.dirty documentation</title>
   
 
   
@@ -37,7 +37,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="graynet 0.4 documentation" href="index.html"/> 
+    <link rel="top" title="graynet 0.4+1.g07bec72.dirty documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.4
+                0.4+1.g07bec72.dirty
               </div>
             
           
@@ -207,23 +207,20 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>subject_id_list</strong> : str or list</p>
-<blockquote>
-<div><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</div></blockquote>
-<p><strong>input_dir</strong> : str</p>
-<blockquote>
-<div><p>Path to the input directory where features can be read.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>subject_id_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or list</span></dt>
+<dd><p class="first last">must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Path to the input directory where features can be read.
 For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
 Or another directory with a structure that graynet can parse.</p>
-</div></blockquote>
-<p><strong>base_feature</strong> : str</p>
-<blockquote>
-<div><p>Specific type of feature to read for each subject from the input directory.</p>
-</div></blockquote>
-<p><strong>weight_method</strong> : string(s), optional</p>
-<blockquote>
-<div><p>Type of distance (or metric) to compute between the pair of histograms.</p>
+</dd>
+<dt><strong>base_feature</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>weight_method</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string(s), optional</span></dt>
+<dd><p class="first">Type of distance (or metric) to compute between the pair of histograms.</p>
 <p>It must be one of the following methods:</p>
 <ul class="simple">
 <li>‘chebyshev’</li>
@@ -284,68 +281,62 @@ Or another directory with a structure that graynet can parse.</p>
 <li>‘cosine_alt’</li>
 <li>‘fidelity_based’</li>
 </ul>
-<p><em>Default</em> choice: ‘manhattan’.</p>
-</div></blockquote>
-<p><strong>num_bins</strong> : int</p>
-<blockquote>
-<div><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
-</div></blockquote>
-<p><strong>edge_range</strong> : tuple or list</p>
-<blockquote>
-<div><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
+<p class="last"><em>Default</em> choice: ‘manhattan’.</p>
+</dd>
+<dt><strong>num_bins</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
+</dd>
+<dt><strong>edge_range</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple or list</span></dt>
+<dd><p class="first">The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.</p>
 <p>Default :</p>
-<blockquote>
+<blockquote class="last">
 <div><ul class="simple">
-<li>( 0.0, 5.0) for <code class="docutils literal"><span class="pre">freesurfer_thickness</span></code> and</li>
-<li>(-0.3, 0.3) for <code class="docutils literal"><span class="pre">freesurfer_curv</span></code>.</li>
+<li>( 0.0, 5.0) for <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code> and</li>
+<li>(-0.3, 0.3) for <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code>.</li>
 </ul>
 </div></blockquote>
-</div></blockquote>
-<p><strong>atlas</strong> : str</p>
-<blockquote>
-<div><p>Name of the atlas whose parcellation to be used.
+</dd>
+<dt><strong>atlas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of the atlas whose parcellation to be used.
 Choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’], which are primary cortical.
 Volumetric whole-brain atlases will be added soon.</p>
-</div></blockquote>
-<p><strong>smoothing_param</strong> : scalar</p>
-<blockquote>
-<div><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+</dd>
+<dt><strong>smoothing_param</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar</span></dt>
+<dd><p class="first last">Smoothing parameter, which could be fwhm for Freesurfer cortical features,
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</div></blockquote>
-<p><strong>node_size</strong> : scalar, optional</p>
-<blockquote>
-<div><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+</dd>
+<dt><strong>node_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar, optional</span></dt>
+<dd><p class="first last">Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
 This feature is not implemented yet, just a placeholder and to enable default computation.</p>
-</div></blockquote>
-<p><strong>out_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>Path to output directory to store results.
+</dd>
+<dt><strong>out_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
-</div></blockquote>
-<p><strong>return_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to indicate whether to return the results to be returned.
+</dd>
+<dt><strong>return_results</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Flag to indicate whether to return the results to be returned.
 This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
 the number of subjects or weight methods are large, as it doesn’t retain results for all combinations,
 when running from commmand line interface (or HPC). Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
-</div></blockquote>
-<p><strong>num_procs</strong> : int</p>
-<blockquote>
-<div><p>Number of parallel processes to use to speed up computation.</p>
-</div></blockquote>
+</dd>
+<dt><strong>num_procs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of parallel processes to use to speed up computation.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>edge_weights_all</strong> : dict, None</p>
-<blockquote class="last">
-<div><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>edge_weights_all</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, None</span></dt>
+<dd><p class="first last">If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
 The value of each edge_weights_all[(weight method, subject_ID)] is
 a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -364,30 +355,27 @@ any other appropriate summary statistics listed under scipy.stats:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>subject_id_list</strong> : str or list</p>
-<blockquote>
-<div><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</div></blockquote>
-<p><strong>input_dir</strong> : str</p>
-<blockquote>
-<div><p>Path to the input directory where features can be read.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>subject_id_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or list</span></dt>
+<dd><p class="first last">must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Path to the input directory where features can be read.
 For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
 Or another directory with a structure that graynet can parse.</p>
-</div></blockquote>
-<p><strong>base_feature</strong> : str</p>
-<blockquote>
-<div><p>Specific type of feature to read for each subject from the input directory.</p>
-</div></blockquote>
-<p><strong>chosen_roi_stats</strong> : list of str or callable</p>
-<blockquote>
-<div><p>If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
+</dd>
+<dt><strong>base_feature</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>chosen_roi_stats</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str or callable</span></dt>
+<dd><p class="first">If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
 Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’,
 ‘entropy’, ‘skew’ and ‘kurtosis’.</p>
 <p>Other appropriate summary statistics listed under scipy.stats could used
 by passing in a callable with their parameters encapsulated:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a>
-For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal"><span class="pre">third_kstat</span></code> as in the argument:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
 <span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span>
     <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
@@ -398,47 +386,44 @@ For example, if you would like to compute 3rd k-statistic, you could construct a
 <div><p>trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
 third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</p>
 </div></blockquote>
-<p>Notes: ‘hmean’ requires all values be positive.</p>
-</div></blockquote>
-<p><strong>atlas</strong> : str</p>
-<blockquote>
-<div><p>Name of the atlas whose parcellation to be used.
+<p class="last">Notes: ‘hmean’ requires all values be positive.</p>
+</dd>
+<dt><strong>atlas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of the atlas whose parcellation to be used.
 Available choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’].
 Volumetric whole-brain atlases will be added soon.</p>
-</div></blockquote>
-<p><strong>smoothing_param</strong> : scalar</p>
-<blockquote>
-<div><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+</dd>
+<dt><strong>smoothing_param</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar</span></dt>
+<dd><p class="first last">Smoothing parameter, which could be fwhm for Freesurfer cortical features,
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</div></blockquote>
-<p><strong>node_size</strong> : scalar, optional</p>
-<blockquote>
-<div><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+</dd>
+<dt><strong>node_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar, optional</span></dt>
+<dd><p class="first last">Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
 Not implemented.</p>
-</div></blockquote>
-<p><strong>out_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>Path to output directory to store results.
+</dd>
+<dt><strong>out_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
-</div></blockquote>
-<p><strong>return_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to indicating whether to keep the results to be returned to caller method.
+</dd>
+<dt><strong>return_results</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Flag to indicating whether to keep the results to be returned to caller method.
 Helps to save memory (as it doesn’t retain results all subjects and weight combinations),
 when running from command line interface (or HPC). Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>roi_stats_all</strong> : dict, None</p>
-<blockquote class="last">
-<div><p>If return_results is True, this will be a dictionary keyed in by subject_ID
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>roi_stats_all</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, None</span></dt>
+<dd><p class="first last">If return_results is True, this will be a dictionary keyed in by subject_ID
 The value of each key roi_summary_all[subject] is
 a numpy array of length k, with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -462,23 +447,20 @@ If return_results is False, this will be None, which is the default.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>subject_id_list</strong> : str or list</p>
-<blockquote>
-<div><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</div></blockquote>
-<p><strong>input_dir</strong> : str</p>
-<blockquote>
-<div><p>Path to the input directory where features can be read.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>subject_id_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or list</span></dt>
+<dd><p class="first last">must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Path to the input directory where features can be read.
 For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
 Or another directory with a structure that graynet can parse.</p>
-</div></blockquote>
-<p><strong>base_feature</strong> : str</p>
-<blockquote>
-<div><p>Specific type of feature to read for each subject from the input directory.</p>
-</div></blockquote>
-<p><strong>weight_method</strong> : string(s), optional</p>
-<blockquote>
-<div><p>Type of distance (or metric) to compute between the pair of histograms.</p>
+</dd>
+<dt><strong>base_feature</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>weight_method</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string(s), optional</span></dt>
+<dd><p class="first">Type of distance (or metric) to compute between the pair of histograms.</p>
 <p>It must be one of the following methods:</p>
 <ul class="simple">
 <li>‘chebyshev’</li>
@@ -539,68 +521,62 @@ Or another directory with a structure that graynet can parse.</p>
 <li>‘cosine_alt’</li>
 <li>‘fidelity_based’</li>
 </ul>
-<p><em>Default</em> choice: ‘manhattan’.</p>
-</div></blockquote>
-<p><strong>num_bins</strong> : int</p>
-<blockquote>
-<div><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
-</div></blockquote>
-<p><strong>edge_range</strong> : tuple or list</p>
-<blockquote>
-<div><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
+<p class="last"><em>Default</em> choice: ‘manhattan’.</p>
+</dd>
+<dt><strong>num_bins</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
+</dd>
+<dt><strong>edge_range</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple or list</span></dt>
+<dd><p class="first">The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.</p>
 <p>Default :</p>
-<blockquote>
+<blockquote class="last">
 <div><ul class="simple">
-<li>( 0.0, 5.0) for <code class="docutils literal"><span class="pre">freesurfer_thickness</span></code> and</li>
-<li>(-0.3, 0.3) for <code class="docutils literal"><span class="pre">freesurfer_curv</span></code>.</li>
+<li>( 0.0, 5.0) for <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code> and</li>
+<li>(-0.3, 0.3) for <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code>.</li>
 </ul>
 </div></blockquote>
-</div></blockquote>
-<p><strong>atlas</strong> : str</p>
-<blockquote>
-<div><p>Name of the atlas whose parcellation to be used.
+</dd>
+<dt><strong>atlas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of the atlas whose parcellation to be used.
 Choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’], which are primary cortical.
 Volumetric whole-brain atlases will be added soon.</p>
-</div></blockquote>
-<p><strong>smoothing_param</strong> : scalar</p>
-<blockquote>
-<div><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+</dd>
+<dt><strong>smoothing_param</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar</span></dt>
+<dd><p class="first last">Smoothing parameter, which could be fwhm for Freesurfer cortical features,
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</div></blockquote>
-<p><strong>node_size</strong> : scalar, optional</p>
-<blockquote>
-<div><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+</dd>
+<dt><strong>node_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar, optional</span></dt>
+<dd><p class="first last">Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
 This feature is not implemented yet, just a placeholder and to enable default computation.</p>
-</div></blockquote>
-<p><strong>out_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>Path to output directory to store results.
+</dd>
+<dt><strong>out_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
-</div></blockquote>
-<p><strong>return_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to indicate whether to return the results to be returned.
+</dd>
+<dt><strong>return_results</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Flag to indicate whether to return the results to be returned.
 This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
 the number of subjects or weight methods are large, as it doesn’t retain results for all combinations,
 when running from commmand line interface (or HPC). Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
-</div></blockquote>
-<p><strong>num_procs</strong> : int</p>
-<blockquote>
-<div><p>Number of parallel processes to use to speed up computation.</p>
-</div></blockquote>
+</dd>
+<dt><strong>num_procs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of parallel processes to use to speed up computation.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>edge_weights_all</strong> : dict, None</p>
-<blockquote class="last">
-<div><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>edge_weights_all</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, None</span></dt>
+<dd><p class="first last">If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
 The value of each edge_weights_all[(weight method, subject_ID)] is
 a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -619,30 +595,27 @@ any other appropriate summary statistics listed under scipy.stats:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>subject_id_list</strong> : str or list</p>
-<blockquote>
-<div><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</div></blockquote>
-<p><strong>input_dir</strong> : str</p>
-<blockquote>
-<div><p>Path to the input directory where features can be read.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>subject_id_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or list</span></dt>
+<dd><p class="first last">must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Path to the input directory where features can be read.
 For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
 Or another directory with a structure that graynet can parse.</p>
-</div></blockquote>
-<p><strong>base_feature</strong> : str</p>
-<blockquote>
-<div><p>Specific type of feature to read for each subject from the input directory.</p>
-</div></blockquote>
-<p><strong>chosen_roi_stats</strong> : list of str or callable</p>
-<blockquote>
-<div><p>If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
+</dd>
+<dt><strong>base_feature</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>chosen_roi_stats</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str or callable</span></dt>
+<dd><p class="first">If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
 Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’,
 ‘entropy’, ‘skew’ and ‘kurtosis’.</p>
 <p>Other appropriate summary statistics listed under scipy.stats could used
 by passing in a callable with their parameters encapsulated:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a>
-For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal"><span class="pre">third_kstat</span></code> as in the argument:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
 <span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span>
     <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
@@ -653,47 +626,44 @@ For example, if you would like to compute 3rd k-statistic, you could construct a
 <div><p>trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
 third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</p>
 </div></blockquote>
-<p>Notes: ‘hmean’ requires all values be positive.</p>
-</div></blockquote>
-<p><strong>atlas</strong> : str</p>
-<blockquote>
-<div><p>Name of the atlas whose parcellation to be used.
+<p class="last">Notes: ‘hmean’ requires all values be positive.</p>
+</dd>
+<dt><strong>atlas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of the atlas whose parcellation to be used.
 Available choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’].
 Volumetric whole-brain atlases will be added soon.</p>
-</div></blockquote>
-<p><strong>smoothing_param</strong> : scalar</p>
-<blockquote>
-<div><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+</dd>
+<dt><strong>smoothing_param</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar</span></dt>
+<dd><p class="first last">Smoothing parameter, which could be fwhm for Freesurfer cortical features,
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</div></blockquote>
-<p><strong>node_size</strong> : scalar, optional</p>
-<blockquote>
-<div><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+</dd>
+<dt><strong>node_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scalar, optional</span></dt>
+<dd><p class="first last">Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
 Not implemented.</p>
-</div></blockquote>
-<p><strong>out_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>Path to output directory to store results.
+</dd>
+<dt><strong>out_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
-</div></blockquote>
-<p><strong>return_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to indicating whether to keep the results to be returned to caller method.
+</dd>
+<dt><strong>return_results</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Flag to indicating whether to keep the results to be returned to caller method.
 Helps to save memory (as it doesn’t retain results all subjects and weight combinations),
 when running from command line interface (or HPC). Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>roi_stats_all</strong> : dict, None</p>
-<blockquote class="last">
-<div><p>If return_results is True, this will be a dictionary keyed in by subject_ID
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>roi_stats_all</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, None</span></dt>
+<dd><p class="first last">If return_results is True, this will be a dictionary keyed in by subject_ID
 The value of each key roi_summary_all[subject] is
 a numpy array of length k, with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -756,7 +726,7 @@ If return_results is False, this will be None, which is the default.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.4',
+            VERSION:'0.4+1.g07bec72.dirty',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

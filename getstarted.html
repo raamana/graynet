@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting started &mdash; graynet 0.4 documentation</title>
+  <title>Getting started &mdash; graynet 0.4+1.g07bec72.dirty documentation</title>
   
 
   
@@ -37,7 +37,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="graynet 0.4 documentation" href="index.html"/>
+    <link rel="top" title="graynet 0.4+1.g07bec72.dirty documentation" href="index.html"/>
         <link rel="next" title="Cortical graynet" href="cortical.html"/>
         <link rel="prev" title="Installation" href="installation.html"/> 
 
@@ -68,7 +68,7 @@
             
             
               <div class="version">
-                0.4
+                0.4+1.g07bec72.dirty
               </div>
             
           
@@ -171,7 +171,7 @@
             
   <div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<p><code class="docutils literal"><span class="pre">graynet</span></code> currently offers the following streams of processing:</p>
+<p><code class="docutils literal notranslate"><span class="pre">graynet</span></code> currently offers the following streams of processing:</p>
 <blockquote>
 <div><ul class="simple">
 <li><a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> : using vertex-wise ROIs defined on the cortex. This is useful to analyze network-level features based on cortical thickness, curvature, sulcal depth and gyrification. Base-level features can easily obtained from running <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/">Freesurfer</a></li>
@@ -186,20 +186,20 @@
 - <a class="reference external" href="http://stnava.github.io/ANTs/">ANTs</a>.</li>
 </ul>
 </div></blockquote>
-<p>In both streams, in addition to the computation of pair-wise network-level features, <code class="docutils literal"><span class="pre">graynet</span></code> will help you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG, or variance in GM density within amygdala), as well as to serve as a baseline for network-level features.</p>
+<p>In both streams, in addition to the computation of pair-wise network-level features, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> will help you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG, or variance in GM density within amygdala), as well as to serve as a baseline for network-level features.</p>
 <p>The package offers both <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> and an <a class="reference internal" href="API.html"><span class="doc">API</span></a>, to better integrate with your workflow. However, the CLI is the recommended/most-tested gateway.</p>
-<p>For uniform processing across subjects, <code class="docutils literal"><span class="pre">graynet</span></code> needs:</p>
+<p>For uniform processing across subjects, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> needs:</p>
 <blockquote>
 <div><ul class="simple">
 <li>an atlas with pre-defined ROIs</li>
 <li>each subject be registered to atlas (vertex- or voxel-wise), so ROIs correspond across all subjects.</li>
-<li>the extracted features are in a format readable by <code class="docutils literal"><span class="pre">nibabel</span></code></li>
+<li>the extracted features are in a format readable by <code class="docutils literal notranslate"><span class="pre">nibabel</span></code></li>
 </ul>
 </div></blockquote>
 <p>The following steps should help you get started and going quickly:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Install graynet using this command in a terminal:  <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">graynet</span></code></li>
+<li>Install graynet using this command in a terminal:  <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">graynet</span></code></li>
 <li>Refer to <a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> and <a class="reference internal" href="volumetric.html"><span class="doc">Volumetric graynet</span></a> pages for more details on the individual streams of processing and examples.</li>
 </ul>
 </div></blockquote>
@@ -251,7 +251,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.4',
+            VERSION:'0.4+1.g07bec72.dirty',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

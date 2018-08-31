@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command line interface &mdash; graynet 0.4 documentation</title>
+  <title>Command line interface &mdash; graynet 0.4+1.g07bec72.dirty documentation</title>
   
 
   
@@ -37,7 +37,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="graynet 0.4 documentation" href="index.html"/>
+    <link rel="top" title="graynet 0.4+1.g07bec72.dirty documentation" href="index.html"/>
         <link rel="next" title="API" href="API.html"/>
         <link rel="prev" title="Volumetric graynet" href="volumetric.html"/> 
 
@@ -68,7 +68,7 @@
             
             
               <div class="version">
-                0.4
+                0.4+1.g07bec72.dirty
               </div>
             
           
@@ -180,7 +180,7 @@
   <div class="section" id="command-line-interface">
 <h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
 <p>The command line interface for graynet (preferred interface, given its target is HPC) is shown below. Check the bottom of this page for examples.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span>
                <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span>
                <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="o">...</span><span class="p">]]]</span>
                <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span> <span class="n">NUM_BINS</span><span class="p">]</span>
@@ -312,7 +312,7 @@
 </table>
 </div>
 <p>A rough example of usage can be:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 <span class="c1">#$ -l mf=2G -q queue_name.q -wd /work/project</span>
 <span class="nb">cd</span> /work/project
 graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan eucledian chebyshev -a GLASSER2016 -p <span class="m">10</span> -o /work/project/graynet_processing
@@ -366,7 +366,7 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.4',
+            VERSION:'0.4+1.g07bec72.dirty',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
