@@ -18,7 +18,7 @@ We plan to offer the following soon:
 In both streams, in addition to the computation of pair-wise network-level features, ``graynet`` will help you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG, or variance in GM density within amygdala), as well as to serve as a baseline for network-level features.
 
 
-The package has offers both :doc:`usage_cli` and an :doc:`API`, to better integrate with your workflow. However, the CLI is the recommended gateway.
+The package offers both :doc:`usage_cli` and an :doc:`API`, to better integrate with your workflow. However, the CLI is the recommended/most-tested gateway.
 
 For uniform processing across subjects, ``graynet`` needs:
 
