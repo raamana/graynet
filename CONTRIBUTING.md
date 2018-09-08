@@ -2,6 +2,8 @@ Hello there!
 
 Thank you for the checking out `graynet`, and for your interest in contributing. 
 
+Please check the following guidelines for contributing: http://contribution-guide-org.readthedocs.io/
+
 You could contribute in the areas, including but not limited to:
  * identifying any bugs by focusing on the areas of graynet that you have expertise in 
     * write unit tests or property tests to assert its advertised functionality
