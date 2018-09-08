@@ -34,6 +34,7 @@ graynet
    usage_api
    results_howto
    citation
+   contributing
 
 
 Indices and tables
