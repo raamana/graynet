@@ -1,0 +1,194 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Contributing &#8212; graynet 0.4+10.g5ba90c1.dirty documentation</title>
+    <link rel="stylesheet" href="_static/greenblue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/local_fonts.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4+10.g5ba90c1.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/p_sphinx_theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Citation" href="citation.html" /> 
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+      <div class="relbar-top">
+            
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="citation.html" title="Citation"
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+      <li><a href="index.html">graynet 0.4+10.g5ba90c1.dirty documentation</a> &#187;</li>
+ 
+      </ul>
+    </div>
+      </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>Thank you for the checking out <code class="docutils literal"><span class="pre">graynet</span></code>, and for your interest in contributing.</p>
+<p>Please check the following guidelines for contributing: <a class="reference external" href="https://opensource.guide/how-to-contribute/">https://opensource.guide/how-to-contribute/</a></p>
+</div>
+<div class="section" id="developer-guidelines">
+<h1>Developer Guidelines<a class="headerlink" href="#developer-guidelines" title="Permalink to this headline">¶</a></h1>
+<p>The preferred way to contribute to <code class="docutils literal"><span class="pre">graynet</span></code> is to fork the <a class="reference external" href="https://github.com/raamana/graynet/">main repository</a> on GitHub,
+then submit a “pull request” (PR):</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first"><a class="reference external" href="https://github.com/join">Create an account</a> on
+GitHub if you do not already have one.</p>
+</li>
+<li><p class="first">Fork the <a class="reference external" href="https://github.com/raamana/graynet">project repository</a>: click on the ‘Fork’
+button near the top of the page. This creates a copy of the code under your
+account on the GitHub server. For more details on how to fork a
+repository see <a class="reference external" href="https://help.github.com/articles/fork-a-repo/">this guide</a>.</p>
+</li>
+<li><p class="first">Clone this copy to your local disk:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone git@github.com:YourLogin/graynet.git
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create a branch to hold your changes:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git checkout -b my-feature
+</pre></div>
+</div>
+<p>and start making changes. Never work in the <code class="docutils literal"><span class="pre">master</span></code> branch!</p>
+</li>
+<li><p class="first">Work on this copy, on your computer, using Git to do the version
+control. When you’re done editing, do:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git add modified_files
+$ git commit
+</pre></div>
+</div>
+<p>to record your changes in Git, then push them to GitHub with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git push -u origin my-feature
+</pre></div>
+</div>
+</li>
+</ol>
+</div></blockquote>
+<p>Finally, follow <a class="reference external" href="https://help.github.com/articles/creating-a-pull-request-from-a-fork">these</a> instructions to create a pull request from your fork.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>In the above setup, your <code class="docutils literal"><span class="pre">origin</span></code> remote repository points to the repository under your github account <code class="docutils literal"><span class="pre">YourLoginName/graynet.git</span></code> .
+If you wish to fetch/merge from the main repository instead of your forked one, you will need to add another remote
+to use instead of <code class="docutils literal"><span class="pre">origin</span></code>. If we choose the name <code class="docutils literal"><span class="pre">upstream</span></code> for it, the command will be:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span>$ git remote add upstream https://github.com/raamana/graynet.git
+</pre></div>
+</div>
+</div>
+<p>If any of the above seems like magic to you, then look up the <a class="reference external" href="https://git-scm.com/documentation">Git documentation</a> and the <a class="reference external" href="http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html">Git development workflow</a> on the
+web.</p>
+<p>If some conflicts arise between your branch and the <code class="docutils literal"><span class="pre">master</span></code> branch, you need
+to merge <code class="docutils literal"><span class="pre">master</span></code>. The command will be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git merge master
+</pre></div>
+</div>
+<p>with <code class="docutils literal"><span class="pre">master</span></code> being synchronized with the <code class="docutils literal"><span class="pre">upstream</span></code>.</p>
+<p>Subsequently, you need to solve the conflicts. You can refer to the <a class="reference external" href="https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/">Git
+documentation related to resolving merge conflict using the command line</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">These guidelines are adapted from <code class="docutils literal"><span class="pre">scikit-learn</span></code> docs, credit to the original contributors.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="sphinxlocaltoc">
+    <h3><a href="index.html">Page contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Contributing</a></li>
+<li><a class="reference internal" href="#developer-guidelines">Developer Guidelines</a></li>
+</ul>
+
+  </div>
+
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/contributing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+      <div class="relbar-bottom">
+            
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="citation.html" title="Citation"
+             >previous</a> &nbsp; &nbsp;</li>
+      <li><a href="index.html">graynet 0.4+10.g5ba90c1.dirty documentation</a> &#187;</li>
+ 
+      </ul>
+    </div>
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Pradeep Reddy Raamana.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+      <!-- PSphinxTheme -->
+  </body>
+</html>
