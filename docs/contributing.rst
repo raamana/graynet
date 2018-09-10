@@ -70,3 +70,51 @@ documentation related to resolving merge conflict using the command line
 .. note::
 
     These guidelines are adapted from ``scikit-learn`` docs, credit to the original contributors.
+
+
+Testing
+--------
+
+
+.. code-block:: python
+
+    cd <<path to root folder of graynet repo cloned>>
+    cd graynet/tests
+    pytest
+
+
+that will run all tests in `test_graynet.py` and it should report no errors (like ``12 passed`` below):
+
+.. code-block:: bash
+
+    $ 08:38:39 SQuark-3 tests >>  pwd
+    /Users/Reddy/dev/graynet/graynet/tests
+    $ 08:38:48 SQuark-3 tests >>  pytest
+    ===================================================================================== test session starts ======================================================================================
+    platform darwin -- Python 3.6.2, pytest-3.4.2, py-1.5.2, pluggy-0.6.0
+    rootdir: /Users/Reddy/dev/graynet, inifile:
+    plugins: hypothesis-3.30.1
+    collected 12 items
+
+    test_graynet.py ............                                                                                                                                                             [100%]
+
+    ======================================================================================= warnings summary =======================================================================================
+    graynet/tests/test_graynet.py::test_run_roi_stats_via_API
+      /Users/Reddy/anaconda/envs/py36/lib/python3.6/site-packages/scipy/stats/stats.py:2831: FutureWarning:
+
+      Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
+
+
+    -- Docs: http://doc.pytest.org/en/latest/warnings.html
+    =========================================================================== 12 passed, 1 warnings in 106.92 seconds ============================================================================
+
+
+If you would like to add more tests, add a new function in ``test_graynet.py``, or add a new file to ``graynet/tests`` folder with a filename starting with ``test_``.
+
+For more info, check the following links
+
+ - on testing python packages : https://www.python-course.eu/python3_tests.php
+ - ``pytest`` framework : https://docs.pytest.org/en/latest/contents.html
+ - pytest tutorial : https://semaphoreci.com/community/tutorials/testing-python-applications-with-pytest
+ - Good Integration Practices from pytest devs : https://docs.pytest.org/en/latest/goodpractices.html
+ - comprehensive coverage: https://wiki.python.org/moin/PythonTestingToolsTaxonomy
