@@ -75,6 +75,7 @@ documentation related to resolving merge conflict using the command line
 Testing
 --------
 
+To test whether the latest codebase, or the changes you have just made, passes all the tests, do the following:
 
 .. code-block:: python
 
