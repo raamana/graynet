@@ -75,7 +75,7 @@ documentation related to resolving merge conflict using the command line
 Testing
 --------
 
-To test whether the latest codebase, or the changes you have just made, passes all the tests, do the following:
+To test locally whether the latest codebase, or the changes you have just made, passes all the tests, do the following:
 
 .. code-block:: python
 
@@ -111,6 +111,10 @@ that will run all tests in `test_graynet.py` and it should report no errors (lik
 
 
 If you would like to add more tests, add a new function in ``test_graynet.py``, or add a new file to ``graynet/tests`` folder with a filename starting with ``test_``.
+
+
+Additional info on Testing
+--------------------------
 
 For more info, check the following links
 
