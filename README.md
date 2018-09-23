@@ -15,7 +15,7 @@ Applicable for whenever network-level features are useful, among which common us
 
 Docs: https://raamana.github.io/graynet/
 
-Poster:
+Illustration:
 
 ![graynet_flyer](docs/vis/graynet_flyer.jpg)
 
