@@ -1,6 +1,6 @@
 # graynet
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.997358.svg)](https://doi.org/10.5281/zenodo.997358)
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.00924/status.svg)](https://doi.org/10.21105/joss.00924)
 [![Build Status](https://travis-ci.org/raamana/graynet.svg?branch=master)](https://travis-ci.org/raamana/graynet)
 [![Code Health](https://landscape.io/github/raamana/graynet/master/landscape.svg?style=flat)](https://landscape.io/github/raamana/graynet/master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fbf3c0d5d0214ab4ae059875819be9f0)](https://www.codacy.com/app/raamana/graynet?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=raamana/graynet&amp;utm_campaign=Badge_Grade)
