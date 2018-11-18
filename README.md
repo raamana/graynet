@@ -6,6 +6,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fbf3c0d5d0214ab4ae059875819be9f0)](https://www.codacy.com/app/raamana/graynet?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=raamana/graynet&amp;utm_campaign=Badge_Grade)
 [![Python versions](https://img.shields.io/badge/python-3.5%2C%203.6-blue.svg)]
 
+[![saythanks](https://img.shields.io/badge/say-thanks-ff69b4.svg)](https://saythanks.io/to/raamana)
+
 Individualized single-subject networks from T1 mri features such as cortical thickness, gray matter density, subcortical morphometric features, gyrification and curvature. 
 
 Applicable for whenever network-level features are useful, among which common use cases are 
@@ -23,5 +25,7 @@ Quick Illustration:
 
 `pip install -U graynet`
 
-Thanks.
+---
+
+[![saythanks](https://img.shields.io/badge/say-thanks-ff69b4.svg)](https://saythanks.io/to/raamana)
 
