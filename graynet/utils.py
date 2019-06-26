@@ -85,7 +85,7 @@ def make_output_path_graph(out_dir, subject, str_prefixes):
     "Constructs path to save a multigraph to disk."
 
     if out_dir is not None:
-        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # get outpath returned from hiwenet, based on dist name and all other params
         # choose out_dir name  based on dist name and all other parameters
         out_subject_dir = pjoin(out_dir, subject)
         if not pexists(out_subject_dir):
@@ -125,7 +125,8 @@ def check_num_procs(num_procs=cfg.default_num_procs):
         num_procs = 1
         print('Invalid value for num_procs. Using num_procs=1')
     elif num_procs > avail_cpu_count:
-        print('# CPUs requested higher than available - choosing {}'.format(avail_cpu_count))
+        print('# CPUs requested higher than available '
+              '- choosing {}'.format(avail_cpu_count))
         num_procs = avail_cpu_count
 
     return num_procs
@@ -233,14 +234,14 @@ def check_weights(weight_method_list):
         if len(weight_method_list) < 1:
             raise ValueError('Empty weight list. Atleast one weight must be provided.')
     else:
-        raise ValueError(
-            'Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
+        raise ValueError('Weights list must be an iterable. Given: {}'
+                         ''.format(type(weight_method_list)))
 
     for weight in weight_method_list:
         if weight not in cfg.implemented_weights:
             raise NotImplementedError('Method {} not implemented. '
-                                      'Choose one of : \n {}'.format(weight,
-                                                                     cfg.implemented_weights))
+                                      'Choose one of : \n {}'
+                                      ''.format(weight, cfg.implemented_weights))
 
     num_weights = len(weight_method_list)
     num_digits_wm_size = len(str(num_weights))
@@ -258,9 +259,8 @@ def check_edge_range(edge_range_spec):
         if len(edge_range_spec) != 2:
             raise ValueError('edge_range must be a tuple of two values: (min, max)')
         if edge_range_spec[0] >= edge_range_spec[1]:
-            raise ValueError(
-                'edge_range : min {} is not less than max {} !'.format(edge_range_spec[0],
-                                                                       edge_range_spec[1]))
+            raise ValueError('edge_range : min {} is not less than max {} !'
+                             ''.format(edge_range_spec[0], edge_range_spec[1]))
 
         # CLI args are strings unless converted to numeric
         edge_range = np.float64(edge_range_spec)
@@ -270,7 +270,8 @@ def check_edge_range(edge_range_spec):
         # converting it to tuple to make it immutable
         edge_range = tuple(edge_range)
     else:
-        raise ValueError('Invalid edge range! Must be a tuple of two values (min, max)')
+        raise ValueError('Invalid edge range! '
+                         'Must be a tuple of two values (min, max)')
 
     return edge_range
 
@@ -287,7 +288,8 @@ def check_num_bins(num_bins):
 
     if np.isnan(num_bins) or np.isinf(num_bins):
         raise ValueError('Invalid value for number of bins! '
-                         'Choose a natural number >= {}'.format(cfg.default_minimum_num_bins))
+                         'Choose a natural number >= {}'
+                         ''.format(cfg.default_minimum_num_bins))
 
     return num_bins
 
@@ -325,8 +327,8 @@ def check_edge_range_dict(edge_range_dict, base_feature_list,
     return edge_range_dict
 
 
-def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node_size, out_dir,
-                             return_results):
+def check_params_single_edge(base_features, in_dir, atlas, smoothing_param,
+                             node_size, out_dir, return_results):
     """"""
 
     check_features(base_features)
@@ -337,7 +339,8 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node
         raise IOError('Input directory at {} does not exist.'.format(in_dir))
 
     if out_dir is None and return_results is False:
-        raise ValueError('Results are neither saved to disk or being received when returned.\n'
+        raise ValueError('Results are neither saved to disk, '
+                         'nor being received when returned!\n'
                          'Specify out_dir (not None) or make return_results=True')
 
     if out_dir is not None and not pexists(out_dir):
@@ -348,7 +351,8 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node
     return
 
 
-def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method):
+def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size,
+                         weight_method):
     "Constructs a string to uniquely identify a given experiment."
 
     import re

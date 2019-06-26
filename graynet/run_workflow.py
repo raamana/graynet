@@ -43,9 +43,12 @@ def extract(subject_id_list,
             weight_method_list=cfg.default_weight_method,
             num_bins=cfg.default_num_bins,
             edge_range=cfg.default_edge_range,
-            atlas=cfg.default_atlas, smoothing_param=cfg.default_smoothing_param,
+            atlas=cfg.default_atlas,
+            smoothing_param=cfg.default_smoothing_param,
             node_size=cfg.default_node_size,
-            out_dir=None, return_results=False, num_procs=cfg.default_num_procs):
+            out_dir=None,
+            return_results=False,
+            num_procs=cfg.default_num_procs):
     """
     Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.
 
@@ -176,14 +179,16 @@ def extract(subject_id_list,
     """
 
     # All the checks must happen here, as this is key function in the API
-    check_params_single_edge(base_feature, input_dir, atlas, smoothing_param, node_size, out_dir,
-                             return_results)
+    check_params_single_edge(base_feature, input_dir, atlas, smoothing_param,
+                             node_size, out_dir, return_results)
     atlas = check_atlas(atlas)
 
-    subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
+    subject_id_list, num_subjects, \
+        max_id_width, nd_id = check_subjects(subject_id_list)
 
     num_bins, edge_range = check_weight_params(num_bins, edge_range)
-    weight_method_list, num_weights, max_wtname_width, nd_wm = check_weights(weight_method_list)
+    weight_method_list, num_weights, \
+        max_wtname_width, nd_wm = check_weights(weight_method_list)
 
     num_procs = check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
@@ -198,25 +203,27 @@ def extract(subject_id_list,
 
     if not return_results:
         if out_dir is None:
-            raise ValueError(
-                'When return_results=False, out_dir must be specified to be able to save the results.')
+            raise ValueError('When return_results=False, out_dir must be specified '
+                             'to be able to save the results.')
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
     chunk_size = int(np.ceil(num_subjects / num_procs))
     with Manager():
-        partial_func_extract = partial(extract_per_subject, input_dir, base_feature, roi_labels,
-                                       centroids, weight_method_list,
-                                       atlas, smoothing_param, node_size, num_bins, edge_range,
-                                       out_dir,
-                                       return_results, pretty_print_options)
+        partial_func_extract = partial(extract_per_subject, input_dir, base_feature,
+                                       roi_labels, centroids, weight_method_list,
+                                       atlas, smoothing_param, node_size, num_bins,
+                                       edge_range, out_dir, return_results,
+                                       pretty_print_options)
         with Pool(processes=num_procs) as pool:
-            edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list, chunk_size)
+            edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list,
+                                               chunk_size)
 
     if return_results:
         edge_weights_all = dict()
         for combo in edge_weights_list_dicts:
-            # each element from output of parallel loop is a dict keyed in by {subject, weight)
+            # each element from output of parallel loop is a dict keyed in
+            #   by {subject, weight)
             edge_weights_all.update(combo)
     else:
         edge_weights_all = None
@@ -226,11 +233,10 @@ def extract(subject_id_list,
 
 
 def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
-                        weight_method_list,
-                        atlas, smoothing_param, node_size,
-                        num_bins, edge_range,
-                        out_dir, return_results, pretty_print_options,
-                        subject=None):  # purposefully leaving it last to enable partial function creation
+                        weight_method_list, atlas, smoothing_param, node_size,
+                        num_bins, edge_range, out_dir, return_results,
+                        pretty_print_options, subject=None):
+    # purposefully leaving it last to enable partial function creation
     """
     Extracts give set of weights for one subject.
 
