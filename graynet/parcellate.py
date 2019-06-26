@@ -14,7 +14,7 @@ from graynet.utils import roi_info, check_atlas, check_atlas_annot_exist
 from graynet import config_graynet as cfg
 
 def get_atlas_path(atlas_name=None):
-    "Validates the atlas name and returs its location"
+    "Validates the atlas name and returns its location"
 
     if atlas_name in [None, 'None', '']:
         atlas_name = 'fsaverage'
@@ -25,7 +25,8 @@ def get_atlas_path(atlas_name=None):
 
         if atlas_name in ['glasser2016']:
             this_dir = dirname(realpath(__file__))
-            atlas_path = pjoin(this_dir, 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446')
+            atlas_path = pjoin(this_dir, 'atlases',
+                               'glasser2016', 'fsaverage_annot_figshare3498446')
         elif atlas_name in ['fsaverage', 'yeo2011_fsaverage5', 'yeo2011_fsaverage6',
                             'yeo2011_fsaverage_highres']:
             this_dir = dirname(realpath(__file__))
@@ -53,7 +54,11 @@ def get_atlas_annot(atlas_name=None):
 
 
 def freesurfer_roi_labels(atlas_name):
-    "Returns just the vertex-wise indices for grouping the vertices into ROIs. Order:  left followed by right."
+    """
+    Returns just the vertex-wise indices for grouping the vertices into ROIs.
+        Order:  left followed by right.
+
+    """
 
     annot, _ = get_atlas_annot(atlas_name)
     roi_labels = __combine_annotations(annot, atlas_name)
@@ -62,7 +67,7 @@ def freesurfer_roi_labels(atlas_name):
 
 
 def __combine_annotations(annot, atlas_name):
-    "Combines named labels from two hemisphers, ignoring non-cortex"
+    "Combines named labels from two hemispheres, ignoring non-cortex"
 
     ignore_list = list()
     max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])),

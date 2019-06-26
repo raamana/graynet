@@ -146,8 +146,8 @@ def check_stat_methods(stat_list=None):
         if isinstance(stat_list, str) or callable(stat_list):
             stat_list = [stat_list, ]
         else:
-            raise ValueError(
-                'Unrecognized stat method: must be a str or callable or a list of them.')
+            raise ValueError('Unrecognized stat method: must be a str or callable '
+                             'or a list of them.')
 
     stat_callable_list = list()
     for stat in stat_list:
@@ -376,7 +376,8 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
         raise IOError('Input directory at {} does not exist.'.format(input_dir))
 
     if out_dir is None and return_results is False:
-        raise ValueError('Results are neither saved to disk or being received when returned.\n'
+        raise ValueError('Results are neither saved to disk, '
+                         'nor being received when returned.\n'
                          'Specify out_dir (not None) or make return_results=True')
 
     if out_dir is not None and not pexists(out_dir):
@@ -412,15 +413,17 @@ def mask_background_roi(data, labels, ignore_label):
     "Returns everything but specified label"
 
     if data.size != labels.size or data.shape != labels.shape:
-        raise ValueError('features and membership/group labels differ in length/shape!')
+        raise ValueError('features and membership (group labels) differ'
+                         ' in length or shape!')
 
     mask = labels != ignore_label
     masked_data = data[mask]
     masked_labels = labels[mask]
 
-    if masked_data.size != masked_labels.size or masked_data.shape != masked_labels.shape:
-        raise ValueError(
-            'features and membership/group labels (after removing background ROI) differ in length/shape!')
+    if masked_data.size != masked_labels.size or \
+            masked_data.shape != masked_labels.shape:
+        raise ValueError('features and membership (group labels), '
+                         'after removing background ROI, differ in length/shape!')
 
     return masked_data, masked_labels
 
@@ -468,8 +471,8 @@ def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_me
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
-    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}'.format(base_feature, atlas, smoothing_param,
-                                                              node_size,
-                                                              weight_method)
+    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}' \
+              ''.format(base_feature, atlas, smoothing_param, node_size,
+                        weight_method)
 
     return expt_id
