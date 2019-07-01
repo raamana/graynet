@@ -1,4 +1,4 @@
 networkx
 numpy
 nibabel
-hiwenet
+hiwenet==0.4.2
