@@ -2,4 +2,4 @@ numpy
 nibabel
 networkx
 hiwenet
-plotly
+plotly==3.10.0
