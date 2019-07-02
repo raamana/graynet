@@ -16,7 +16,8 @@ from multiprocessing import cpu_count
 
 import numpy as np
 
-from graynet import config_graynet as cfg
+from graynet import config_graynet as cfg, freesurfer
+from graynet.run_workflow import fsl_import
 
 
 def check_features(base_feature_list):
@@ -477,3 +478,59 @@ def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_me
                         weight_method)
 
     return expt_id
+
+
+def import_features(input_dir,
+                    subject_id_list,
+                    base_feature,
+                    fwhm=cfg.default_smoothing_param,
+                    atlas=cfg.default_atlas):
+    "Wrapper to support input data of multiple types and multiple packages."
+
+    if isinstance(subject_id_list, str):
+        subject_id_list = [subject_id_list, ]
+
+    base_feature = base_feature.lower()
+    if base_feature in cfg.features_freesurfer:
+        features = freesurfer.import_features(input_dir, subject_id_list,
+                                              base_feature=base_feature,
+                                              fwhm=fwhm, atlas=atlas)
+    elif base_feature in cfg.features_fsl:
+        features = fsl_import(input_dir, subject_id_list, base_feature,
+                              fwhm=fwhm, atlas=atlas)
+    else:
+        raise NotImplementedError('Invalid or choice not implemented!\n'
+                                  'Choose one of \n {}'.format(cfg.base_feature_list))
+
+    return features
+
+
+def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_suffix=None):
+    "Saves the ROI medians to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_roi_stats.csv'.format(str_suffix)
+        else:
+            out_file_name = 'roi_stats.csv'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            with open(out_weights_path, 'w') as of:
+                of.write('#roi,{}\n'.format(stat_name))
+                for name, value in zip(roi_labels, roi_values):
+                    of.write('{},{}\n'.format(name, value))
+            # np.savetxt(out_weights_path, roi_values, fmt='%.5f')
+            print('\nSaved roi stats to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save extracted features to {}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return

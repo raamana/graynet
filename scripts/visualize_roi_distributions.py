@@ -5,7 +5,7 @@ import stat
 from os.path import join as pjoin, exists as pexists, realpath
 import numpy as np
 from pyradigm import MLDataset
-from graynet.run_workflow import import_features
+from graynet.utils import import_features
 from neuropredict.run_workflow import get_metadata
 import traceback
 

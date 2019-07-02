@@ -1,3 +1,5 @@
+import graynet.utils
+
 __all__ = ['extract_multiedge', 'summarize_multigraph']
 
 import os
@@ -18,7 +20,7 @@ if version_info.major > 2:
     from graynet.utils import stamp_expt_multiedge, check_params_multiedge, make_output_path_graph, \
         save_graph, check_subjects, check_stat_methods, check_num_bins, check_weights, \
         check_num_procs, check_atlas, check_edge_range_dict, mask_background_roi, warn_nan, \
-        stamp_expt_weight
+        stamp_expt_weight, import_features
     from graynet import parcellate
     from graynet import config_graynet as cfg
     from graynet import run_workflow as single_edge
@@ -290,11 +292,11 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                 #     edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
 
                 try:
-                    features = single_edge.import_features(input_dir,
-                                                           [subject, ],
-                                                           base_feature,
-                                                           fwhm=smoothing_param,
-                                                           atlas=atlas)
+                    features = import_features(input_dir,
+                                               [subject, ],
+                                               base_feature,
+                                               fwhm=smoothing_param,
+                                               atlas=atlas)
 
                 except:
                     traceback.print_exc()
@@ -347,7 +349,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                 # TODO consider extracting some network features upon user request.
 
                 add_nodal_positions(unigraph, centroids)
-                single_edge.save_graph(unigraph, out_dir, subject, expt_id_single)
+                single_edge.save_per_subject_graph(unigraph, out_dir, subject, expt_id_single)
 
                 # adding edges/weights from each feature to a multigraph
                 # this also encodes the sources
