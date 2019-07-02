@@ -274,8 +274,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
         # skipping the computation if the file exists already
         if not overwrite_results and isfile(out_path_multigraph) and getsize(
                 out_path_multigraph) > 0:
-            print('\nMultigraph exists already at\n\t{}\n skipping its computation!'.format(
-                out_path_multigraph))
+            print('\nMultigraph exists already at\n\t{}\n'
+                  ' skipping its computation!'.format(out_path_multigraph))
             multigraph = None  # signal to re-read
         else:
             multigraph = nx.MultiGraph()

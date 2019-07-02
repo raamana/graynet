@@ -48,7 +48,8 @@ def check_atlas(atlas):
             atlas = atlas.lower()
             if atlas not in cfg.atlas_list:
                 raise ValueError(
-                    'Invalid choice of atlas. Accepted : {}'.format(cfg.atlas_list))
+                    'Invalid choice of atlas.'
+                    ' Accepted : {}'.format(cfg.atlas_list))
         elif os.path.isdir(atlas):  # cortical atlas in Freesurfer org
             if not check_atlas_annot_exist(atlas):
                 raise ValueError(

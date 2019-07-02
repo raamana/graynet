@@ -238,7 +238,7 @@ def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
                         weight_method_list, atlas, smoothing_param, node_size,
                         num_bins, edge_range, out_dir, return_results,
                         pretty_print_options, subject=None):
-    # purposefully leaving it last to enable partial function creation
+    # purposefully leaving subject parameter last to enable partial function creation
     """
     Extracts give set of weights for one subject.
 
@@ -743,14 +743,13 @@ def get_parser():
                           "network computation is not allowed. You need to compute " \
                           "networks and ROI stats separately."
     help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. " \
-                      "Default: '{}'".format(
-            cfg.default_atlas)
+                      "Default: '{}'".format(cfg.default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. " \
-                          "Default : {}".format(
-            cfg.default_node_size)
-    help_text_smoothing = "Smoothing parameter for feature. Default: FWHM of {} " \
-                          "for Freesurfer thickness".format(
-            cfg.default_smoothing_param)
+                          "Default : {}".format(cfg.default_node_size)
+    help_text_smoothing = "Smoothing parameter for feature. " \
+                          "Default: FWHM of {} " \
+                          "for Freesurfer thickness" \
+                          "".format(cfg.default_smoothing_param)
 
     help_text_num_procs = "Number of CPUs to use in parallel to speed up " \
                           "processing. " \
