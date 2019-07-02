@@ -462,25 +462,27 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                                        fwhm=smoothing_param)
         except:
             raise IOError(
-                'Unable to read {} features for {}\n Skipping it.'.format(base_feature, subject))
+                'Unable to read {} features for {}\n'
+                ' Skipping it.'.format(base_feature, subject))
 
         data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
         for ss, stat_func in enumerate(stat_func_list):
             sys.stdout.write(
-                '\nProcessing id {sid:{id_width}} ({sidnum:{nd_id}}/{numsub:{nd_id}}) -- '
-                'statistic {stname:{stat_name_width}} ({statnum:{nd_st}}/{numst:{nd_st}})'
+                '\nProcessing id {sid:{id_width}} '
+                '({sidnum:{nd_id}}/{numsub:{nd_id}}) -- '
+                'statistic {stname:{stat_name_width}} '
+                '({statnum:{nd_st}}/{numst:{nd_st}})'
                 ' :'.format(sid=subject, sidnum=sub_idx + 1, numsub=num_subjects,
                             stname=stat_func_names[ss], statnum=ss + 1, numst=num_stats,
-                            id_width=max_id_width, stat_name_width=max_stat_width, nd_id=nd_id,
-                            nd_st=nd_st))
+                            id_width=max_id_width, stat_name_width=max_stat_width,
+                            nd_id=nd_id, nd_st=nd_st))
 
             try:
                 roi_stats = calc_roi_statistics(data, rois, uniq_rois, stat_func)
-                expt_id_no_network = stamp_experiment(base_feature, stat_func_names[ss], atlas,
-                                                      smoothing_param,
-                                                      node_size)
-                save_summary_stats(roi_stats, uniq_rois, stat_func_names[ss], out_dir, subject,
-                                   expt_id_no_network)
+                expt_id_no_network = stamp_experiment(base_feature, stat_func_names[ss],
+                                                      atlas, smoothing_param, node_size)
+                save_summary_stats(roi_stats, uniq_rois, stat_func_names[ss], out_dir,
+                                   subject, expt_id_no_network)
                 sys.stdout.write('Done.')
             except KeyboardInterrupt:
                 print('Exiting on keyborad interrupt! \n'
@@ -490,8 +492,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
             except:
                 traceback.print_exc()
                 logging.debug(
-                    'Error : unable to compute roi-wise {} for {}. Skipping it.'.format(
-                        stat_func_names[ss], subject))
+                    'Error : unable to compute roi-wise {} for {}.'
+                    ' Skipping it.'.format(stat_func_names[ss], subject))
 
         if return_results:
             roi_stats_all[subject] = roi_stats
