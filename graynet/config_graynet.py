@@ -60,7 +60,8 @@ default_num_procs = 2
 # -----------------------------------------------------------------------------------------------
 
 atlas_list = ['fsaverage', 'glasser2016',
-              'yeo2011_fsaverage5', 'yeo2011_fsaverage6', 'yeo2011_fsaverage_highres']
+              'yeo2011_fsaverage5', 'yeo2011_fsaverage6', 'yeo2011_fsaverage_highres',
+              'CAT_AAL']
 
 # roi labelled ?? in Glasser parcellation has label 16777215
 # fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
