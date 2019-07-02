@@ -534,3 +534,58 @@ def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_
             traceback.print_exc()
 
     return
+
+
+def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
+    "Saves the features to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_graynet.graphml'.format(str_suffix)
+        else:
+            out_file_name = 'graynet.graphml'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            nx.info(graph_nx)
+            nx.write_graphml(graph_nx, out_weights_path, encoding='utf-8')
+            print('\nSaved the graph to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save graph to \n{}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
+
+
+def save(weight_vec, out_dir, subject, str_suffix=None):
+    "Saves the features to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_graynet.csv'.format(str_suffix)
+        else:
+            out_file_name = 'graynet.csv'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
+            print('\nSaved the features to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save features to {}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return

@@ -20,7 +20,7 @@ if version_info.major > 2:
     from graynet.utils import stamp_expt_multiedge, check_params_multiedge, make_output_path_graph, \
         save_graph, check_subjects, check_stat_methods, check_num_bins, check_weights, \
         check_num_procs, check_atlas, check_edge_range_dict, mask_background_roi, warn_nan, \
-        stamp_expt_weight, import_features
+        stamp_expt_weight, import_features, save_per_subject_graph
     from graynet import parcellate
     from graynet import config_graynet as cfg
     from graynet import run_workflow as single_edge
@@ -349,7 +349,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                 # TODO consider extracting some network features upon user request.
 
                 add_nodal_positions(unigraph, centroids)
-                single_edge.save_per_subject_graph(unigraph, out_dir, subject, expt_id_single)
+                save_per_subject_graph(unigraph, out_dir, subject, expt_id_single)
 
                 # adding edges/weights from each feature to a multigraph
                 # this also encodes the sources
