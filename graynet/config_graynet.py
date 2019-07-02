@@ -7,8 +7,12 @@ features_freesurfer = ('freesurfer_thickness',
                        'freesurfer_jacobian_white',
                        'freesurfer_volume')
 features_fsl = ('gmdensity',)
+features_spm_cat = ('spm_cat_gmdensity', )
 
-base_feature_list = features_freesurfer + features_fsl
+features_cortical = features_freesurfer
+features_volumetric = features_fsl + features_spm_cat
+
+base_feature_list = features_cortical + features_volumetric
 
 default_feature_single_edge = ('freesurfer_thickness',)
 default_features_multi_edge = ('freesurfer_thickness', 'freesurfer_curv')

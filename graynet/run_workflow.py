@@ -28,6 +28,7 @@ from sys import version_info
 
 if version_info.major > 2:
     from graynet import utils
+    from graynet.volumetric import extract_per_subject_volumetric
     from graynet import parcellate
     from graynet import config_graynet as cfg
     from graynet import __version__
@@ -211,6 +212,16 @@ def extract(subject_id_list,
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
+    if base_feature in cfg.features_cortical:
+        extract_per_subject = extract_per_subject_cortical
+    elif base_feature in cfg.features_volumetric:
+        extract_per_subject = extract_per_subject_volumetric
+    else:
+        raise NotImplementedError('Chosen feature {} is not recognized as '
+                                  'either cortical or volumetric! Choose one'
+                                  'from the following options: {}'
+                                  ''.format(cfg.base_feature_list))
+
     chunk_size = int(np.ceil(num_subjects / num_procs))
     with Manager():
         partial_func_extract = partial(extract_per_subject, input_dir, base_feature,
@@ -235,10 +246,10 @@ def extract(subject_id_list,
     return edge_weights_all
 
 
-def extract_per_subject(input_dir, base_feature, roi_labels, centroids,
-                        weight_method_list, atlas, smoothing_param, node_size,
-                        num_bins, edge_range, out_dir, return_results,
-                        pretty_print_options, subject=None):
+def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
+                                 weight_method_list, atlas, smoothing_param, node_size,
+                                 num_bins, edge_range, out_dir, return_results,
+                                 pretty_print_options, subject=None):
     # purposefully leaving subject parameter last to enable partial function creation
     """
     Extracts give set of weights for one subject.
