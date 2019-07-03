@@ -3,7 +3,7 @@ Module with handling the parcellation of different cortical atlases.
 
 """
 
-__all__ = ['read_atlas', 'freesurfer_roi_labels']
+__all__ = ['read_freesurfer_atlas', 'freesurfer_roi_labels']
 
 import os
 import os.path
@@ -120,7 +120,7 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
     return annot
 
 
-def read_atlas(atlas_spec, hemi_list=None):
+def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     " Script to read the pre-computed parcellations for fsaverage and HCP-MMP-1.0 "
 
     if hemi_list is None:
@@ -154,7 +154,7 @@ def roi_labels_centroids(atlas_name):
     "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
 
     atlas_dir, atlas_name = get_atlas_path(atlas_name)
-    coords, faces, annot = read_atlas(atlas_dir)
+    coords, faces, annot = read_freesurfer_atlas(atlas_dir)
     vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name)
     uniq_rois, roi_size, num_nodes = roi_info(vertex_labels)
 
@@ -175,7 +175,7 @@ def subdivide_cortex(atlas_dir, hemi_list=None):
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
 
-    coords, faces, annot = read_atlas(atlas_dir)
+    coords, faces, annot = read_freesurfer_atlas(atlas_dir)
 
     labels_to_remove = ['corpuscallosum', 'unknown']
     null_label = 0
