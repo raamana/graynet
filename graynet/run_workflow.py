@@ -513,19 +513,6 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     return roi_stats_all
 
 
-def fsl_import(input_dir,
-               subject_id_list,
-               base_feature,
-               fwhm=cfg.default_smoothing_param,
-               atlas=cfg.default_atlas):
-    "To be implemented."
-
-    if base_feature not in cfg.features_fsl:
-        raise NotImplementedError
-
-    return
-
-
 def cli_run():
     "command line interface!"
 

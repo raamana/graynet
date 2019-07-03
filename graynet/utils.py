@@ -17,7 +17,6 @@ from multiprocessing import cpu_count
 import numpy as np
 
 from graynet import config_graynet as cfg, freesurfer
-from graynet.run_workflow import fsl_import
 
 
 def check_features(base_feature_list):
@@ -587,5 +586,18 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
         except:
             print('\nUnable to save features to {}'.format(out_weights_path))
             traceback.print_exc()
+
+    return
+
+
+def fsl_import(input_dir,
+               subject_id_list,
+               base_feature,
+               fwhm=cfg.default_smoothing_param,
+               atlas=cfg.default_atlas):
+    "To be implemented."
+
+    if base_feature not in cfg.features_fsl:
+        raise NotImplementedError
 
     return
