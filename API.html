@@ -1,62 +1,35 @@
 
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>API &#8212; graynet 0.4+17.gaf99ea3.dirty documentation</title>
-    <link rel="stylesheet" href="_static/greenblue.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>API &#8212; graynet 0.4.5 documentation</title>
+    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/local_fonts.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.4+17.gaf99ea3.dirty',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
-    <script type="text/javascript" src="_static/p_sphinx_theme.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Examples using API" href="usage_api.html" />
-    <link rel="prev" title="Command line interface" href="usage_cli.html" /> 
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-      <div class="relbar-top">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="usage_api.html" title="Examples using API"
-             accesskey="N">next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="usage_cli.html" title="Command line interface"
-             accesskey="P">previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
+    <link rel="prev" title="Convenience/useful scripts" href="extra_scripts.html" />
+    <script type="text/javascript" src="_static/pd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  </head><body>
+    <div id="header">
+        <h1>graynet 0.4.5 documentation</h1>
     </div>
-      </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+        <ul>
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            </li>
+        </ul>
+    </div>
   
 
     <div class="document">
@@ -64,420 +37,345 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="api">
+<div class="section" id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
 <p>A tutorial-like presentation is available at <a class="reference internal" href="usage_api.html"><span class="doc">Examples using API</span></a>, using the following API:</p>
 <div class="section" id="module-run_workflow">
 <span id="api-reference"></span><h2>API Reference<a class="headerlink" href="#module-run_workflow" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="run_workflow.extract">
-<code class="descclassname">run_workflow.</code><code class="descname">extract</code><span class="sig-paren">(</span><em>subject_id_list</em>, <em>input_dir</em>, <em>base_feature=('freesurfer_thickness'</em>, <em>)</em>, <em>weight_method_list=('manhattan'</em>, <em>)</em>, <em>num_bins=25</em>, <em>edge_range=None</em>, <em>atlas='fsaverage'</em>, <em>smoothing_param=10</em>, <em>node_size=None</em>, <em>out_dir=None</em>, <em>return_results=False</em>, <em>num_procs=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/run_workflow.html#extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#run_workflow.extract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">run_workflow.</code><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">subject_id_list</em>, <em class="sig-param">input_dir</em>, <em class="sig-param">base_feature=('freesurfer_thickness'</em>, <em class="sig-param">)</em>, <em class="sig-param">weight_method_list=('manhattan'</em>, <em class="sig-param">)</em>, <em class="sig-param">num_bins=25</em>, <em class="sig-param">edge_range=None</em>, <em class="sig-param">atlas='fsaverage'</em>, <em class="sig-param">smoothing_param=10</em>, <em class="sig-param">node_size=None</em>, <em class="sig-param">out_dir=None</em>, <em class="sig-param">return_results=False</em>, <em class="sig-param">num_procs=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/run_workflow.html#extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#run_workflow.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>subject_id_list</strong> : str or list</p>
-<blockquote>
-<div><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</div></blockquote>
-<p><strong>input_dir</strong> : str</p>
-<blockquote>
-<div><p>Path to the input directory where features can be read.
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong><span class="classifier">str</span></dt><dd><p>Path to the input directory where features can be read.
 For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
 Or another directory with a structure that graynet can parse.</p>
-</div></blockquote>
-<p><strong>base_feature</strong> : str</p>
-<blockquote>
-<div><p>Specific type of feature to read for each subject from the input directory.</p>
-</div></blockquote>
-<p><strong>weight_method</strong> : string(s), optional</p>
-<blockquote>
-<div><p>Type of distance (or metric) to compute between the pair of histograms.</p>
+</dd>
+<dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>weight_method</strong><span class="classifier">string(s), optional</span></dt><dd><p>Type of distance (or metric) to compute between the pair of histograms.</p>
 <p>It must be one of the following methods:</p>
 <ul class="simple">
-<li>‘chebyshev’</li>
-<li>‘chebyshev_neg’</li>
-<li>‘chi_square’</li>
-<li>‘correlate’</li>
-<li>‘correlate_1’</li>
-<li>‘cosine’</li>
-<li>‘cosine_1’</li>
-<li>‘cosine_2’</li>
-<li>‘cosine_alt’</li>
-<li>‘euclidean’</li>
-<li>‘fidelity_based’</li>
-<li>‘histogram_intersection’</li>
-<li>‘histogram_intersection_1’</li>
-<li>‘jensen_shannon’</li>
-<li>‘kullback_leibler’</li>
-<li>‘manhattan’</li>
-<li>‘minowski’</li>
-<li>‘noelle_1’</li>
-<li>‘noelle_2’</li>
-<li>‘noelle_3’</li>
-<li>‘noelle_4’</li>
-<li>‘noelle_5’</li>
-<li>‘relative_bin_deviation’</li>
-<li>‘relative_deviation’</li>
+<li><p>‘chebyshev’</p></li>
+<li><p>‘chebyshev_neg’</p></li>
+<li><p>‘chi_square’</p></li>
+<li><p>‘correlate’</p></li>
+<li><p>‘correlate_1’</p></li>
+<li><p>‘cosine’</p></li>
+<li><p>‘cosine_1’</p></li>
+<li><p>‘cosine_2’</p></li>
+<li><p>‘cosine_alt’</p></li>
+<li><p>‘euclidean’</p></li>
+<li><p>‘fidelity_based’</p></li>
+<li><p>‘histogram_intersection’</p></li>
+<li><p>‘histogram_intersection_1’</p></li>
+<li><p>‘jensen_shannon’</p></li>
+<li><p>‘kullback_leibler’</p></li>
+<li><p>‘manhattan’</p></li>
+<li><p>‘minowski’</p></li>
+<li><p>‘noelle_1’</p></li>
+<li><p>‘noelle_2’</p></li>
+<li><p>‘noelle_3’</p></li>
+<li><p>‘noelle_4’</p></li>
+<li><p>‘noelle_5’</p></li>
+<li><p>‘relative_bin_deviation’</p></li>
+<li><p>‘relative_deviation’</p></li>
 </ul>
 <p>Note only the following are <em>metrics</em>:</p>
 <ul class="simple">
-<li>‘manhattan’</li>
-<li>‘minowski’</li>
-<li>‘euclidean’</li>
-<li>‘noelle_2’</li>
-<li>‘noelle_4’</li>
-<li>‘noelle_5’</li>
+<li><p>‘manhattan’</p></li>
+<li><p>‘minowski’</p></li>
+<li><p>‘euclidean’</p></li>
+<li><p>‘noelle_2’</p></li>
+<li><p>‘noelle_4’</p></li>
+<li><p>‘noelle_5’</p></li>
 </ul>
 <p>The following are <em>semi- or quasi-metrics</em>:</p>
 <ul class="simple">
-<li>‘kullback_leibler’</li>
-<li>‘jensen_shannon’</li>
-<li>‘chi_square’</li>
-<li>‘chebyshev’</li>
-<li>‘cosine_1’</li>
-<li>‘chebyshev_neg’</li>
-<li>‘correlate_1’</li>
-<li>‘histogram_intersection_1’</li>
-<li>‘relative_deviation’</li>
-<li>‘relative_bin_deviation’</li>
-<li>‘noelle_1’</li>
-<li>‘noelle_3’</li>
+<li><p>‘kullback_leibler’</p></li>
+<li><p>‘jensen_shannon’</p></li>
+<li><p>‘chi_square’</p></li>
+<li><p>‘chebyshev’</p></li>
+<li><p>‘cosine_1’</p></li>
+<li><p>‘chebyshev_neg’</p></li>
+<li><p>‘correlate_1’</p></li>
+<li><p>‘histogram_intersection_1’</p></li>
+<li><p>‘relative_deviation’</p></li>
+<li><p>‘relative_bin_deviation’</p></li>
+<li><p>‘noelle_1’</p></li>
+<li><p>‘noelle_3’</p></li>
 </ul>
 <p>The following are  classified to be similarity functions:</p>
 <ul class="simple">
-<li>‘histogram_intersection’</li>
-<li>‘correlate’</li>
-<li>‘cosine’</li>
-<li>‘cosine_2’</li>
-<li>‘cosine_alt’</li>
-<li>‘fidelity_based’</li>
+<li><p>‘histogram_intersection’</p></li>
+<li><p>‘correlate’</p></li>
+<li><p>‘cosine’</p></li>
+<li><p>‘cosine_2’</p></li>
+<li><p>‘cosine_alt’</p></li>
+<li><p>‘fidelity_based’</p></li>
 </ul>
 <p><em>Default</em> choice: ‘manhattan’.</p>
-</div></blockquote>
-<p><strong>num_bins</strong> : int</p>
-<blockquote>
-<div><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
-</div></blockquote>
-<p><strong>edge_range</strong> : tuple or list</p>
-<blockquote>
-<div><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
+</dd>
+<dt><strong>num_bins</strong><span class="classifier">int</span></dt><dd><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
+</dd>
+<dt><strong>edge_range</strong><span class="classifier">tuple or list</span></dt><dd><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.</p>
 <p>Default :</p>
 <blockquote>
 <div><ul class="simple">
-<li>( 0.0, 5.0) for <code class="docutils literal"><span class="pre">freesurfer_thickness</span></code> and</li>
-<li>(-0.3, 0.3) for <code class="docutils literal"><span class="pre">freesurfer_curv</span></code>.</li>
+<li><p>( 0.0, 5.0) for <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code> and</p></li>
+<li><p>(-0.3, 0.3) for <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code>.</p></li>
 </ul>
 </div></blockquote>
-</div></blockquote>
-<p><strong>atlas</strong> : str</p>
-<blockquote>
-<div><p>Name of the atlas whose parcellation to be used.
+</dd>
+<dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.
 Choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’], which are primary cortical.
 Volumetric whole-brain atlases will be added soon.</p>
-</div></blockquote>
-<p><strong>smoothing_param</strong> : scalar</p>
-<blockquote>
-<div><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+</dd>
+<dt><strong>smoothing_param</strong><span class="classifier">scalar</span></dt><dd><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</div></blockquote>
-<p><strong>node_size</strong> : scalar, optional</p>
-<blockquote>
-<div><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+</dd>
+<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
 This feature is not implemented yet, just a placeholder and to enable default computation.</p>
-</div></blockquote>
-<p><strong>out_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>Path to output directory to store results.
+</dd>
+<dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
-</div></blockquote>
-<p><strong>return_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to indicate whether to return the results to be returned.
+</dd>
+<dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicate whether to return the results to be returned.
 This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
 the number of subjects or weight methods are large, as it doesn’t retain results for all combinations,
 when running from commmand line interface (or HPC). Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
-</div></blockquote>
-<p><strong>num_procs</strong> : int</p>
-<blockquote>
-<div><p>Number of parallel processes to use to speed up computation.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>edge_weights_all</strong> : dict, None</p>
-<blockquote class="last">
-<div><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+</dd>
+<dt><strong>num_procs</strong><span class="classifier">int</span></dt><dd><p>Number of parallel processes to use to speed up computation.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>edge_weights_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
 The value of each edge_weights_all[(weight method, subject_ID)] is
 a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="run_workflow.roiwise_stats_indiv">
-<code class="descclassname">run_workflow.</code><code class="descname">roiwise_stats_indiv</code><span class="sig-paren">(</span><em>subject_id_list</em>, <em>input_dir</em>, <em>base_feature=('freesurfer_thickness'</em>, <em>)</em>, <em>chosen_roi_stats='median'</em>, <em>atlas='fsaverage'</em>, <em>smoothing_param=10</em>, <em>node_size=None</em>, <em>out_dir=None</em>, <em>return_results=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/run_workflow.html#roiwise_stats_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#run_workflow.roiwise_stats_indiv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">run_workflow.</code><code class="sig-name descname">roiwise_stats_indiv</code><span class="sig-paren">(</span><em class="sig-param">subject_id_list</em>, <em class="sig-param">input_dir</em>, <em class="sig-param">base_feature=('freesurfer_thickness'</em>, <em class="sig-param">)</em>, <em class="sig-param">chosen_roi_stats='median'</em>, <em class="sig-param">atlas='fsaverage'</em>, <em class="sig-param">smoothing_param=10</em>, <em class="sig-param">node_size=None</em>, <em class="sig-param">out_dir=None</em>, <em class="sig-param">return_results=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/run_workflow.html#roiwise_stats_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#run_workflow.roiwise_stats_indiv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the chosen summary statistics within each ROI.
 These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.</p>
 <p>Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and
 any other appropriate summary statistics listed under scipy.stats:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>subject_id_list</strong> : str or list</p>
-<blockquote>
-<div><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</div></blockquote>
-<p><strong>input_dir</strong> : str</p>
-<blockquote>
-<div><p>Path to the input directory where features can be read.
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong><span class="classifier">str</span></dt><dd><p>Path to the input directory where features can be read.
 For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
 Or another directory with a structure that graynet can parse.</p>
-</div></blockquote>
-<p><strong>base_feature</strong> : str</p>
-<blockquote>
-<div><p>Specific type of feature to read for each subject from the input directory.</p>
-</div></blockquote>
-<p><strong>chosen_roi_stats</strong> : list of str or callable</p>
-<blockquote>
-<div><p>If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
-Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’,
-‘entropy’, ‘skew’ and ‘kurtosis’.</p>
+</dd>
+<dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>chosen_roi_stats</strong><span class="classifier">list of str or callable</span></dt><dd><p>If requested, graynet will compute chosen summary statistics (such as median)
+within each ROI of the chosen parcellation (and network weight computation is skipped).
+Default: ‘median’.
+Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’,
+‘gmean’, ‘hmean’, ‘variation’, ‘entropy’, ‘skew’ and ‘kurtosis’.</p>
 <p>Other appropriate summary statistics listed under scipy.stats could used
 by passing in a callable with their parameters encapsulated:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a>
-For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal"><span class="pre">third_kstat</span></code> as in the argument:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span>
-    <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+For example, if you would like to compute 3rd k-statistic, you could
+construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
-.. code-block:: python</p>
-<blockquote>
-<div><p>trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
-third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</p>
-</div></blockquote>
+<p>Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">trimmed_mean</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">trim_mean</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">proportiontocut</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span>
+<span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Notes: ‘hmean’ requires all values be positive.</p>
-</div></blockquote>
-<p><strong>atlas</strong> : str</p>
-<blockquote>
-<div><p>Name of the atlas whose parcellation to be used.
+</dd>
+<dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.
 Available choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’].
 Volumetric whole-brain atlases will be added soon.</p>
-</div></blockquote>
-<p><strong>smoothing_param</strong> : scalar</p>
-<blockquote>
-<div><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+</dd>
+<dt><strong>smoothing_param</strong><span class="classifier">scalar</span></dt><dd><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</div></blockquote>
-<p><strong>node_size</strong> : scalar, optional</p>
-<blockquote>
-<div><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+</dd>
+<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
 Not implemented.</p>
-</div></blockquote>
-<p><strong>out_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>Path to output directory to store results.
+</dd>
+<dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
-</div></blockquote>
-<p><strong>return_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to indicating whether to keep the results to be returned to caller method.
+</dd>
+<dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicating whether to keep the results to be returned to caller method.
 Helps to save memory (as it doesn’t retain results all subjects and weight combinations),
 when running from command line interface (or HPC). Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>roi_stats_all</strong> : dict, None</p>
-<blockquote class="last">
-<div><p>If return_results is True, this will be a dictionary keyed in by subject_ID
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>roi_stats_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by subject_ID
 The value of each key roi_summary_all[subject] is
 a numpy array of length k, with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <span class="target" id="module-multi_edge"></span><dl class="function">
 <dt id="multi_edge.extract_multiedge">
-<code class="descclassname">multi_edge.</code><code class="descname">extract_multiedge</code><span class="sig-paren">(</span><em>subject_id_list</em>, <em>input_dir</em>, <em>base_feature_list=('freesurfer_thickness'</em>, <em>'freesurfer_curv')</em>, <em>weight_method_list=('manhattan'</em>, <em>)</em>, <em>summary_stats=('prod'</em>, <em>'median')</em>, <em>num_bins=25</em>, <em>edge_range_dict={'freesurfer_thickness': (0.0</em>, <em>5.0)</em>, <em>'freesurfer_curv': (-0.3</em>, <em>0.3)</em>, <em>'freesurfer_sulc': (-1.5</em>, <em>1.5)</em>, <em>'freesurfer_area': (0.0</em>, <em>1.5)}</em>, <em>atlas='fsaverage'</em>, <em>smoothing_param=10</em>, <em>node_size=None</em>, <em>out_dir=None</em>, <em>return_results=False</em>, <em>overwrite_results=False</em>, <em>num_procs=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multi_edge.html#extract_multiedge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multi_edge.extract_multiedge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">multi_edge.</code><code class="sig-name descname">extract_multiedge</code><span class="sig-paren">(</span><em class="sig-param">subject_id_list</em>, <em class="sig-param">input_dir</em>, <em class="sig-param">base_feature_list=('freesurfer_thickness'</em>, <em class="sig-param">'freesurfer_curv')</em>, <em class="sig-param">weight_method_list=('manhattan'</em>, <em class="sig-param">)</em>, <em class="sig-param">summary_stats=('prod'</em>, <em class="sig-param">'median')</em>, <em class="sig-param">num_bins=25</em>, <em class="sig-param">edge_range_dict={'freesurfer_thickness': (0.0</em>, <em class="sig-param">5.0)</em>, <em class="sig-param">'freesurfer_curv': (-0.3</em>, <em class="sig-param">0.3)</em>, <em class="sig-param">'freesurfer_sulc': (-1.5</em>, <em class="sig-param">1.5)</em>, <em class="sig-param">'freesurfer_area': (0.0</em>, <em class="sig-param">1.5)}</em>, <em class="sig-param">atlas='fsaverage'</em>, <em class="sig-param">smoothing_param=10</em>, <em class="sig-param">node_size=None</em>, <em class="sig-param">out_dir=None</em>, <em class="sig-param">return_results=False</em>, <em class="sig-param">overwrite_results=False</em>, <em class="sig-param">num_procs=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multi_edge.html#extract_multiedge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multi_edge.extract_multiedge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts weighted networks (matrix of pair-wise ROI distances) based on multiple gray matter features based on Freesurfer processing.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>subject_id_list</strong> : str or list</p>
-<blockquote>
-<div><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</div></blockquote>
-<p><strong>input_dir</strong> : str</p>
-<blockquote>
-<div><p>Path to the input directory where features can be read.
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong><span class="classifier">str</span></dt><dd><p>Path to the input directory where features can be read.
 For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
 Or another directory with a structure that graynet can parse.</p>
-</div></blockquote>
-<p><strong>base_feature_list</strong> : list</p>
-<blockquote>
-<div><p>Set of features that drive the different edges between the pair of ROIs.</p>
+</dd>
+<dt><strong>base_feature_list</strong><span class="classifier">list</span></dt><dd><p>Set of features that drive the different edges between the pair of ROIs.</p>
 <p>For example, if you choose thickness and pial_curv, each pair of ROIs will have two edges.</p>
 <p>This multi-edge network can be turned into a single network based on averaging weights from different individual networks.</p>
-</div></blockquote>
-<p><strong>weight_method</strong> : string(s), optional</p>
-<blockquote>
-<div><p>Type of distance (or metric) to compute between the pair of histograms.</p>
+</dd>
+<dt><strong>weight_method</strong><span class="classifier">string(s), optional</span></dt><dd><p>Type of distance (or metric) to compute between the pair of histograms.</p>
 <p>It must be one of the following methods:</p>
 <ul class="simple">
-<li>‘chebyshev’</li>
-<li>‘chebyshev_neg’</li>
-<li>‘chi_square’</li>
-<li>‘correlate’</li>
-<li>‘correlate_1’</li>
-<li>‘cosine’</li>
-<li>‘cosine_1’</li>
-<li>‘cosine_2’</li>
-<li>‘cosine_alt’</li>
-<li>‘euclidean’</li>
-<li>‘fidelity_based’</li>
-<li>‘histogram_intersection’</li>
-<li>‘histogram_intersection_1’</li>
-<li>‘jensen_shannon’</li>
-<li>‘kullback_leibler’</li>
-<li>‘manhattan’</li>
-<li>‘minowski’</li>
-<li>‘noelle_1’</li>
-<li>‘noelle_2’</li>
-<li>‘noelle_3’</li>
-<li>‘noelle_4’</li>
-<li>‘noelle_5’</li>
-<li>‘relative_bin_deviation’</li>
-<li>‘relative_deviation’</li>
+<li><p>‘chebyshev’</p></li>
+<li><p>‘chebyshev_neg’</p></li>
+<li><p>‘chi_square’</p></li>
+<li><p>‘correlate’</p></li>
+<li><p>‘correlate_1’</p></li>
+<li><p>‘cosine’</p></li>
+<li><p>‘cosine_1’</p></li>
+<li><p>‘cosine_2’</p></li>
+<li><p>‘cosine_alt’</p></li>
+<li><p>‘euclidean’</p></li>
+<li><p>‘fidelity_based’</p></li>
+<li><p>‘histogram_intersection’</p></li>
+<li><p>‘histogram_intersection_1’</p></li>
+<li><p>‘jensen_shannon’</p></li>
+<li><p>‘kullback_leibler’</p></li>
+<li><p>‘manhattan’</p></li>
+<li><p>‘minowski’</p></li>
+<li><p>‘noelle_1’</p></li>
+<li><p>‘noelle_2’</p></li>
+<li><p>‘noelle_3’</p></li>
+<li><p>‘noelle_4’</p></li>
+<li><p>‘noelle_5’</p></li>
+<li><p>‘relative_bin_deviation’</p></li>
+<li><p>‘relative_deviation’</p></li>
 </ul>
 <p>Note only the following are <em>metrics</em>:</p>
 <ul class="simple">
-<li>‘manhattan’</li>
-<li>‘minowski’</li>
-<li>‘euclidean’</li>
-<li>‘noelle_2’</li>
-<li>‘noelle_4’</li>
-<li>‘noelle_5’</li>
+<li><p>‘manhattan’</p></li>
+<li><p>‘minowski’</p></li>
+<li><p>‘euclidean’</p></li>
+<li><p>‘noelle_2’</p></li>
+<li><p>‘noelle_4’</p></li>
+<li><p>‘noelle_5’</p></li>
 </ul>
 <p>The following are <em>semi- or quasi-metrics</em>:</p>
 <ul class="simple">
-<li>‘kullback_leibler’</li>
-<li>‘jensen_shannon’</li>
-<li>‘chi_square’</li>
-<li>‘chebyshev’</li>
-<li>‘cosine_1’</li>
-<li>‘chebyshev_neg’</li>
-<li>‘correlate_1’</li>
-<li>‘histogram_intersection_1’</li>
-<li>‘relative_deviation’</li>
-<li>‘relative_bin_deviation’</li>
-<li>‘noelle_1’</li>
-<li>‘noelle_3’</li>
+<li><p>‘kullback_leibler’</p></li>
+<li><p>‘jensen_shannon’</p></li>
+<li><p>‘chi_square’</p></li>
+<li><p>‘chebyshev’</p></li>
+<li><p>‘cosine_1’</p></li>
+<li><p>‘chebyshev_neg’</p></li>
+<li><p>‘correlate_1’</p></li>
+<li><p>‘histogram_intersection_1’</p></li>
+<li><p>‘relative_deviation’</p></li>
+<li><p>‘relative_bin_deviation’</p></li>
+<li><p>‘noelle_1’</p></li>
+<li><p>‘noelle_3’</p></li>
 </ul>
 <p>The following are  classified to be similarity functions:</p>
 <ul class="simple">
-<li>‘histogram_intersection’</li>
-<li>‘correlate’</li>
-<li>‘cosine’</li>
-<li>‘cosine_2’</li>
-<li>‘cosine_alt’</li>
-<li>‘fidelity_based’</li>
+<li><p>‘histogram_intersection’</p></li>
+<li><p>‘correlate’</p></li>
+<li><p>‘cosine’</p></li>
+<li><p>‘cosine_2’</p></li>
+<li><p>‘cosine_alt’</p></li>
+<li><p>‘fidelity_based’</p></li>
 </ul>
 <p><em>Default</em> choice: ‘manhattan’.</p>
-</div></blockquote>
-<p><strong>summary_stats</strong> : list of str</p>
-<blockquote>
-<div><p>A string, or list of strings, each representing a method (like ‘median’, ‘prod’ or ‘max’),
+</dd>
+<dt><strong>summary_stats</strong><span class="classifier">list of str</span></dt><dd><p>A string, or list of strings, each representing a method (like ‘median’, ‘prod’ or ‘max’),
 to compute a summay statistic from the array of multiple weights computed.</p>
 <p>This must be available as a member of numpy or scipy.stats.</p>
-</div></blockquote>
-<p><strong>num_bins</strong> : int</p>
-<blockquote>
-<div><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
-</div></blockquote>
-<p><strong>edge_range_dict</strong> : tuple or list</p>
-<blockquote>
-<div><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
+</dd>
+<dt><strong>num_bins</strong><span class="classifier">int</span></dt><dd><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
+</dd>
+<dt><strong>edge_range_dict</strong><span class="classifier">tuple or list</span></dt><dd><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
 This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.</p>
 <p>Default :</p>
 <blockquote>
 <div><ul class="simple">
-<li>( 0.0, 5.0) for <code class="docutils literal"><span class="pre">freesurfer_thickness</span></code> and</li>
-<li>(-0.3, 0.3) for <code class="docutils literal"><span class="pre">freesurfer_curv</span></code>.</li>
+<li><p>( 0.0, 5.0) for <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code> and</p></li>
+<li><p>(-0.3, 0.3) for <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code>.</p></li>
 </ul>
 </div></blockquote>
-</div></blockquote>
-<p><strong>atlas</strong> : str</p>
-<blockquote>
-<div><p>Name of the atlas whose parcellation to be used.
+</dd>
+<dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.
 Choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’], which are primary cortical.
 Volumetric whole-brain atlases will be added soon.</p>
-</div></blockquote>
-<p><strong>smoothing_param</strong> : scalar</p>
-<blockquote>
-<div><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+</dd>
+<dt><strong>smoothing_param</strong><span class="classifier">scalar</span></dt><dd><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
 or another relevant for the chosen base_feature_list.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</div></blockquote>
-<p><strong>node_size</strong> : scalar, optional</p>
-<blockquote>
-<div><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
+</dd>
+<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
 This feature is not implemented yet, just a placeholder and to enable default computation.</p>
-</div></blockquote>
-<p><strong>out_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>Path to output directory to store results.
+</dd>
+<dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
-</div></blockquote>
-<p><strong>return_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to indicate whether to return the results to be returned.
+</dd>
+<dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicate whether to return the results to be returned.
 This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
 the number of subjects or weight methods are large, as it doesn’t retain results for all combinations,
 when running from commmand line interface (or HPC). Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
-</div></blockquote>
-<p><strong>overwrite_results</strong> : bool</p>
-<blockquote>
-<div><p>Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted).</p>
-</div></blockquote>
-<p><strong>num_procs</strong> : int</p>
-<blockquote>
-<div><p>Number of parallel processes to use to speed up computation.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>edge_weights_all</strong> : dict, None</p>
-<blockquote class="last">
-<div><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+</dd>
+<dt><strong>overwrite_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted).</p>
+</dd>
+<dt><strong>num_procs</strong><span class="classifier">int</span></dt><dd><p>Number of parallel processes to use to speed up computation.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>edge_weights_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
 The value of each edge_weights_all[(weight method, subject_ID)] is
 a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -488,18 +386,21 @@ If return_results is False, this will be None, which is the default.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="sphinxlocaltoc">
-    <h3><a href="index.html">Page contents</a></h3>
-    <ul>
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
 <li><a class="reference internal" href="#">API</a><ul>
 <li><a class="reference internal" href="#module-run_workflow">API Reference</a></li>
 </ul>
 </li>
 </ul>
 
-  </div>
-
-
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="extra_scripts.html"
+                        title="previous chapter">Convenience/useful scripts</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="usage_api.html"
+                        title="next chapter">Examples using API</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -508,46 +409,22 @@ If return_results is False, this will be None, which is the default.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-      <div class="relbar-bottom">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="usage_api.html" title="Examples using API"
-             >next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="usage_cli.html" title="Command line interface"
-             >previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
-    </div>
-      </div>
-
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
-      <!-- PSphinxTheme -->
   </body>
 </html>

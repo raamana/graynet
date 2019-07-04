@@ -1,55 +1,35 @@
 
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>graynet.freesurfer &#8212; graynet 0.4+17.gaf99ea3.dirty documentation</title>
-    <link rel="stylesheet" href="../../_static/greenblue.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>graynet.freesurfer &#8212; graynet 0.4.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/local_fonts.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.4+17.gaf99ea3.dirty',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="../../_static/jquery.cookie.js"></script>
-    <script type="text/javascript" src="../../_static/p_sphinx_theme.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-      <div class="relbar-top">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-      <li><a href="../../index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
+    <link rel="search" title="Search" href="../../search.html" />
+    <script type="text/javascript" src="../../_static/pd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
-      </ul>
+  </head><body>
+    <div id="header">
+        <h1>graynet 0.4.5 documentation</h1>
     </div>
-      </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+        <ul>
+            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.4.5 documentation</a> &#187;
+            </li>
+                <li class="nav-item nav-item-1"><a href="../index.html"
+                        accesskey="U">Module code</a> &#187;</li>
+        </ul>
+    </div>
   
 
     <div class="document">
@@ -57,10 +37,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <h1>Source code for graynet.freesurfer</h1><div class="highlight"><pre>
+<h1>Source code for graynet.freesurfer</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;import_features&#39;</span><span class="p">,]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;import_features&#39;</span><span class="p">,</span> <span class="s1">&#39;get_data&#39;</span><span class="p">]</span>
 
 <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">config_graynet</span> <span class="k">as</span> <span class="n">cfg</span>
 
@@ -87,38 +67,46 @@
         <span class="n">subjects_list</span> <span class="o">=</span> <span class="n">subject_list</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subject_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">pexists</span><span class="p">(</span><span class="n">subject_list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;path to subject list does not exist: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subject_list</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;path to subject list does not exist: </span><span class="si">{}</span><span class="s1">&#39;</span>
+                          <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subject_list</span><span class="p">))</span>
         <span class="n">subjects_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">subject_list</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value provided for subject list. </span><span class="se">\n</span><span class="s1"> &#39;</span>
-                         <span class="s1">&#39;Must be a list of paths, or path to file containing list of paths, one for each subject.&#39;</span><span class="p">)</span>
+                         <span class="s1">&#39;Must be a list of paths, or &#39;</span>
+                         <span class="s1">&#39;path to file containing list of paths, one for each subject.&#39;</span><span class="p">)</span>
 
     <span class="n">features</span><span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">subject_id</span> <span class="ow">in</span> <span class="n">subjects_list</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading </span><span class="si">{}</span><span class="s1"> for </span><span class="si">{}</span><span class="s1"> ... &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="n">features</span><span class="p">[</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">__get_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">atlas</span><span class="p">)</span>
+            <span class="n">features</span><span class="p">[</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">atlas</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; Done.&#39;</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> data for </span><span class="si">{}</span><span class="s1"> could not be read!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> data for </span><span class="si">{}</span><span class="s1"> could not be read!&#39;</span>
+                             <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">features</span></div>
 
 
-<span class="k">def</span> <span class="nf">__get_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="s1">&#39;fsaverage&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_data"><a class="viewcode-back" href="../../graynet.html#graynet.freesurfer.get_data">[docs]</a><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="s1">&#39;fsaverage&#39;</span><span class="p">):</span>
     <span class="s2">&quot;Reads the specified features from both hemispheres for a given subject.&quot;</span>
 
     <span class="n">feat_name</span> <span class="o">=</span> <span class="n">base_feature</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">feat_name</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">features_freesurfer</span><span class="p">:</span>
         <span class="n">bare_name_feature</span> <span class="o">=</span> <span class="n">feat_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;freesurfer_&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">left</span>  <span class="o">=</span> <span class="n">__read_morph_feature</span><span class="p">(</span><span class="n">path_to_vertex_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">hemi</span><span class="o">=</span><span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="n">feature</span><span class="o">=</span><span class="n">bare_name_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="n">fwhm</span><span class="p">))</span>
-        <span class="n">right</span> <span class="o">=</span> <span class="n">__read_morph_feature</span><span class="p">(</span><span class="n">path_to_vertex_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">hemi</span><span class="o">=</span><span class="s1">&#39;rh&#39;</span><span class="p">,</span> <span class="n">feature</span><span class="o">=</span><span class="n">bare_name_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="n">fwhm</span><span class="p">))</span>
+        <span class="n">left</span>  <span class="o">=</span> <span class="n">__read_morph_feature</span><span class="p">(</span>
+                <span class="n">path_to_vertex_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">hemi</span><span class="o">=</span><span class="s1">&#39;lh&#39;</span><span class="p">,</span>
+                                    <span class="n">feature</span><span class="o">=</span><span class="n">bare_name_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="n">fwhm</span><span class="p">))</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">__read_morph_feature</span><span class="p">(</span>
+                <span class="n">path_to_vertex_data</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">hemi</span><span class="o">=</span><span class="s1">&#39;rh&#39;</span><span class="p">,</span>
+                                    <span class="n">feature</span><span class="o">=</span><span class="n">bare_name_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="n">fwhm</span><span class="p">))</span>
         <span class="n">whole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid choice for freesurfer data. Valid choices: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">features_freesurfer</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid choice for freesurfer data.&#39;</span>
+                         <span class="s1">&#39; Valid choices: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">features_freesurfer</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">whole</span>
+    <span class="k">return</span> <span class="n">whole</span></div>
 
 
 <span class="k">def</span> <span class="nf">__all_data_exists</span><span class="p">(</span><span class="n">fs_dir</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="s1">&#39;fsaverage&#39;</span><span class="p">):</span>
@@ -139,10 +127,12 @@
     <span class="k">return</span> <span class="n">data_exists</span>
 
 
-<span class="k">def</span> <span class="nf">path_to_vertex_data</span><span class="p">(</span><span class="n">fsd</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">hemi</span><span class="o">=</span><span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">atlas</span><span class="o">=</span><span class="s1">&#39;fsaverage&#39;</span><span class="p">,</span> <span class="n">feature</span> <span class="o">=</span><span class="s1">&#39;thickness&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">path_to_vertex_data</span><span class="p">(</span><span class="n">fsd</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">hemi</span><span class="o">=</span><span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                        <span class="n">atlas</span><span class="o">=</span><span class="s1">&#39;fsaverage&#39;</span><span class="p">,</span> <span class="n">feature</span> <span class="o">=</span><span class="s1">&#39;thickness&#39;</span><span class="p">):</span>
     <span class="s2">&quot;Returning the path to surface features. Using a smoothed version&quot;</span>
 
-    <span class="k">return</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">fsd</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="s1">&#39;surf&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.fwhm</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.mgh&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">atlas</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">fsd</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="s1">&#39;surf&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.fwhm</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.mgh&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">atlas</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">__read_morph_feature</span><span class="p">(</span><span class="n">tpath</span><span class="p">):</span>
@@ -159,44 +149,23 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-
-
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-      <div class="relbar-bottom">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-      <li><a href="../../index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
-
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
-      </ul>
-    </div>
-      </div>
-
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
-      <!-- PSphinxTheme -->
   </body>
 </html>

@@ -1,62 +1,35 @@
 
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Getting started &#8212; graynet 0.4+17.gaf99ea3.dirty documentation</title>
-    <link rel="stylesheet" href="_static/greenblue.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Getting started &#8212; graynet 0.4.5 documentation</title>
+    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/local_fonts.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.4+17.gaf99ea3.dirty',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
-    <script type="text/javascript" src="_static/p_sphinx_theme.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Cortical graynet" href="cortical.html" />
-    <link rel="prev" title="Installation" href="installation.html" /> 
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-      <div class="relbar-top">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="cortical.html" title="Cortical graynet"
-             accesskey="N">next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="installation.html" title="Installation"
-             accesskey="P">previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
+    <link rel="prev" title="Installation" href="installation.html" />
+    <script type="text/javascript" src="_static/pd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  </head><body>
+    <div id="header">
+        <h1>graynet 0.4.5 documentation</h1>
     </div>
-      </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+        <ul>
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            </li>
+        </ul>
+    </div>
   
 
     <div class="document">
@@ -64,42 +37,42 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="getting-started">
+<div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<p><code class="docutils literal"><span class="pre">graynet</span></code> currently offers the following streams of processing:</p>
+<p><code class="docutils literal notranslate"><span class="pre">graynet</span></code> currently offers the following streams of processing:</p>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> : using vertex-wise ROIs defined on the cortex. This is useful to analyze network-level features based on cortical thickness, curvature, sulcal depth and gyrification. Base-level features can easily obtained from running <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/">Freesurfer</a></li>
+<li><p><a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> : using vertex-wise ROIs defined on the cortex. This is useful to analyze network-level features based on cortical thickness, curvature, sulcal depth and gyrification. Base-level features can easily obtained from running <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/">Freesurfer</a></p></li>
+<li><p><a class="reference internal" href="volumetric.html"><span class="doc">Volumetric graynet</span></a> stream : using voxel-wise ROIs defined over the whole brain relying on a volumetric atlas. This is useful to analyze network-level features based on gray matter density dervied from voxel-based morphometry (VBM) or similar approaches. Base-level features can easily obtained from <a class="reference external" href="http://www.neuro.uni-jena.de/cat/">CAT12 toolbox</a> within the SPM ecosystem.</p></li>
 </ul>
 </div></blockquote>
 <p>We plan to offer the following soon:</p>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference internal" href="volumetric.html"><span class="doc">Volumetric graynet</span></a> stream : using voxel-wise ROIs defined over the whole brain relying on a volumetric atlas. This is useful to analyze network-level features based on gray matter density dervied from voxel-based morphometry (VBM) or similar approaches. Base-level features can easily obtained from running <a class="reference external" href="http://www.fil.ion.ucl.ac.uk/spm/software/spm12/">SPM</a>, <a class="reference external" href="http://stnava.github.io/ANTs/">ANTs</a>, <a class="reference external" href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLVBM">FSL</a>, <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/">Freesurfer</a>, or another suitable package.</li>
-<li>Support for additional input formats for the <a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> stream:
-- <a class="reference external" href="http://www.bic.mni.mcgill.ca/ServicesSoftware/BasicUsageOfCIVET">CIVET</a>
-- <a class="reference external" href="http://stnava.github.io/ANTs/">ANTs</a>.</li>
+<li><p>support for other VBM tools such as <a class="reference external" href="http://www.fil.ion.ucl.ac.uk/spm/software/spm12/">SPM</a>, <a class="reference external" href="http://stnava.github.io/ANTs/">ANTs</a>, <a class="reference external" href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLVBM">FSL</a>, <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/">Freesurfer</a>, or another suitable package, within the <a class="reference internal" href="volumetric.html"><span class="doc">Volumetric graynet</span></a> stream, .</p></li>
+<li><p>Support for additional input formats for the <a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> stream: <a class="reference external" href="http://www.bic.mni.mcgill.ca/ServicesSoftware/BasicUsageOfCIVET">CIVET</a> , <a class="reference external" href="http://stnava.github.io/ANTs/">ANTs</a> etc.</p></li>
+<li><p>If you are interested in contributing, please take a look at the <a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a> document and reach out to me. Thanks!</p></li>
 </ul>
 </div></blockquote>
-<p>In both streams, in addition to the computation of pair-wise network-level features, <code class="docutils literal"><span class="pre">graynet</span></code> will help you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG, or variance in GM density within amygdala), as well as to serve as a baseline for network-level features.</p>
+<p>In both streams, in addition to the computation of pair-wise network-level features, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> will help you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG, or variance in GM density within amygdala), as well as to serve as a baseline for network-level features.</p>
 <p>The package offers both <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> and an <a class="reference internal" href="API.html"><span class="doc">API</span></a>, to better integrate with your workflow. However, the CLI is the recommended/most-tested gateway.</p>
-<p>For uniform processing across subjects, <code class="docutils literal"><span class="pre">graynet</span></code> needs:</p>
+<p>For uniform processing across subjects, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> needs:</p>
 <blockquote>
 <div><ul class="simple">
-<li>an atlas with pre-defined ROIs</li>
-<li>each subject be registered to atlas (vertex- or voxel-wise), so ROIs correspond across all subjects.</li>
-<li>the extracted features are in a format readable by <code class="docutils literal"><span class="pre">nibabel</span></code></li>
+<li><p>an atlas with pre-defined ROIs</p></li>
+<li><p>each subject be registered to atlas (vertex- or voxel-wise), so ROIs correspond across all subjects.</p></li>
+<li><p>the extracted features are in a format readable by <code class="docutils literal notranslate"><span class="pre">nibabel</span></code></p></li>
 </ul>
 </div></blockquote>
 <p>The following steps should help you get started and going quickly:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Install graynet using this command in a terminal:  <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">graynet</span></code></li>
-<li>Refer to <a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> and <a class="reference internal" href="volumetric.html"><span class="doc">Volumetric graynet</span></a> pages for more details on the individual streams of processing and examples.</li>
+<li><p>Install graynet using this command in a terminal:  <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">graynet</span></code></p></li>
+<li><p>Refer to <a class="reference internal" href="cortical.html"><span class="doc">Cortical graynet</span></a> and <a class="reference internal" href="volumetric.html"><span class="doc">Volumetric graynet</span></a> pages for more details on the individual streams of processing and examples.</p></li>
 </ul>
 </div></blockquote>
 <p>If you run into any issues, or have a feature wish or suggestions, please let me know here <a class="reference external" href="https://github.com/raamana/graynet/issues/new">by opening an issue</a>.</p>
-<p>Thanks for trying out graynet. I’d appreciate if you can cite it as detailed in <a class="reference internal" href="citation.html"><span class="doc">Citation</span></a>.</p>
+<p>Thanks for trying out graynet. <strong>I’d appreciate if you can cite it</strong> using the details in <a class="reference internal" href="citation.html"><span class="doc">Citation</span></a>.</p>
 </div>
 
 
@@ -108,8 +81,12 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-
-
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cortical.html"
+                        title="next chapter">Cortical graynet</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -118,46 +95,22 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-      <div class="relbar-bottom">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="cortical.html" title="Cortical graynet"
-             >next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="installation.html" title="Installation"
-             >previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
-    </div>
-      </div>
-
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
-      <!-- PSphinxTheme -->
   </body>
 </html>

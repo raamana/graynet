@@ -1,62 +1,35 @@
 
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Volumetric graynet &#8212; graynet 0.4+17.gaf99ea3.dirty documentation</title>
-    <link rel="stylesheet" href="_static/greenblue.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Volumetric graynet &#8212; graynet 0.4.5 documentation</title>
+    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/local_fonts.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.4+17.gaf99ea3.dirty',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
-    <script type="text/javascript" src="_static/p_sphinx_theme.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Command line interface" href="usage_cli.html" />
-    <link rel="prev" title="Cortical graynet" href="cortical.html" /> 
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-      <div class="relbar-top">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="usage_cli.html" title="Command line interface"
-             accesskey="N">next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="cortical.html" title="Cortical graynet"
-             accesskey="P">previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
+    <link rel="prev" title="Cortical graynet" href="cortical.html" />
+    <script type="text/javascript" src="_static/pd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  </head><body>
+    <div id="header">
+        <h1>graynet 0.4.5 documentation</h1>
     </div>
-      </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+        <ul>
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            </li>
+        </ul>
+    </div>
   
 
     <div class="document">
@@ -64,11 +37,65 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="volumetric-graynet">
+<div class="section" id="volumetric-graynet">
 <h1>Volumetric graynet<a class="headerlink" href="#volumetric-graynet" title="Permalink to this headline">¶</a></h1>
-<p>Under development, sorry.</p>
-<p>Check back soon, thanks!</p>
-<p>When available, <code class="docutils literal"><span class="pre">graynet</span></code> will help compute ROI-wise statistics (individual, not pair-wise) for visualization (e.g. mean and variance of GM density within amygdala), as well as to serve as a baseline for network-level features. Use the <code class="docutils literal"><span class="pre">-r</span></code> or <code class="docutils literal"><span class="pre">--roi_stats</span></code> flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.</p>
+<p>For the volumetric stream of processing, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> relies on outputs from <a class="reference external" href="http://www.neuro.uni-jena.de/cat/">CAT12 toolbox</a> within the SPM ecosystem. <em>We plan to support various other VBM toolboxes soon</em> - make your suggestions by <a class="reference external" href="https://github.com/raamana/graynet/issues/new">opening an issue</a>.</p>
+<p>The following steps should help you get started and going quickly:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Install <a class="reference external" href="http://www.neuro.uni-jena.de/cat/">CAT12 toolbox</a> and read the <a class="reference external" href="http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf">manual</a></p></li>
+<li><p>Ensure you produce the outputs in <em>normalized</em> atlas space, by selecting the output option to be either <code class="docutils literal notranslate"><span class="pre">Modulated</span> <span class="pre">normalized</span></code> or <code class="docutils literal notranslate"><span class="pre">normalized</span></code> depending on your analyses plan. Correct processing would produce images of size 121 x 145 x 121, which must be the same as the atlases included in the CAT12 toolbox</p></li>
+<li><dl class="simple">
+<dt>Run the CAT12 processing and ensure it is complete</dt><dd><ul>
+<li><p>Perform the QA as suggested in their <a class="reference external" href="http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf">manual</a> e.g. “SECOND MODULE: DISPLAY ONE SLICE FOR ALL IMAGES”.</p></li>
+<li><p>For a more comprehensive QC of segmentation accuracy, you can employ <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>If everything went well, you would have an <code class="docutils literal notranslate"><span class="pre">mri</span></code> folder created in the output folder you chose. This folder would have several files, for each subject you processed e.g. <code class="docutils literal notranslate"><span class="pre">mwp1SUBJECTID.nii</span></code> contains the voxel-wise gray matter densities for SUBJECTID in the modulated (prefix <code class="docutils literal notranslate"><span class="pre">m</span></code> ) normalized (<code class="docutils literal notranslate"><span class="pre">w</span></code> ) atlas space. Similarly <code class="docutils literal notranslate"><span class="pre">mwp2*.nii</span></code> files would contain voxel-wise white matter densities.</p></li>
+</ul>
+</div></blockquote>
+<p>If graynet is installed without error, you should have <code class="docutils literal notranslate"><span class="pre">graynet</span></code> command in your path. Just type <code class="docutils literal notranslate"><span class="pre">graynet</span></code> and you should see it display options and usage instructions, as presented in <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> page.</p>
+<p>Suppose say</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>you already have CAT12 processing done at <code class="docutils literal notranslate"><span class="pre">/work/project/cat12_vbm</span></code></p></li>
+<li><p>for 5 subjects with identifiers are stored in subject_ids.txt (one per line)</p></li>
+<li><p>you want to analyze network features based on GM density values (identified in <code class="docutils literal notranslate"><span class="pre">graynet</span></code> by <code class="docutils literal notranslate"><span class="pre">spm_cat_gmdensity</span></code> ), which have been resampled to the space of AAL atlas (identified in <code class="docutils literal notranslate"><span class="pre">graynet</span></code> by <code class="docutils literal notranslate"><span class="pre">cat_aal</span></code> ) provided in CAT12 (dimensions: 121 x 145 x 121, with voxel sizes: 1.5000, 1.5000, 1.5000)</p></li>
+<li><p>use the <code class="docutils literal notranslate"><span class="pre">manhattan</span></code> method to compute histogram distance between two cortical ROIs (assuming all subjects resampled to same atlas)</p></li>
+<li><p>and store the networks extracted in <code class="docutils literal notranslate"><span class="pre">/work/project/cat12_vbm/graynet_volumetric</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>You could achieve it all with a single command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
+graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w manhattan -a cat_aal -o /work/project/cat12_vbm/graynet_volumetric
+</pre></div>
+</div>
+<p>That’s it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.</p>
+<p>Suppose, you prefer to analyze ROIs as defined by other atlases, graynet also supports the IBSR and LPBA40 as supplied by the CAT12 toolbox. If you are also curious to try multiple weight metrics -  <code class="docutils literal notranslate"><span class="pre">chebyshev</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine</span></code>, you can achieve it via the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
+graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w chebyshev cosine manhattan -a cat_LPBA40 -o /work/project/cat12_vbm/graynet_volumetric
+</pre></div>
+</div>
+<p>You could also study other features by simply adding more features to the <code class="docutils literal notranslate"><span class="pre">-f</span></code>, such as <code class="docutils literal notranslate"><span class="pre">spm_cat_wmdensity</span></code> (white matter density).</p>
+<p>However, if you have 100s of subjects or your atlas has a large number of ROIs (like the AAL atlas which has 120), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If you have access to a computer cluster, you can submit the generated jobs to the cluster.</p></li>
+<li><p>If you don’t have access to a cluster, you could still use the generated job/script files to run them locally - few at a time.</p></li>
+</ul>
+</div></blockquote>
+<p>After processing is done (on the cluster or locally), and assuming no other errors, you should see a CSV file for each subject, with <code class="docutils literal notranslate"><span class="pre">n*(n-1)/2</span></code> values corresponding to the upper-triangular part of the connectivity matrix, where n is the number of ROIs in a atlas you chose (68 for fsaverage or 122 for AAL). In addition to easy to use CSV files, graynet also produces rich graph structure (in the <code class="docutils literal notranslate"><span class="pre">graphml</span></code> format easily usable via the <code class="docutils literal notranslate"><span class="pre">networkx</span></code> package) that identifies different nodes in these subject-wise network and the edges for each node, along with their edge weights.</p>
+<p>The output folder will be graynet within <code class="docutils literal notranslate"><span class="pre">proc_dir</span></code> you choose in the script - determined by this statement in the above script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>which after expansion looks something like based on your choices: <code class="docutils literal notranslate"><span class="pre">/your_proc_dir/graynet/spm_cat_gmdensity_cat_aal_range_0_1_nbins25/</span></code></p>
+<div class="section" id="computing-roi-wise-statistics">
+<span id="roi-stats"></span><h2>Computing ROI-wise statistics<a class="headerlink" href="#computing-roi-wise-statistics" title="Permalink to this headline">¶</a></h2>
+<p>When available, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> will help compute ROI-wise statistics (individual, not pair-wise) for visualization (e.g. mean and variance of GM density within amygdala), as well as to serve as a baseline for network-level features. Use the <code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--roi_stats</span></code> flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.</p>
+</div>
 </div>
 
 
@@ -77,8 +104,20 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Volumetric graynet</a><ul>
+<li><a class="reference internal" href="#computing-roi-wise-statistics">Computing ROI-wise statistics</a></li>
+</ul>
+</li>
+</ul>
 
-
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cortical.html"
+                        title="previous chapter">Cortical graynet</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="usage_cli.html"
+                        title="next chapter">Command line interface</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -87,46 +126,22 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-      <div class="relbar-bottom">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="usage_cli.html" title="Command line interface"
-             >next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="cortical.html" title="Cortical graynet"
-             >previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
-    </div>
-      </div>
-
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
-      <!-- PSphinxTheme -->
   </body>
 </html>

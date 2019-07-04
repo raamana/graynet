@@ -1,62 +1,35 @@
 
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Command line interface &#8212; graynet 0.4+17.gaf99ea3.dirty documentation</title>
-    <link rel="stylesheet" href="_static/greenblue.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Command line interface &#8212; graynet 0.4.5 documentation</title>
+    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/local_fonts.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.4+17.gaf99ea3.dirty',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
-    <script type="text/javascript" src="_static/p_sphinx_theme.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Convenience/useful scripts" href="extra_scripts.html" />
-    <link rel="prev" title="Volumetric graynet" href="volumetric.html" /> 
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-      <div class="relbar-top">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="extra_scripts.html" title="Convenience/useful scripts"
-             accesskey="N">next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="volumetric.html" title="Volumetric graynet"
-             accesskey="P">previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
+    <link rel="prev" title="Volumetric graynet" href="volumetric.html" />
+    <script type="text/javascript" src="_static/pd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  </head><body>
+    <div id="header">
+        <h1>graynet 0.4.5 documentation</h1>
     </div>
-      </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+        <ul>
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            </li>
+        </ul>
+    </div>
   
 
     <div class="document">
@@ -64,10 +37,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="command-line-interface">
+<div class="section" id="command-line-interface">
 <h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
 <p>The command line interface for graynet (preferred interface, given its target is HPC) is shown below. Check the bottom of this page for examples.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span>
                <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span>
                <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="o">...</span><span class="p">]]]</span>
                <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span> <span class="n">NUM_BINS</span><span class="p">]</span>
@@ -78,128 +51,96 @@
 </div>
 <div class="section" id="Named Arguments">
 <h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h2>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd>-s, --subject_ids_path</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Path to file containing list of subject IDs (one per line)</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-i, --input_dir</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Path to a folder containing input data. It could, for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output.</td></tr>
-<tr><td class="option-group">
-<kbd>-f, --feature</kbd></td>
-<td>Type of feature to be used for analysis. Default: ‘freesurfer_thickness’. Choices: (‘freesurfer_thickness’, ‘freesurfer_sulc’, ‘freesurfer_curv’, ‘freesurfer_area’, ‘freesurfer_pial_area’, ‘freesurfer_pial_lgi’, ‘freesurfer_jacobian_white’, ‘freesurfer_volume’, ‘gmdensity’)</td></tr>
-<tr><td class="option-group">
-<kbd>-o, --out_dir</kbd></td>
-<td>Where to save the extracted features.</td></tr>
-</tbody>
-</table>
+<dl class="option-list">
+<dt><kbd>-s, --subject_ids_path</kbd></dt>
+<dd><p>Path to file containing list of subject IDs (one per line)</p>
+</dd>
+<dt><kbd>-i, --input_dir</kbd></dt>
+<dd><p>Path to a folder containing input data. It could, for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output.</p>
+</dd>
+<dt><kbd>-f, --feature</kbd></dt>
+<dd><p>Type of feature to be used for analysis. Default: ‘freesurfer_thickness’. Choices: (‘freesurfer_thickness’, ‘freesurfer_sulc’, ‘freesurfer_curv’, ‘freesurfer_area’, ‘freesurfer_pial_area’, ‘freesurfer_pial_lgi’, ‘freesurfer_jacobian_white’, ‘freesurfer_volume’, ‘gmdensity’, ‘spm_cat_gmdensity’, ‘spm_cat_wmdensity’)</p>
+</dd>
+<dt><kbd>-o, --out_dir</kbd></dt>
+<dd><p>Where to save the extracted features.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="Type of computation">
 <h2>Type of computation<a class="headerlink" href="#Type of computation" title="Permalink to this headline">¶</a></h2>
 <p>Choose one among single edge, multiedge or simply ROI stats.</p>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd>-w, --weight_method</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>List of methods used to estimate the weight of the edge between the pair of nodes.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-r, --roi_stats</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and any other appropriate summary statistics listed under scipy.stats:  <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a> . When this option is chosen, network computation is not allowed. You need to compute networks and ROI stats separately.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-m, --do_multi_edge</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Option to compute multiple edges between ROIs based on different features. Default False. If True, two valid features must be specified. Use –multi_edge_range to specify edge ranges for each feature to be processed.</td></tr>
-</tbody>
-</table>
+<dl class="option-list">
+<dt><kbd>-w, --weight_method</kbd></dt>
+<dd><p>List of methods used to estimate the weight of the edge between the pair of nodes.</p>
+</dd>
+<dt><kbd>-r, --roi_stats</kbd></dt>
+<dd><p>Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and any other appropriate summary statistics listed under scipy.stats:  <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a> . When this option is chosen, network computation is not allowed. You need to compute networks and ROI stats separately.</p>
+</dd>
+<dt><kbd>-m, --do_multi_edge</kbd></dt>
+<dd><p>Option to compute multiple edges between ROIs based on different features. Default False. If True, two valid features must be specified. Use –multi_edge_range to specify edge ranges for each feature to be processed.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="Weight parameters">
 <h2>Weight parameters<a class="headerlink" href="#Weight parameters" title="Permalink to this headline">¶</a></h2>
 <p>Parameters relevant to histogram edge weight calculations</p>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group">
-<kbd>-b, --num_bins</kbd></td>
-<td>Number of bins used to construct the histogram within each ROI or group. Default : 25</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-e, --edge_range</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The range of edges (two finite values) within which to bin the given values e.g. –edge_range 0.0 5.0 - this can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : None, to automatically compute from the given values.</td></tr>
-</tbody>
-</table>
+<dl class="option-list">
+<dt><kbd>-b, --num_bins</kbd></dt>
+<dd><p>Number of bins used to construct the histogram within each ROI or group. Default : 25</p>
+</dd>
+<dt><kbd>-e, --edge_range</kbd></dt>
+<dd><p>The range of edges (two finite values) within which to bin the given values e.g. –edge_range 0.0 5.0 - this can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : None, to automatically compute from the given values.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="Multi-edge">
 <h2>Multi-edge<a class="headerlink" href="#Multi-edge" title="Permalink to this headline">¶</a></h2>
 <p>Parameters related to computation of multiple edges</p>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd>-t, --summary_stat</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Summary statistic [one or more] to compute on all the weights from multiple edges.This must be a string representing a method (like ‘median’, ‘prod’ or ‘max’),  that is available as a member of numpy or scipy.stats.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-l, --multi_edge_range</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Set of edge ranges (for each of the features) within which to bin the given values - see above. e.g. -f freesurfer_thickness freesurfer_curv –edge_range 0.0 5.0 -0.3 +0.3 will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curvature.Default : {‘freesurfer_thickness’: (0.0, 5.0), ‘freesurfer_curv’: (-0.3, 0.3), ‘freesurfer_sulc’: (-1.5, 1.5), ‘freesurfer_area’: (0.0, 1.5)}.</td></tr>
-</tbody>
-</table>
+<dl class="option-list">
+<dt><kbd>-t, --summary_stat</kbd></dt>
+<dd><p>Summary statistic [one or more] to compute on all the weights from multiple edges.This must be a string representing a method (like ‘median’, ‘prod’ or ‘max’),  that is available as a member of numpy or scipy.stats.</p>
+</dd>
+<dt><kbd>-l, --multi_edge_range</kbd></dt>
+<dd><p>Set of edge ranges (for each of the features) within which to bin the given values - see above. e.g. -f freesurfer_thickness freesurfer_curv –edge_range 0.0 5.0 -0.3 +0.3 will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curvature.Default : {‘freesurfer_thickness’: (0.0, 5.0), ‘freesurfer_curv’: (-0.3, 0.3), ‘freesurfer_sulc’: (-1.5, 1.5), ‘freesurfer_area’: (0.0, 1.5)}.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="Atlas">
 <h2>Atlas<a class="headerlink" href="#Atlas" title="Permalink to this headline">¶</a></h2>
 <p>Parameters describing the atlas, its parcellation and any smoothing of features.</p>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group">
-<kbd>-a, --atlas</kbd></td>
-<td>Name of the atlas to define parcellation of nodes/ROIs. Default: ‘fsaverage’</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-n, --node_size</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Size of individual node for the atlas parcellation. Default : None</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-p, --smoothing_param</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness</td></tr>
-</tbody>
-</table>
+<dl class="option-list">
+<dt><kbd>-a, --atlas</kbd></dt>
+<dd><p>Name or path to atlas to containing the parcellation of ROIs.
+For cortical features, you can also specify the absolute path for the Freesurfer parcellation of that atlas. This directory must have the standard Freesurfer structure, with the following key files that must exist: <code class="docutils literal notranslate"><span class="pre">label/?h.aparc.annot</span></code> and <code class="docutils literal notranslate"><span class="pre">surf/?h.orig</span></code>.</p>
+<p><em>Cortical</em> atlases supported: <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code> and <code class="docutils literal notranslate"><span class="pre">glasser2016</span></code>.</p>
+<p><em>Volumetric</em> atlases supported for CAT12 features: <code class="docutils literal notranslate"><span class="pre">cat_aal</span></code>, <code class="docutils literal notranslate"><span class="pre">cat_lpba40</span></code>, and <code class="docutils literal notranslate"><span class="pre">cat_ibsr</span></code>.</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code></p>
+</dd>
+<dt><kbd>-n, --node_size</kbd></dt>
+<dd><p>Size of individual node for the atlas parcellation. Default : None</p>
+</dd>
+<dt><kbd>-p, --smoothing_param</kbd></dt>
+<dd><p>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness,None for volumetric features from CAT12 toolbox</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="Computing">
 <h2>Computing<a class="headerlink" href="#Computing" title="Permalink to this headline">¶</a></h2>
 <p>Options related to computing and parallelization.</p>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd>-c, --num_procs</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Number of CPUs to use in parallel to speed up processing. Default : 2, capping at available number of CPUs in the processing node.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd>-d, --overwrite_results</kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted).</td></tr>
-<tr><td class="option-group">
-<kbd>-v, --version</kbd></td>
-<td>show program’s version number and exit</td></tr>
-</tbody>
-</table>
+<dl class="option-list">
+<dt><kbd>-c, --num_procs</kbd></dt>
+<dd><p>Number of CPUs to use in parallel to speed up processing. Default : 2, capping at available number of CPUs in the processing node.</p>
+</dd>
+<dt><kbd>-d, --overwrite_results</kbd></dt>
+<dd><p>Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted).</p>
+</dd>
+<dt><kbd>-v, --version</kbd></dt>
+<dd><p>show program’s version number and exit</p>
+</dd>
+</dl>
 </div>
 <p>A rough example of usage can be:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 <span class="c1">#$ -l mf=2G -q queue_name.q -wd /work/project</span>
 <span class="nb">cd</span> /work/project
 graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan eucledian chebyshev -a GLASSER2016 -p <span class="m">10</span> -o /work/project/graynet_processing
@@ -213,9 +154,9 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="sphinxlocaltoc">
-    <h3><a href="index.html">Page contents</a></h3>
-    <ul>
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
 <li><a class="reference internal" href="#">Command line interface</a><ul>
 <li><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
 <li><a class="reference internal" href="#Type of computation">Type of computation</a></li>
@@ -227,9 +168,12 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 </li>
 </ul>
 
-  </div>
-
-
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="volumetric.html"
+                        title="previous chapter">Volumetric graynet</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="extra_scripts.html"
+                        title="next chapter">Convenience/useful scripts</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -238,46 +182,22 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-      <div class="relbar-bottom">
-            
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="extra_scripts.html" title="Convenience/useful scripts"
-             >next</a> &nbsp; &nbsp;</li>
-        <li class="right" >
-          <a href="volumetric.html" title="Volumetric graynet"
-             >previous</a> &nbsp; &nbsp;</li>
-      <li><a href="index.html">graynet 0.4+17.gaf99ea3.dirty documentation</a> &#187;</li>
- 
-      </ul>
-    </div>
-      </div>
-
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
-      <!-- PSphinxTheme -->
   </body>
 </html>
