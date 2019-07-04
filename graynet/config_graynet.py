@@ -7,7 +7,11 @@ features_freesurfer = ('freesurfer_thickness',
                        'freesurfer_jacobian_white',
                        'freesurfer_volume')
 features_fsl = ('gmdensity',)
-features_spm_cat = ('spm_cat_gmdensity', )
+
+features_spm_cat_prefixes = { 'spm_cat_gmdensity': 'mwp1',
+                              'spm_cat_wmdensity': 'mwp2',
+                              }
+features_spm_cat = tuple(features_spm_cat_prefixes.keys())
 
 features_cortical = features_freesurfer
 features_volumetric = features_fsl + features_spm_cat
@@ -59,9 +63,12 @@ default_num_procs = 2
 #  atlas and parcellation related
 # -----------------------------------------------------------------------------------------------
 
+# keep all the names in lowercase
 atlas_list = ['fsaverage', 'glasser2016',
               'yeo2011_fsaverage5', 'yeo2011_fsaverage6', 'yeo2011_fsaverage_highres',
-              'CAT_AAL']
+              'cat_aal', 'cat_lpba40', 'cat_ibsr']
+
+default_vbm_atlas = 'cat_aal'
 
 # roi labelled ?? in Glasser parcellation has label 16777215
 # fsaverage: label unknown --> 1639705, corpuscallosum --> 3294840
