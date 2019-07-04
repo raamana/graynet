@@ -31,6 +31,9 @@ def get_atlas_path(atlas_name=None):
                             'yeo2011_fsaverage_highres']:
             this_dir = dirname(realpath(__file__))
             atlas_path = pjoin(this_dir, 'atlases', atlas_name)
+        elif atlas_name in ['cat_aal', 'cat_lpba40', 'cat_ibsr']:
+            this_dir = dirname(realpath(__file__))
+            atlas_path = pjoin(this_dir, 'atlases', atlas_name, 'atlas.nii')
         else:
             raise NotImplementedError('Requested atlas is not implemented or unreadable.')
 
