@@ -448,24 +448,31 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
     check_params_single_edge(base_feature, input_dir, atlas, smoothing_param,
                              node_size, out_dir, return_results)
     subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
-    stat_func_list, stat_func_names, num_stats, max_stat_width, nd_st = check_stat_methods(
-        chosen_roi_stats)
+    stat_func_list, stat_func_names, num_stats, \
+        max_stat_width, nd_st = check_stat_methods(chosen_roi_stats)
 
-    # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
-    # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
-    uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
+
+    if base_feature in cfg.features_cortical:
+        uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
+        null_roi_to_be_ignored = cfg.null_roi_name
+    elif base_feature in cfg.features_volumetric:
+        uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas)
+        null_roi_to_be_ignored = cfg.null_roi_index
+    else:
+        raise ValueError('Unrecognized type of base_feature! Must be one of {}'
+                         ''.format(cfg.base_feature_list))
 
     print('\nProcessing {} features resampled to {} atlas,'
-          ' smoothed at {} with node size {}'.format(base_feature, atlas, smoothing_param,
-                                                     node_size))
+          ' smoothed at {} with node size {}'.format(base_feature, atlas,
+                                                     smoothing_param, node_size))
 
     if return_results:
         roi_stats_all = dict()
     else:
         roi_stats_all = None
         if out_dir is None:
-            raise ValueError(
-                'When return_results=False, out_dir must be specified to be able to save the results.')
+            raise ValueError('When return_results=False, out_dir must be specified '
+                             'to be able to save the results.')
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
@@ -480,7 +487,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                 'Unable to read {} features for {}\n'
                 ' Skipping it.'.format(base_feature, subject))
 
-        data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
+        data, rois = mask_background_roi(features[subject], roi_labels,
+                                         null_roi_to_be_ignored)
+
         for ss, stat_func in enumerate(stat_func_list):
             sys.stdout.write(
                 '\nProcessing id {sid:{id_width}} '
