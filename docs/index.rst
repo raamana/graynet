@@ -30,10 +30,12 @@ graynet
    cortical
    volumetric
    usage_cli
+   extra_scripts
    API
    usage_api
    results_howto
    citation
+   contributing
 
 
 Indices and tables
