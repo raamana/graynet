@@ -11,8 +11,9 @@ Getting started
 We plan to offer the following soon:
 
 
-  - Within the :doc:`volumetric` stream, support for other VBM tools such as `SPM <http://www.fil.ion.ucl.ac.uk/spm/software/spm12/>`_, `ANTs <http://stnava.github.io/ANTs/>`_, `FSL <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLVBM>`_, `Freesurfer <https://surfer.nmr.mgh.harvard.edu/>`_, or another suitable package.
+  - support for other VBM tools such as `SPM <http://www.fil.ion.ucl.ac.uk/spm/software/spm12/>`_, `ANTs <http://stnava.github.io/ANTs/>`_, `FSL <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLVBM>`_, `Freesurfer <https://surfer.nmr.mgh.harvard.edu/>`_, or another suitable package, within the :doc:`volumetric` stream, .
   - Support for additional input formats for the :doc:`cortical` stream: `CIVET <http://www.bic.mni.mcgill.ca/ServicesSoftware/BasicUsageOfCIVET>`_ , `ANTs <http://stnava.github.io/ANTs/>`_ etc.
+  - If you are interested in contributing, please take a look at the :doc:`contributing` document and reach out to me. Thanks!
 
 In both streams, in addition to the computation of pair-wise network-level features, ``graynet`` will help you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG, or variance in GM density within amygdala), as well as to serve as a baseline for network-level features.
 

@@ -59,7 +59,7 @@ which after expansion looks something like based on your choices: ``/your_proc_d
 .. _roi_stats:
 
 Computing ROI-wise statistics
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``graynet`` also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the ``-r`` or ``--roi_stats`` flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.
 
@@ -67,7 +67,7 @@ Computing ROI-wise statistics
 .. _run_fs:
 
 How to run Freesurfer
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are new to Freesurfer, please:
 
@@ -85,7 +85,7 @@ In typical scenarios (when T1 mri scans do not *special* processing to handle an
 .. _qcache_flag:
 
 Qcache recon-all flag
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Qcache recon-all flag does the following:
 
