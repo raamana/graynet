@@ -8,6 +8,7 @@ import numpy as np
 
 sys.dont_write_bytecode = True
 
+import traceback
 from pytest import raises
 from hypothesis import given, strategies
 from hypothesis import settings as hyp_settings
@@ -29,20 +30,20 @@ else:
 test_dir = dirname(os.path.realpath(__file__))
 base_dir = realpath(pjoin(test_dir, '..', '..', 'example_data'))
 
-subject_id_list = ['subject12345', ]
-
 out_dir = pjoin(base_dir, 'graynet')
 if not pexists(out_dir):
     os.mkdir(out_dir)
 
 
 fs_dir = pjoin(base_dir, 'freesurfer')
+subject_id_list = ['subject12345', ]
+
 base_feature = 'freesurfer_thickness'
 atlas = 'fsaverage'  # 'glasser2016' #
 fwhm = 10
 
 vbm_in_dir = pjoin(base_dir, 'volumetric_CAT12')
-vbm_sub_list = pjoin(vbm_in_dir, 'sub_id_list_test.txt')
+vbm_sub_list = ['CAM_0002_01', ]
 
 base_feature_list = ('freesurfer_thickness',
                      'spm_cat_gmdensity')
@@ -95,7 +96,7 @@ def test_multi_edge():
                                          overwrite_results=True)
 
     num_combinations = len(list(edge_weights_all))
-    expected_num_comb = len(subject_id_list) * len(weight_methods)*len(cfg.default_features_multi_edge)
+    expected_num_comb = len(subject_id_list)*len(weight_methods)*len(cfg.default_features_multi_edge)
     if num_combinations != expected_num_comb:
         raise ValueError('invalid results : # subjects')
 
@@ -129,32 +130,37 @@ def test_multi_edge_summary_stat_CLI():
 
     CLI()
 
-@hyp_settings(max_examples=num_base_features)
+@hyp_settings(max_examples=num_base_features, deadline=None)
 @given(strategies.sampled_from(base_feature_list))
 def test_run_no_IO(base_feature):
 
     for atlas in feature_to_atlas_list[base_feature]:
-        edge_weights_all = graynet.extract(feature_to_subject_id_list[base_feature],
-                                           feature_to_in_dir[base_feature],
-                                           base_feature=base_feature,
-                                           weight_method_list= weight_methods,
-                                           atlas=atlas,
-                                           smoothing_param=fwhm,
-                                           out_dir=out_dir,
-                                           return_results=True,
-                                           num_procs=1)
-        num_combinations = len(list(edge_weights_all))
+        try:
+            sud_id_list = feature_to_subject_id_list[base_feature]
+            edge_weights_all = graynet.extract(sud_id_list,
+                                               feature_to_in_dir[base_feature],
+                                               base_feature=base_feature,
+                                               weight_method_list= weight_methods,
+                                               atlas=atlas,
+                                               smoothing_param=fwhm,
+                                               out_dir=out_dir,
+                                               return_results=True,
+                                               num_procs=1)
+            num_combinations = len(list(edge_weights_all))
 
-        if num_combinations != len(subject_id_list) * len(weight_methods):
-            raise ValueError('invalid results : # subjects')
+            if num_combinations != len(sud_id_list) * len(weight_methods):
+                raise ValueError('invalid results : # subjects')
 
-        num_roi_wholebrain = num_roi_atlas[atlas]
-        num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
+            num_roi_wholebrain = num_roi_atlas[atlas]
+            num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
 
-        for wm in weight_methods:
-            for sub in subject_id_list:
-                if edge_weights_all[(wm, sub)].size != num_links:
-                    raise ValueError('invalid results : # links')
+            for wm in weight_methods:
+                for sub in sud_id_list:
+                    if edge_weights_all[(wm, sub)].size != num_links:
+                        raise ValueError('invalid results : # links')
+        except:
+            traceback.print_exc()
+            raise
 
 
 def test_run_API_on_original_features():
