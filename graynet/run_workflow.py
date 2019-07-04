@@ -561,7 +561,8 @@ def cli_run():
                     node_size=node_size, out_dir=out_dir,
                     return_results=return_results, num_procs=num_procs)
         else:
-            print('Computing ROI summary stats -- skipping computation of any network weights.')
+            print('Computing ROI summary stats --'
+                  ' skipping computation of any network weights.')
             roiwise_stats_indiv(subject_ids_path, input_dir, base_feature,
                                 roi_stats, atlas, smoothing_param, node_size,
                                 out_dir, return_results)
@@ -809,12 +810,12 @@ def parse_args():
             nvals_per_feat = 2
             if len(multi_edge_range) != nvals_per_feat * num_features:
                 raise ValueError(
-                    'Insufficient specification of edge ranges for multiple features!\n'
-                    'Needed : {} exactly, '
-                    'given : {}'.format(nvals_per_feat * num_features,
-                                        len(multi_edge_range)))
+                    'Insufficient specification of edge ranges for multiple features!'
+                    '\nNeeded : {} exactly, given : {}'
+                    ''.format(nvals_per_feat *num_features, len(multi_edge_range)))
             indiv_ranges = np.split(multi_edge_range,
-                                    range(nvals_per_feat, len(multi_edge_range), nvals_per_feat))
+                                    range(nvals_per_feat, len(multi_edge_range),
+                                          nvals_per_feat))
 
             multi_edge_range_out = dict()
             for ix, feat in enumerate(feature_list):

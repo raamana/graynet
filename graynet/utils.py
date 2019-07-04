@@ -34,7 +34,9 @@ def check_features(base_feature_list):
     allowed = set(cfg.base_feature_list)
     if not given.issubset(allowed):
         unrecog_methods = given.difference(allowed)
-        raise NotImplementedError('Methods unrecognized: \n {}'.format(unrecog_methods))
+        raise NotImplementedError('features unrecognized: \n {}\n'
+                                  ' choose one of :\n\t {}'
+                                  ''.format(unrecog_methods, allowed))
 
     return given_list
 
@@ -48,8 +50,8 @@ def check_atlas(atlas):
             atlas = atlas.lower()
             if atlas not in cfg.atlas_list:
                 raise ValueError(
-                    'Invalid choice of atlas.'
-                    ' Accepted : {}'.format(cfg.atlas_list))
+                    'Invalid choice of atlas {}.'
+                    ' Accepted : {}'.format(atlas, cfg.atlas_list))
         elif os.path.isdir(atlas):  # cortical atlas in Freesurfer org
             if not check_atlas_annot_exist(atlas):
                 raise ValueError(

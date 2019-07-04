@@ -115,7 +115,8 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
 
         # ensuring names are plainstring
         if isinstance(annot[hemi]['names'][0], np.bytes_):
-            annot[hemi]['names'] = [bytestr.decode('UTF-8') for bytestr in annot[hemi]['names']]
+            annot[hemi]['names'] = \
+                [bytestr.decode('UTF-8') for bytestr in annot[hemi]['names']]
 
     return annot
 
@@ -135,8 +136,8 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
 
     for hemi in hemi_list:
         hemi_path = os.path.join(atlas_dir, 'surf', '{}.orig'.format(hemi))
-        coords[hemi], faces[hemi], info[hemi] = nib.freesurfer.io.read_geometry(hemi_path,
-                                                                                read_metadata=True)
+        coords[hemi], faces[hemi], info[hemi] = \
+            nib.freesurfer.io.read_geometry(hemi_path, read_metadata=True)
 
     num_vertices_left_hemi = coords['lh'].shape[0]
 
