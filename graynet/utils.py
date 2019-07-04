@@ -431,13 +431,17 @@ def mask_background_roi(data, labels, ignore_label):
     return masked_data, masked_labels
 
 
-def roi_info(roi_labels):
+def roi_info(roi_labels, freesurfer_annot=True):
     "Unique ROIs in a given atlas parcellation, count and size. Excludes the background"
 
     uniq_rois_temp, roi_size_temp = np.unique(roi_labels, return_counts=True)
 
     # removing the background label
-    index_bkgnd = np.argwhere(uniq_rois_temp == cfg.null_roi_name)[0]
+    if freesurfer_annot:
+        index_bkgnd = np.argwhere(uniq_rois_temp == cfg.null_roi_name)[0]
+    else:
+        index_bkgnd = np.argwhere(uniq_rois_temp == cfg.null_roi_index)[0]
+
     uniq_rois = np.delete(uniq_rois_temp, index_bkgnd)
     roi_size = np.delete(roi_size_temp, index_bkgnd)
 
