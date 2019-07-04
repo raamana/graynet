@@ -137,6 +137,8 @@ def volumetric_roi_info(atlas_name):
     atlas_path, atlas_name = get_atlas_path(atlas_name)
     atlas_labels = nibabel.load(atlas_path).get_data()
 
+    # TODO names for ROIs are not read and used!
+
     uniq_rois, roi_size, num_nodes = roi_info(atlas_labels, freesurfer_annot=False)
 
     centroids = dict()
