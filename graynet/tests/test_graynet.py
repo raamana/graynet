@@ -9,6 +9,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 
 from pytest import raises
+from hypothesis import given, strategies
+from hypothesis import settings as hyp_settings
 
 if __name__ == '__main__' and __package__ is None:
     parent_dir = dirname(dirname(abspath(__file__)))
@@ -33,12 +35,34 @@ out_dir = pjoin(base_dir, 'graynet')
 if not pexists(out_dir):
     os.mkdir(out_dir)
 
+
 fs_dir = pjoin(base_dir, 'freesurfer')
 base_feature = 'freesurfer_thickness'
 atlas = 'fsaverage'  # 'glasser2016' #
 fwhm = 10
 
-num_roi_atlas = {'fsaverage': 68, 'glasser2016': 360}
+vbm_in_dir = pjoin(base_dir, 'volumetric_CAT12')
+vbm_sub_list = pjoin(vbm_in_dir, 'sub_id_list_test.txt')
+
+base_feature_list = ('freesurfer_thickness',
+                     'spm_cat_gmdensity')
+num_base_features = len(base_feature_list)
+
+# 'glasser2016' not tested regularly
+feature_to_atlas_list = {'freesurfer_thickness': ('fsaverage', ),
+                         'spm_cat_gmdensity'   : (
+                         'cat_aal', 'cat_lpba40', 'cat_ibsr')}
+
+feature_to_in_dir = {'freesurfer_thickness': fs_dir,
+                     'spm_cat_gmdensity'   : vbm_in_dir}
+feature_to_subject_id_list = {'freesurfer_thickness': subject_id_list,
+                              'spm_cat_gmdensity'   : vbm_sub_list}
+
+num_roi_atlas = {'fsaverage'  : 68,
+                 'glasser2016': 360,
+                 'cat_aal'    : 122,
+                 'cat_lpba40' : 56,
+                 'cat_ibsr'   : 32}
 num_roi_wholebrain = num_roi_atlas[atlas]
 num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
 
@@ -56,7 +80,7 @@ num_groups = 5
 
 cur_dir = os.path.dirname(abspath(__file__))
 
-
+# TODO tests for volumetric version of multiedge to be done!
 def test_multi_edge():
     edge_weights_all = extract_multiedge(subject_id_list,
                                          input_dir=fs_dir,
@@ -105,26 +129,32 @@ def test_multi_edge_summary_stat_CLI():
 
     CLI()
 
+@hyp_settings(max_examples=num_base_features)
+@given(strategies.sampled_from(base_feature_list))
+def test_run_no_IO(base_feature):
 
-def test_run_no_IO():
-    edge_weights_all = graynet.extract(subject_id_list,
-                                       fs_dir,
-                                       base_feature=base_feature,
-                                       weight_method_list= weight_methods,
-                                       atlas=atlas,
-                                       smoothing_param=fwhm,
-                                       out_dir=out_dir,
-                                       return_results=True,
-                                       num_procs=4)
-    num_combinations = len(list(edge_weights_all))
+    for atlas in feature_to_atlas_list[base_feature]:
+        edge_weights_all = graynet.extract(feature_to_subject_id_list[base_feature],
+                                           feature_to_in_dir[base_feature],
+                                           base_feature=base_feature,
+                                           weight_method_list= weight_methods,
+                                           atlas=atlas,
+                                           smoothing_param=fwhm,
+                                           out_dir=out_dir,
+                                           return_results=True,
+                                           num_procs=1)
+        num_combinations = len(list(edge_weights_all))
 
-    if num_combinations != len(subject_id_list) * len(weight_methods):
-        raise ValueError('invalid results : # subjects')
+        if num_combinations != len(subject_id_list) * len(weight_methods):
+            raise ValueError('invalid results : # subjects')
 
-    for wm in weight_methods:
-        for sub in subject_id_list:
-            if edge_weights_all[(wm, sub)].size != num_links:
-                raise ValueError('invalid results : # links')
+        num_roi_wholebrain = num_roi_atlas[atlas]
+        num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
+
+        for wm in weight_methods:
+            for sub in subject_id_list:
+                if edge_weights_all[(wm, sub)].size != num_links:
+                    raise ValueError('invalid results : # links')
 
 
 def test_run_API_on_original_features():
@@ -245,8 +275,8 @@ def test_invalid_nbins():
 # test_multi_edge()
 # test_multi_edge_CLI()
 # test_empty_subject_list()
-# test_run_no_IO()
-test_run_roi_stats_via_API()
+test_run_no_IO()
+# test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
 # test_run_API_on_original_features()
