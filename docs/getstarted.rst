@@ -6,14 +6,13 @@ Getting started
 
 
   - :doc:`cortical` : using vertex-wise ROIs defined on the cortex. This is useful to analyze network-level features based on cortical thickness, curvature, sulcal depth and gyrification. Base-level features can easily obtained from running `Freesurfer <https://surfer.nmr.mgh.harvard.edu/>`_
+  - :doc:`volumetric` stream : using voxel-wise ROIs defined over the whole brain relying on a volumetric atlas. This is useful to analyze network-level features based on gray matter density dervied from voxel-based morphometry (VBM) or similar approaches. Base-level features can easily obtained from `CAT12 toolbox <http://www.neuro.uni-jena.de/cat/>`_ within the SPM ecosystem.
 
 We plan to offer the following soon:
 
 
-  - :doc:`volumetric` stream : using voxel-wise ROIs defined over the whole brain relying on a volumetric atlas. This is useful to analyze network-level features based on gray matter density dervied from voxel-based morphometry (VBM) or similar approaches. Base-level features can easily obtained from running `SPM <http://www.fil.ion.ucl.ac.uk/spm/software/spm12/>`_, `ANTs <http://stnava.github.io/ANTs/>`_, `FSL <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLVBM>`_, `Freesurfer <https://surfer.nmr.mgh.harvard.edu/>`_, or another suitable package.
-  - Support for additional input formats for the :doc:`cortical` stream:
-    - `CIVET <http://www.bic.mni.mcgill.ca/ServicesSoftware/BasicUsageOfCIVET>`_
-    - `ANTs <http://stnava.github.io/ANTs/>`_.
+  - Within the :doc:`volumetric` stream, support for other VBM tools such as `SPM <http://www.fil.ion.ucl.ac.uk/spm/software/spm12/>`_, `ANTs <http://stnava.github.io/ANTs/>`_, `FSL <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLVBM>`_, `Freesurfer <https://surfer.nmr.mgh.harvard.edu/>`_, or another suitable package.
+  - Support for additional input formats for the :doc:`cortical` stream: `CIVET <http://www.bic.mni.mcgill.ca/ServicesSoftware/BasicUsageOfCIVET>`_ , `ANTs <http://stnava.github.io/ANTs/>`_ etc.
 
 In both streams, in addition to the computation of pair-wise network-level features, ``graynet`` will help you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG, or variance in GM density within amygdala), as well as to serve as a baseline for network-level features.
 
@@ -34,5 +33,5 @@ The following steps should help you get started and going quickly:
 
 If you run into any issues, or have a feature wish or suggestions, please let me know here `by opening an issue <https://github.com/raamana/graynet/issues/new>`_.
 
-Thanks for trying out graynet. I'd appreciate if you can cite it as detailed in :doc:`citation`.
+Thanks for trying out graynet. **I'd appreciate if you can cite it** using the details in :doc:`citation`.
 

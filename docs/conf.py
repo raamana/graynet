@@ -103,9 +103,19 @@ todo_include_todos = False
 # html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 
-html_theme = 'p-greenblue'
-from PSphinxTheme import utils
-html_theme_path, html_theme, needs_sphinx = utils.set_psphinxtheme(html_theme)
+# html_theme = 'p-greenblue'
+# from PSphinxTheme import utils
+# html_theme_path, html_theme, needs_sphinx = utils.set_psphinxtheme(html_theme)
+
+# html_theme = 'sphinx_minoo_theme'
+# import sphinx_minoo_theme
+# html_theme_path = [sphinx_minoo_theme.get_html_theme_path()]
+
+# html_theme = 'sphinx_ustack_theme'
+
+html_theme = 'sphinx_theme_pd'
+import sphinx_theme_pd
+html_theme_path = [sphinx_theme_pd.get_html_theme_path()]
 
 # html_sidebars = {
 #     '**': ['globaltoc.html', 'localtoc.html']

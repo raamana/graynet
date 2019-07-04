@@ -389,23 +389,28 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         Specific type of feature to read for each subject from the input directory.
 
     chosen_roi_stats : list of str or callable
-        If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
-        Default: 'median'. Supported summary statistics include 'median', 'mode', 'mean', 'std', 'gmean', 'hmean', 'variation',
-        'entropy', 'skew' and 'kurtosis'.
+        If requested, graynet will compute chosen summary statistics (such as median)
+        within each ROI of the chosen parcellation (and network weight computation is skipped).
+        Default: 'median'.
+        Supported summary statistics include 'median', 'mode', 'mean', 'std',
+        'gmean', 'hmean', 'variation', 'entropy', 'skew' and 'kurtosis'.
 
         Other appropriate summary statistics listed under scipy.stats could used
         by passing in a callable with their parameters encapsulated:
         https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions
-        For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing ``third_kstat`` as in the argument:
+        For example, if you would like to compute 3rd k-statistic, you could
+        construct a callable and passing ``third_kstat`` as in the argument:
 
         .. code-block:: python
 
             third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
-            roi_medians = roiwise_stats_indiv(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat,
-                atlas, fwhm, out_dir=None, return_results=True)
+            roi_medians = roiwise_stats_indiv(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat, atlas, fwhm, out_dir=None, return_results=True)
+
 
         Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
+
         .. code-block:: python
+
             trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
             third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
 
@@ -643,27 +648,36 @@ def get_parser():
                           "#statistical-functions . When this option is chosen, " \
                           "network computation is not allowed. You need to compute " \
                           "networks and ROI stats separately."
-    help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. " \
-                      "Default: '{}'".format(cfg.default_atlas)
+    help_text_atlas = "Name or path to atlas to containing the parcellation of ROIs." \
+                      "\nFor cortical features, you can also specify the absolute " \
+                      "path for the Freesurfer parcellation of that atlas. " \
+                      "This directory must have the standard Freesurfer structure, " \
+                      "with the following key files that must exist: " \
+                      "``label/?h.aparc.annot`` and ``surf/?h.orig``.\n\n" \
+                      "*Cortical* atlases supported: ``fsaverage`` and " \
+                      "``glasser2016``.\n\n" \
+                      "*Volumetric* atlases supported for CAT12 features: " \
+                      "``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``.\n\n" \
+                      "Default: ``{}``" \
+                      "".format(cfg.default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. " \
                           "Default : {}".format(cfg.default_node_size)
     help_text_smoothing = "Smoothing parameter for feature. " \
-                          "Default: FWHM of {} " \
-                          "for Freesurfer thickness" \
+                          "Default: FWHM of {} for Freesurfer thickness," \
+                          "None for volumetric features from CAT12 toolbox" \
                           "".format(cfg.default_smoothing_param)
 
     help_text_num_procs = "Number of CPUs to use in parallel to speed up " \
-                          "processing. " \
-                          "Default : {}, capping at available number of CPUs in " \
-                          "the processing node.".format(
-            cfg.default_num_procs)
+                          "processing. Default : {}, capping at available number of " \
+                          "CPUs in the processing node." \
+                          "".format(cfg.default_num_procs)
 
     help_text_overwrite_results = "Flag to request overwriting of existing " \
-                                  "results, in case of reruns/failed jobs. " \
-                                  "By default, if the expected output file exists " \
-                                  "and is of non-zero size, " \
-                                  "its computation is skipped (assuming the file " \
-                                  "is complete, usable and not corrupted)."
+                                  "results, in case of reruns/failed jobs. By " \
+                                  "default, if the expected output file exists and " \
+                                  "is of non-zero size, its computation is skipped " \
+                                  "(assuming the file is complete, usable and not " \
+                                  "corrupted)."
 
     parser = argparse.ArgumentParser(prog="graynet")
 

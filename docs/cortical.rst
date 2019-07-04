@@ -5,8 +5,8 @@ For the cortical stream of processing, ``graynet`` relies on outputs from Freesu
 
 The following steps should help you get started and going quickly:
 
-    - Ensure Freesurfer processing is complete.
-        - You can easily inspect whether the outputs are complete and accurate using `visualqc <https://raamana.github.io/visualqc/readme.html>`_
+    - Ensure Freesurfer processing is complete
+        - It is **highly** recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. This QC is quite easy now using `visualqc <https://raamana.github.io/visualqc/readme.html>`_
     - Ensure you ran ``recon-all`` with ``-qcache`` flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.
     - check :ref:`run_fs` for more details.
 
@@ -53,6 +53,13 @@ The output folder will be graynet within ``proc_dir`` you choose in the script -
 
 
 which after expansion looks something like based on your choices: ``/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/``
+
+
+
+.. _roi_stats:
+
+Computing ROI-wise statistics
+-------------------------------
 
 ``graynet`` also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the ``-r`` or ``--roi_stats`` flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.
 
