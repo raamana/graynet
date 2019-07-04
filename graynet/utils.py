@@ -503,6 +503,8 @@ def import_features(input_dir,
     elif base_feature in cfg.features_fsl:
         features = fsl_import(input_dir, subject_id_list, base_feature,
                               fwhm=fwhm, atlas=atlas)
+    elif base_feature in cfg.features_spm_cat:
+        features = spm_cat_import(input_dir, subject_id_list, base_feature, atlas=atlas)
     else:
         raise NotImplementedError('Invalid or choice not implemented!\n'
                                   'Choose one of \n {}'.format(cfg.base_feature_list))
@@ -594,6 +596,41 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
             traceback.print_exc()
 
     return
+
+
+def spm_cat_import(input_dir,
+                   subject_id_list,
+                   base_feature,
+                   atlas=cfg.default_vbm_atlas):
+    """Imports the voxelwise features for a given list of subjecct IDs."""
+
+    features= dict()
+    for sid in subject_id_list:
+        try:
+            print('Reading {} for {} ... '.format(base_feature, sid), end='')
+            features[sid] = get_CAT_data(input_dir, sid, base_feature)
+            print(' Done.')
+        except:
+            traceback.print_exc()
+            raise ValueError('{} data for {} could not be read!'
+                             ''.format(base_feature, sid))
+
+    return features
+
+
+def get_CAT_data(input_dir, sid, base_feature):
+    """Returns the values in a specified image!"""
+
+    img_path = get_SPM_CAT_img_path(input_dir, sid, base_feature)
+    img = nibabel.load(img_path).get_data()
+
+    return img
+
+def get_SPM_CAT_img_path(input_dir, sid, base_feature):
+    """Constructs the path for a given subject ID and feature"""
+
+    return pjoin(input_dir, 'mri', '{}{}.nii'.format(
+            cfg.features_spm_cat_prefixes[base_feature], sid))
 
 
 def fsl_import(input_dir,
