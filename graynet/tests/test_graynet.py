@@ -192,8 +192,9 @@ def test_run_API_on_original_features(base_feature):
                 if edge_weights_all[(wm, sub)].size != num_links:
                     raise ValueError('invalid results : # links')
 
-
-def test_run_roi_stats_via_API():
+@hyp_settings(max_examples=num_base_features, deadline=None)
+@given(strategies.sampled_from(base_feature_list))
+def test_run_roi_stats_via_API(base_feature):
     """Tests whether roi stats can be computed (not their accuracy)
     and the return values match in size."""
 
@@ -210,16 +211,22 @@ def test_run_roi_stats_via_API():
     # checking support for nan-handling callables
     summary_methods.extend([np.nanmedian, np.nanmean])
 
-    for summary_method in summary_methods:
-        roi_medians = graynet.roiwise_stats_indiv(subject_id_list, fs_dir,
-                                                  base_feature=base_feature,
-                                                  chosen_roi_stats=summary_method,
-                                                  atlas=atlas,
-                                                  smoothing_param=fwhm, out_dir=out_dir,
-                                                  return_results=True)
-        for sub in subject_id_list:
-            if roi_medians[sub].size != num_roi_wholebrain:
-                raise ValueError('invalid summary stats - #nodes do not match.')
+    sud_id_list = feature_to_subject_id_list[base_feature]
+    for atlas in feature_to_atlas_list[base_feature]:
+        num_roi_wholebrain = num_roi_atlas[atlas]
+        for summary_method in summary_methods:
+            roi_medians = graynet.roiwise_stats_indiv(sud_id_list,
+                                                      feature_to_in_dir[base_feature],
+                                                      base_feature=base_feature,
+                                                      chosen_roi_stats=summary_method,
+                                                      atlas=atlas,
+                                                      smoothing_param=fwhm,
+                                                      out_dir=out_dir,
+                                                      return_results=True)
+
+            for sub in sud_id_list:
+                if roi_medians[sub].size != num_roi_wholebrain:
+                    raise ValueError('invalid summary stats - #nodes do not match.')
 
 
 def test_CLI_weight():
@@ -290,7 +297,7 @@ def test_invalid_nbins():
 # test_multi_edge_CLI()
 # test_empty_subject_list()
 # test_run_no_IO()
-# test_run_roi_stats_via_API()
+test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
-test_run_API_on_original_features()
+# test_run_API_on_original_features()
