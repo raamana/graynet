@@ -1,14 +1,14 @@
 import os
 import shlex
 import sys
-from os.path import join as pjoin, exists as pexists, abspath, dirname, realpath
+from os.path import abspath, dirname, exists as pexists, join as pjoin, realpath
 from sys import version_info
+
 import numpy as np
-import scipy.stats
 
 sys.dont_write_bytecode = True
 
-from pytest import raises, warns, set_trace
+from pytest import raises
 
 if __name__ == '__main__' and __package__ is None:
     parent_dir = dirname(dirname(abspath(__file__)))
@@ -20,7 +20,7 @@ if version_info.major > 2:
     from graynet import config_graynet as cfg
     from graynet.run_workflow import cli_run as CLI
     from graynet import run_workflow as graynet
-    from graynet import multi_edge
+    from graynet.multi_edge import extract_multiedge
 else:
     raise NotImplementedError('graynet requires Python 3+.')
 
@@ -58,17 +58,17 @@ cur_dir = os.path.dirname(abspath(__file__))
 
 
 def test_multi_edge():
-    edge_weights_all = multi_edge.extract_multiedge(subject_id_list,
-                                                    input_dir=fs_dir,
-                                                    base_feature_list=cfg.default_features_multi_edge,
-                                                    edge_range_dict=cfg.edge_range_predefined,
-                                                    weight_method_list=weight_methods,
-                                                    atlas=atlas,
-                                                    smoothing_param=fwhm,
-                                                    out_dir=out_dir,
-                                                    return_results=True,
-                                                    num_procs=1,
-                                                    overwrite_results=True)
+    edge_weights_all = extract_multiedge(subject_id_list,
+                                         input_dir=fs_dir,
+                                         base_feature_list=cfg.default_features_multi_edge,
+                                         edge_range_dict=cfg.edge_range_predefined,
+                                         weight_method_list=weight_methods,
+                                         atlas=atlas,
+                                         smoothing_param=fwhm,
+                                         out_dir=out_dir,
+                                         return_results=True,
+                                         num_procs=1,
+                                         overwrite_results=True)
 
     num_combinations = len(list(edge_weights_all))
     expected_num_comb = len(subject_id_list) * len(weight_methods)*len(cfg.default_features_multi_edge)
@@ -88,7 +88,8 @@ def test_multi_edge_CLI():
     sys.argv = shlex.split('graynet -s {} -i {} '
                            ' -f freesurfer_thickness freesurfer_curv'
                            ' --do_multi_edge --multi_edge_range 0.0 5.0 -0.3 +0.3 '
-                           ' -w manhattan -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+                           ' -w manhattan -o {} -a {}'
+                           ''.format(sub_list, example_dir, out_dir, atlas))
 
     CLI()
 
@@ -99,7 +100,8 @@ def test_multi_edge_summary_stat_CLI():
                            ' -f freesurfer_thickness freesurfer_curv'
                            ' --do_multi_edge --multi_edge_range 0.0 5.0 -0.3 +0.3 '
                            ' -w manhattan cosine --summary_stat {} '
-                           '-o {} -a {}'.format(sub_list, example_dir, ss_list, out_dir, atlas))
+                           '-o {} -a {}'
+                           ''.format(sub_list, example_dir, ss_list, out_dir, atlas))
 
     CLI()
 
@@ -148,9 +150,11 @@ def test_run_API_on_original_features():
 
 
 def test_run_roi_stats_via_API():
-    "Tests whether roi stats can be computed (not their accuracy) and the return values match in size."
+    """Tests whether roi stats can be computed (not their accuracy)
+    and the return values match in size."""
 
-    summary_methods = ['median', 'mean', 'std', 'variation', 'entropy', 'skew', 'kurtosis']
+    summary_methods = ['median', 'mean', 'std', 'variation', 'entropy', 'skew',
+                       'kurtosis']
     # 'mode' returns more than one value; 'gmean' requires only positive values,
     # 'hmean' can not always be computed
     from scipy.stats import  trim_mean, kstat
@@ -163,9 +167,12 @@ def test_run_roi_stats_via_API():
     summary_methods.extend([np.nanmedian, np.nanmean])
 
     for summary_method in summary_methods:
-        roi_medians = graynet.roiwise_stats_indiv(subject_id_list, fs_dir, base_feature=base_feature,
-                                                  chosen_roi_stats=summary_method, atlas=atlas,
-                                                  smoothing_param=fwhm, out_dir=out_dir, return_results=True)
+        roi_medians = graynet.roiwise_stats_indiv(subject_id_list, fs_dir,
+                                                  base_feature=base_feature,
+                                                  chosen_roi_stats=summary_method,
+                                                  atlas=atlas,
+                                                  smoothing_param=fwhm, out_dir=out_dir,
+                                                  return_results=True)
         for sub in subject_id_list:
             if roi_medians[sub].size != num_roi_wholebrain:
                 raise ValueError('invalid summary stats - #nodes do not match.')
@@ -174,7 +181,8 @@ def test_run_roi_stats_via_API():
 def test_CLI_weight():
     " ensures the CLI works. "
 
-    sys.argv = shlex.split('graynet -s {} -i {} -w manhattan -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+    sys.argv = shlex.split('graynet -s {} -i {} -w manhattan -o {} -a {}'
+                           ''.format(sub_list, example_dir, out_dir, atlas))
 
     CLI()
 
@@ -182,8 +190,8 @@ def test_CLI_weight():
 def test_run_roi_stats_via_CLI():
     " ensures the CLI works. "
 
-    sys.argv = shlex.split(
-        'graynet -s {} -i {} -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+    sys.argv = shlex.split('graynet -s {} -i {} -r median gmean -o {} -a {}'
+                           ''.format(sub_list, example_dir, out_dir, atlas))
 
     CLI()
 
@@ -193,7 +201,8 @@ def test_CLI_only_weight_or_stats():
 
     with raises(SystemExit):
         sys.argv = shlex.split(
-            'graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'.format(sub_list, example_dir, out_dir, atlas))
+            'graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'
+            ''.format(sub_list, example_dir, out_dir, atlas))
         CLI()
 
 
