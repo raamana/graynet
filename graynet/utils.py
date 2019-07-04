@@ -16,7 +16,7 @@ from multiprocessing import cpu_count
 
 import numpy as np
 
-from graynet import config_graynet as cfg
+from graynet import config_graynet as cfg, freesurfer
 
 
 def check_features(base_feature_list):
@@ -34,7 +34,9 @@ def check_features(base_feature_list):
     allowed = set(cfg.base_feature_list)
     if not given.issubset(allowed):
         unrecog_methods = given.difference(allowed)
-        raise NotImplementedError('Methods unrecognized: \n {}'.format(unrecog_methods))
+        raise NotImplementedError('features unrecognized: \n {}\n'
+                                  ' choose one of :\n\t {}'
+                                  ''.format(unrecog_methods, allowed))
 
     return given_list
 
@@ -48,7 +50,8 @@ def check_atlas(atlas):
             atlas = atlas.lower()
             if atlas not in cfg.atlas_list:
                 raise ValueError(
-                    'Invalid choice of atlas. Accepted : {}'.format(cfg.atlas_list))
+                    'Invalid choice of atlas {}.'
+                    ' Accepted : {}'.format(atlas, cfg.atlas_list))
         elif os.path.isdir(atlas):  # cortical atlas in Freesurfer org
             if not check_atlas_annot_exist(atlas):
                 raise ValueError(
@@ -85,7 +88,7 @@ def make_output_path_graph(out_dir, subject, str_prefixes):
     "Constructs path to save a multigraph to disk."
 
     if out_dir is not None:
-        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # get outpath returned from hiwenet, based on dist name and all other params
         # choose out_dir name  based on dist name and all other parameters
         out_subject_dir = pjoin(out_dir, subject)
         if not pexists(out_subject_dir):
@@ -125,7 +128,8 @@ def check_num_procs(num_procs=cfg.default_num_procs):
         num_procs = 1
         print('Invalid value for num_procs. Using num_procs=1')
     elif num_procs > avail_cpu_count:
-        print('# CPUs requested higher than available - choosing {}'.format(avail_cpu_count))
+        print('# CPUs requested higher than available '
+              '- choosing {}'.format(avail_cpu_count))
         num_procs = avail_cpu_count
 
     return num_procs
@@ -145,8 +149,8 @@ def check_stat_methods(stat_list=None):
         if isinstance(stat_list, str) or callable(stat_list):
             stat_list = [stat_list, ]
         else:
-            raise ValueError(
-                'Unrecognized stat method: must be a str or callable or a list of them.')
+            raise ValueError('Unrecognized stat method: must be a str or callable '
+                             'or a list of them.')
 
     stat_callable_list = list()
     for stat in stat_list:
@@ -233,14 +237,14 @@ def check_weights(weight_method_list):
         if len(weight_method_list) < 1:
             raise ValueError('Empty weight list. Atleast one weight must be provided.')
     else:
-        raise ValueError(
-            'Weights list must be an iterable. Given: {}'.format(type(weight_method_list)))
+        raise ValueError('Weights list must be an iterable. Given: {}'
+                         ''.format(type(weight_method_list)))
 
     for weight in weight_method_list:
         if weight not in cfg.implemented_weights:
             raise NotImplementedError('Method {} not implemented. '
-                                      'Choose one of : \n {}'.format(weight,
-                                                                     cfg.implemented_weights))
+                                      'Choose one of : \n {}'
+                                      ''.format(weight, cfg.implemented_weights))
 
     num_weights = len(weight_method_list)
     num_digits_wm_size = len(str(num_weights))
@@ -258,9 +262,8 @@ def check_edge_range(edge_range_spec):
         if len(edge_range_spec) != 2:
             raise ValueError('edge_range must be a tuple of two values: (min, max)')
         if edge_range_spec[0] >= edge_range_spec[1]:
-            raise ValueError(
-                'edge_range : min {} is not less than max {} !'.format(edge_range_spec[0],
-                                                                       edge_range_spec[1]))
+            raise ValueError('edge_range : min {} is not less than max {} !'
+                             ''.format(edge_range_spec[0], edge_range_spec[1]))
 
         # CLI args are strings unless converted to numeric
         edge_range = np.float64(edge_range_spec)
@@ -270,7 +273,8 @@ def check_edge_range(edge_range_spec):
         # converting it to tuple to make it immutable
         edge_range = tuple(edge_range)
     else:
-        raise ValueError('Invalid edge range! Must be a tuple of two values (min, max)')
+        raise ValueError('Invalid edge range! '
+                         'Must be a tuple of two values (min, max)')
 
     return edge_range
 
@@ -287,7 +291,8 @@ def check_num_bins(num_bins):
 
     if np.isnan(num_bins) or np.isinf(num_bins):
         raise ValueError('Invalid value for number of bins! '
-                         'Choose a natural number >= {}'.format(cfg.default_minimum_num_bins))
+                         'Choose a natural number >= {}'
+                         ''.format(cfg.default_minimum_num_bins))
 
     return num_bins
 
@@ -325,8 +330,8 @@ def check_edge_range_dict(edge_range_dict, base_feature_list,
     return edge_range_dict
 
 
-def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node_size, out_dir,
-                             return_results):
+def check_params_single_edge(base_features, in_dir, atlas, smoothing_param,
+                             node_size, out_dir, return_results):
     """"""
 
     check_features(base_features)
@@ -337,7 +342,8 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node
         raise IOError('Input directory at {} does not exist.'.format(in_dir))
 
     if out_dir is None and return_results is False:
-        raise ValueError('Results are neither saved to disk or being received when returned.\n'
+        raise ValueError('Results are neither saved to disk, '
+                         'nor being received when returned!\n'
                          'Specify out_dir (not None) or make return_results=True')
 
     if out_dir is not None and not pexists(out_dir):
@@ -348,7 +354,8 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param, node
     return
 
 
-def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size, weight_method):
+def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size,
+                         weight_method):
     "Constructs a string to uniquely identify a given experiment."
 
     import re
@@ -372,7 +379,8 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
         raise IOError('Input directory at {} does not exist.'.format(input_dir))
 
     if out_dir is None and return_results is False:
-        raise ValueError('Results are neither saved to disk or being received when returned.\n'
+        raise ValueError('Results are neither saved to disk, '
+                         'nor being received when returned.\n'
                          'Specify out_dir (not None) or make return_results=True')
 
     if out_dir is not None and not pexists(out_dir):
@@ -408,26 +416,32 @@ def mask_background_roi(data, labels, ignore_label):
     "Returns everything but specified label"
 
     if data.size != labels.size or data.shape != labels.shape:
-        raise ValueError('features and membership/group labels differ in length/shape!')
+        raise ValueError('features and membership (group labels) differ'
+                         ' in length or shape!')
 
     mask = labels != ignore_label
     masked_data = data[mask]
     masked_labels = labels[mask]
 
-    if masked_data.size != masked_labels.size or masked_data.shape != masked_labels.shape:
-        raise ValueError(
-            'features and membership/group labels (after removing background ROI) differ in length/shape!')
+    if masked_data.size != masked_labels.size or \
+            masked_data.shape != masked_labels.shape:
+        raise ValueError('features and membership (group labels), '
+                         'after removing background ROI, differ in length/shape!')
 
     return masked_data, masked_labels
 
 
-def roi_info(roi_labels):
+def roi_info(roi_labels, freesurfer_annot=True):
     "Unique ROIs in a given atlas parcellation, count and size. Excludes the background"
 
     uniq_rois_temp, roi_size_temp = np.unique(roi_labels, return_counts=True)
 
     # removing the background label
-    index_bkgnd = np.argwhere(uniq_rois_temp == cfg.null_roi_name)[0]
+    if freesurfer_annot:
+        index_bkgnd = np.argwhere(uniq_rois_temp == cfg.null_roi_name)[0]
+    else:
+        index_bkgnd = np.argwhere(uniq_rois_temp == cfg.null_roi_index)[0]
+
     uniq_rois = np.delete(uniq_rois_temp, index_bkgnd)
     roi_size = np.delete(roi_size_temp, index_bkgnd)
 
@@ -464,8 +478,169 @@ def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_me
     "Constructs a string to uniquely identify a given feature extraction method."
 
     # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
-    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}'.format(base_feature, atlas, smoothing_param,
-                                                              node_size,
-                                                              weight_method)
+    expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}' \
+              ''.format(base_feature, atlas, smoothing_param, node_size,
+                        weight_method)
 
     return expt_id
+
+
+def import_features(input_dir,
+                    subject_id_list,
+                    base_feature,
+                    fwhm=cfg.default_smoothing_param,
+                    atlas=cfg.default_atlas):
+    "Wrapper to support input data of multiple types and multiple packages."
+
+    if isinstance(subject_id_list, str):
+        subject_id_list = [subject_id_list, ]
+
+    base_feature = base_feature.lower()
+    if base_feature in cfg.features_freesurfer:
+        features = freesurfer.import_features(input_dir, subject_id_list,
+                                              base_feature=base_feature,
+                                              fwhm=fwhm, atlas=atlas)
+    elif base_feature in cfg.features_fsl:
+        features = fsl_import(input_dir, subject_id_list, base_feature,
+                              fwhm=fwhm, atlas=atlas)
+    elif base_feature in cfg.features_spm_cat:
+        features = spm_cat_import(input_dir, subject_id_list, base_feature, atlas=atlas)
+    else:
+        raise NotImplementedError('Invalid or choice not implemented!\n'
+                                  'Choose one of \n {}'.format(cfg.base_feature_list))
+
+    return features
+
+
+def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_suffix=None):
+    "Saves the ROI medians to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_roi_stats.csv'.format(str_suffix)
+        else:
+            out_file_name = 'roi_stats.csv'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            with open(out_weights_path, 'w') as of:
+                of.write('#roi,{}\n'.format(stat_name))
+                for name, value in zip(roi_labels, roi_values):
+                    of.write('{},{}\n'.format(name, value))
+            # np.savetxt(out_weights_path, roi_values, fmt='%.5f')
+            print('\nSaved roi stats to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save extracted features to {}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
+
+
+def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
+    "Saves the features to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_graynet.graphml'.format(str_suffix)
+        else:
+            out_file_name = 'graynet.graphml'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            nx.info(graph_nx)
+            nx.write_graphml(graph_nx, out_weights_path, encoding='utf-8')
+            print('\nSaved the graph to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save graph to \n{}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
+
+
+def save(weight_vec, out_dir, subject, str_suffix=None):
+    "Saves the features to disk."
+
+    if out_dir is not None:
+        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # choose out_dir name  based on dist name and all other parameters
+        out_subject_dir = pjoin(out_dir, subject)
+        if not pexists(out_subject_dir):
+            os.mkdir(out_subject_dir)
+
+        if str_suffix is not None:
+            out_file_name = '{}_graynet.csv'.format(str_suffix)
+        else:
+            out_file_name = 'graynet.csv'
+
+        out_weights_path = pjoin(out_subject_dir, out_file_name)
+
+        try:
+            np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
+            print('\nSaved the features to \n{}'.format(out_weights_path))
+        except:
+            print('\nUnable to save features to {}'.format(out_weights_path))
+            traceback.print_exc()
+
+    return
+
+
+def spm_cat_import(input_dir,
+                   subject_id_list,
+                   base_feature,
+                   atlas=cfg.default_vbm_atlas):
+    """Imports the voxelwise features for a given list of subjecct IDs."""
+
+    features= dict()
+    for sid in subject_id_list:
+        try:
+            print('Reading {} for {} ... '.format(base_feature, sid), end='')
+            features[sid] = get_CAT_data(input_dir, sid, base_feature)
+            print(' Done.')
+        except:
+            traceback.print_exc()
+            raise ValueError('{} data for {} could not be read!'
+                             ''.format(base_feature, sid))
+
+    return features
+
+
+def get_CAT_data(input_dir, sid, base_feature):
+    """Returns the values in a specified image!"""
+
+    img_path = get_SPM_CAT_img_path(input_dir, sid, base_feature)
+    img = nibabel.load(img_path).get_data()
+
+    return img
+
+def get_SPM_CAT_img_path(input_dir, sid, base_feature):
+    """Constructs the path for a given subject ID and feature"""
+
+    return pjoin(input_dir, 'mri', '{}{}.nii'.format(
+            cfg.features_spm_cat_prefixes[base_feature], sid))
+
+
+def fsl_import(input_dir,
+               subject_id_list,
+               base_feature,
+               fwhm=cfg.default_smoothing_param,
+               atlas=cfg.default_atlas):
+    "To be implemented."
+
+    if base_feature not in cfg.features_fsl:
+        raise NotImplementedError
+
+    return

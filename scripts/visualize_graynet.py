@@ -42,7 +42,7 @@ this_dir = os.path.dirname(os.path.realpath(__file__))
 
 print('using fsaverage coords for visualization, as Glasser2016 is resampled to it anyways')
 atlas_path = os.path.realpath(pjoin(this_dir, '..', 'graynet', 'atlases', 'fsaverage'))
-coords, faces, annot = parcellate.read_atlas(atlas_path)
+coords, faces, annot = parcellate.read_freesurfer_atlas(atlas_path)
 
 roi_labels, annot = parcellate.freesurfer_roi_labels(atlas)
 uniq_rois, roi_size, num_nodes = roi_info(roi_labels)

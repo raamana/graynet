@@ -8,7 +8,7 @@ matrix:
 install:
   - pip install -r requirements.txt
   - pip install -e .
-  - pip install pytest-cov codecov
+  - pip install pytest-cov codecov hypothesis
 
 script:
   - travis_wait 99999 pytest --verbose --cov=.
