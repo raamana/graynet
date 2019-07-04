@@ -3,7 +3,7 @@ Module with handling the parcellation of different cortical atlases.
 
 """
 
-__all__ = ['read_atlas', 'freesurfer_roi_labels']
+__all__ = ['read_freesurfer_atlas', 'freesurfer_roi_labels']
 
 import os
 import os.path
@@ -14,7 +14,7 @@ from graynet.utils import roi_info, check_atlas, check_atlas_annot_exist
 from graynet import config_graynet as cfg
 
 def get_atlas_path(atlas_name=None):
-    "Validates the atlas name and returs its location"
+    "Validates the atlas name and returns its location"
 
     if atlas_name in [None, 'None', '']:
         atlas_name = 'fsaverage'
@@ -25,11 +25,15 @@ def get_atlas_path(atlas_name=None):
 
         if atlas_name in ['glasser2016']:
             this_dir = dirname(realpath(__file__))
-            atlas_path = pjoin(this_dir, 'atlases', 'glasser2016', 'fsaverage_annot_figshare3498446')
+            atlas_path = pjoin(this_dir, 'atlases',
+                               'glasser2016', 'fsaverage_annot_figshare3498446')
         elif atlas_name in ['fsaverage', 'yeo2011_fsaverage5', 'yeo2011_fsaverage6',
                             'yeo2011_fsaverage_highres']:
             this_dir = dirname(realpath(__file__))
             atlas_path = pjoin(this_dir, 'atlases', atlas_name)
+        elif atlas_name in ['cat_aal', 'cat_lpba40', 'cat_ibsr']:
+            this_dir = dirname(realpath(__file__))
+            atlas_path = pjoin(this_dir, 'atlases', atlas_name, 'atlas.nii')
         else:
             raise NotImplementedError('Requested atlas is not implemented or unreadable.')
 
@@ -53,7 +57,11 @@ def get_atlas_annot(atlas_name=None):
 
 
 def freesurfer_roi_labels(atlas_name):
-    "Returns just the vertex-wise indices for grouping the vertices into ROIs. Order:  left followed by right."
+    """
+    Returns just the vertex-wise indices for grouping the vertices into ROIs.
+        Order:  left followed by right.
+
+    """
 
     annot, _ = get_atlas_annot(atlas_name)
     roi_labels = __combine_annotations(annot, atlas_name)
@@ -62,7 +70,7 @@ def freesurfer_roi_labels(atlas_name):
 
 
 def __combine_annotations(annot, atlas_name):
-    "Combines named labels from two hemisphers, ignoring non-cortex"
+    "Combines named labels from two hemispheres, ignoring non-cortex"
 
     ignore_list = list()
     max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])),
@@ -110,12 +118,13 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
 
         # ensuring names are plainstring
         if isinstance(annot[hemi]['names'][0], np.bytes_):
-            annot[hemi]['names'] = [bytestr.decode('UTF-8') for bytestr in annot[hemi]['names']]
+            annot[hemi]['names'] = \
+                [bytestr.decode('UTF-8') for bytestr in annot[hemi]['names']]
 
     return annot
 
 
-def read_atlas(atlas_spec, hemi_list=None):
+def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     " Script to read the pre-computed parcellations for fsaverage and HCP-MMP-1.0 "
 
     if hemi_list is None:
@@ -130,8 +139,8 @@ def read_atlas(atlas_spec, hemi_list=None):
 
     for hemi in hemi_list:
         hemi_path = os.path.join(atlas_dir, 'surf', '{}.orig'.format(hemi))
-        coords[hemi], faces[hemi], info[hemi] = nib.freesurfer.io.read_geometry(hemi_path,
-                                                                                read_metadata=True)
+        coords[hemi], faces[hemi], info[hemi] = \
+            nib.freesurfer.io.read_geometry(hemi_path, read_metadata=True)
 
     num_vertices_left_hemi = coords['lh'].shape[0]
 
@@ -149,7 +158,7 @@ def roi_labels_centroids(atlas_name):
     "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
 
     atlas_dir, atlas_name = get_atlas_path(atlas_name)
-    coords, faces, annot = read_atlas(atlas_dir)
+    coords, faces, annot = read_freesurfer_atlas(atlas_dir)
     vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name)
     uniq_rois, roi_size, num_nodes = roi_info(vertex_labels)
 
@@ -170,7 +179,7 @@ def subdivide_cortex(atlas_dir, hemi_list=None):
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
 
-    coords, faces, annot = read_atlas(atlas_dir)
+    coords, faces, annot = read_freesurfer_atlas(atlas_dir)
 
     labels_to_remove = ['corpuscallosum', 'unknown']
     null_label = 0
