@@ -129,3 +129,18 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
         sys.stdout.write('Done.')
 
     return edge_weights_all
+
+
+def volumetric_roi_info(atlas_name):
+    """Returns a list of unique ROIs, their labels and centroids"""
+
+    atlas_path, atlas_name = get_atlas_path(atlas_name)
+    atlas_labels = nibabel.load(atlas_path).get_data()
+
+    uniq_rois, roi_size, num_nodes = roi_info(atlas_labels, freesurfer_annot=False)
+
+    centroids = dict()
+    for roi in uniq_rois:
+        centroids[roi] = np.median(np.nonzero(atlas_labels==roi), axis=1)
+
+    return uniq_rois, centroids, atlas_labels
