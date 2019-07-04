@@ -1,11 +1,9 @@
 from graynet.utils import (calc_roi_statistics, check_atlas, check_num_procs,
                            check_params_single_edge, check_stat_methods,
-                           check_subjects,
-                           check_weight_params, check_weights,
-                           mask_background_roi,
-                           stamp_experiment,
-                           stamp_expt_weight, warn_nan, import_features,
-                           save_summary_stats, save_per_subject_graph, save)
+                           check_subjects, check_weight_params, check_weights,
+                           import_features, mask_background_roi, save,
+                           save_per_subject_graph, save_summary_stats,
+                           stamp_experiment, stamp_expt_weight, warn_nan)
 
 __all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
 
@@ -28,7 +26,7 @@ from sys import version_info
 
 if version_info.major > 2:
     from graynet import utils
-    from graynet.volumetric import extract_per_subject_volumetric
+    from graynet.volumetric import extract_per_subject_volumetric, volumetric_roi_info
     from graynet import parcellate
     from graynet import config_graynet as cfg
     from graynet import __version__
@@ -199,7 +197,7 @@ def extract(subject_id_list,
 
     # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
     # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
-    uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
+
 
     print('\nProcessing {} features resampled to {} atlas,'
           ' smoothed at {} with node size {}'.format(base_feature, atlas,
@@ -213,9 +211,19 @@ def extract(subject_id_list,
             os.mkdir(out_dir)
 
     if base_feature in cfg.features_cortical:
-        extract_per_subject = extract_per_subject_cortical
+        uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
+        partial_func_extract = partial(extract_per_subject_cortical, input_dir,
+                                       base_feature, roi_labels, centroids,
+                                       weight_method_list, atlas, smoothing_param,
+                                       node_size, num_bins, edge_range, out_dir,
+                                       return_results, pretty_print_options)
     elif base_feature in cfg.features_volumetric:
-        extract_per_subject = extract_per_subject_volumetric
+        uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas)
+        partial_func_extract = partial(extract_per_subject_volumetric, input_dir,
+                                       base_feature, roi_labels, centroids,
+                                       weight_method_list, atlas, smoothing_param,
+                                       node_size, num_bins, edge_range, out_dir,
+                                       return_results, pretty_print_options)
     else:
         raise NotImplementedError('Chosen feature {} is not recognized as '
                                   'either cortical or volumetric! Choose one'
@@ -224,11 +232,6 @@ def extract(subject_id_list,
 
     chunk_size = int(np.ceil(num_subjects / num_procs))
     with Manager():
-        partial_func_extract = partial(extract_per_subject, input_dir, base_feature,
-                                       roi_labels, centroids, weight_method_list,
-                                       atlas, smoothing_param, node_size, num_bins,
-                                       edge_range, out_dir, return_results,
-                                       pretty_print_options)
         with Pool(processes=num_procs) as pool:
             edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list,
                                                chunk_size)
