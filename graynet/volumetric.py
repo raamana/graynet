@@ -8,12 +8,14 @@ import traceback
 import warnings
 import hiwenet
 import numpy as np
+import nibabel
 import networkx as nx
 import sys
 
 from graynet.utils import import_features, warn_nan, stamp_expt_weight, \
-    save_per_subject_graph, save
+    save_per_subject_graph, save, roi_info, mask_background_roi
 from graynet import config_graynet as cfg
+from graynet.parcellate import get_atlas_path
 
 
 def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
@@ -61,7 +63,8 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
                 base_feature, subject), UserWarning)
         return
 
-    data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
+    data, rois = mask_background_roi(features[subject], roi_labels,
+                                     cfg.null_roi_index) #note:its not null_roi_name!
 
     max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
 
