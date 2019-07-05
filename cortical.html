@@ -77,6 +77,14 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 </pre></div>
 </div>
 <p>You could also study curvature and sulcal depth features by simply adding more features to the <code class="docutils literal notranslate"><span class="pre">-f</span></code>, such as <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code> and <code class="docutils literal notranslate"><span class="pre">freesurfer_sulc</span></code>.</p>
+<div class="section" id="using-a-different-atlas">
+<h2>Using a different Atlas<a class="headerlink" href="#using-a-different-atlas" title="Permalink to this headline">¶</a></h2>
+<p>when you want to use a different atlas, you must have already processed and resampled the desired features in that atlas space, with a separate <code class="docutils literal notranslate"><span class="pre">mgh</span></code> file for each atlas. For example, when you run Freesurfer’s <code class="docutils literal notranslate"><span class="pre">QCache</span></code> with <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code> atlas, you would see the files with the following pattern  <code class="docutils literal notranslate"><span class="pre">?h.thickness.fwhm10.fsaverage.mgh</span></code> in the <code class="docutils literal notranslate"><span class="pre">surf</span></code> folder of the subject’s Freesurfer output (e.g. in <code class="docutils literal notranslate"><span class="pre">$SUBJECTS_DIR/$SUBID</span></code>).</p>
+<p>If you want to use a different atlas such as <code class="docutils literal notranslate"><span class="pre">glasser2016</span></code>, graynet expects to see files of the pattern <code class="docutils literal notranslate"><span class="pre">?h.thickness.fwhm10.glasser2016.mgh</span></code>. The <code class="docutils literal notranslate"><span class="pre">glasser2016</span></code> atlas distributed with graynet is already in vertex-wise correspondence with <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code>, so you can simply add symbolic links (with <code class="docutils literal notranslate"><span class="pre">symlink</span></code> command in Unix variants of the OS) for <code class="docutils literal notranslate"><span class="pre">?h.thickness.fwhm10.glasser2016.mgh</span></code> to point to <code class="docutils literal notranslate"><span class="pre">?h.thickness.fwhm10.fsaverage.mgh</span></code> as a workaround.</p>
+<p>That said, if you use a slightly different version of Glasser atlas or something else say <code class="docutils literal notranslate"><span class="pre">XYZ42</span></code> e.g. by pointing <code class="docutils literal notranslate"><span class="pre">--atlas</span></code> argument to a Freesurfer folder (say <code class="docutils literal notranslate"><span class="pre">/work/atlases/XYZ42/freesurfer_parc</span></code>) that may not be in vertex-wise correspondence with fsaverage, you need to run the Qcache properly and produce the corresponding features files resampled on the space of <code class="docutils literal notranslate"><span class="pre">XYZ42</span></code> and the files must be named accordingly: <code class="docutils literal notranslate"><span class="pre">?h.thickness.fwhm10.XYZ42.mgh</span></code>. Note I used fwhm as 10 here for illustrative purposes, it could be anything else you choose.</p>
+</div>
+<div class="section" id="processing-large-datasets-or-atlases-with-many-rois">
+<h2>Processing large datasets or atlases with many ROIs<a class="headerlink" href="#processing-large-datasets-or-atlases-with-many-rois" title="Permalink to this headline">¶</a></h2>
 <p>However, if you have 100s of subjects or your atlas has a large number of ROIs (like the Glasser 2016 which has 360), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
 <blockquote>
 <div><ul class="simple">
@@ -90,8 +98,10 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 </pre></div>
 </div>
 <p>which after expansion looks something like based on your choices: <code class="docutils literal notranslate"><span class="pre">/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/</span></code></p>
+<p>Take a look at <a class="reference internal" href="extra_scripts.html"><span class="doc">Convenience/useful scripts</span></a> also.</p>
+</div>
 <div class="section" id="computing-roi-wise-statistics">
-<span id="roi-stats"></span><h2>Computing ROI-wise statistics<a class="headerlink" href="#computing-roi-wise-statistics" title="Permalink to this headline">¶</a></h2>
+<span id="roi-stats-ctx"></span><h2>Computing ROI-wise statistics<a class="headerlink" href="#computing-roi-wise-statistics" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">graynet</span></code> also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the <code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--roi_stats</span></code> flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.</p>
 </div>
 <div class="section" id="how-to-run-freesurfer">
@@ -135,6 +145,8 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Cortical graynet</a><ul>
+<li><a class="reference internal" href="#using-a-different-atlas">Using a different Atlas</a></li>
+<li><a class="reference internal" href="#processing-large-datasets-or-atlases-with-many-rois">Processing large datasets or atlases with many ROIs</a></li>
 <li><a class="reference internal" href="#computing-roi-wise-statistics">Computing ROI-wise statistics</a></li>
 <li><a class="reference internal" href="#how-to-run-freesurfer">How to run Freesurfer</a></li>
 <li><a class="reference internal" href="#qcache-recon-all-flag">Qcache recon-all flag</a></li>

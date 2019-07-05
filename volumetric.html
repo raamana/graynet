@@ -79,7 +79,9 @@ graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w ch
 </pre></div>
 </div>
 <p>You could also study other features by simply adding more features to the <code class="docutils literal notranslate"><span class="pre">-f</span></code>, such as <code class="docutils literal notranslate"><span class="pre">spm_cat_wmdensity</span></code> (white matter density).</p>
-<p>However, if you have 100s of subjects or your atlas has a large number of ROIs (like the AAL atlas which has 120), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
+<div class="section" id="processing-large-datasets-or-atlases-with-many-rois">
+<h2>Processing large datasets or atlases with many ROIs<a class="headerlink" href="#processing-large-datasets-or-atlases-with-many-rois" title="Permalink to this headline">¶</a></h2>
+<p>If you have 100s of subjects or your atlas has a large number of ROIs (like the AAL atlas which has 120), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>If you have access to a computer cluster, you can submit the generated jobs to the cluster.</p></li>
@@ -92,8 +94,10 @@ graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w ch
 </pre></div>
 </div>
 <p>which after expansion looks something like based on your choices: <code class="docutils literal notranslate"><span class="pre">/your_proc_dir/graynet/spm_cat_gmdensity_cat_aal_range_0_1_nbins25/</span></code></p>
+<p>Take a look at <a class="reference internal" href="extra_scripts.html"><span class="doc">Convenience/useful scripts</span></a> also.</p>
+</div>
 <div class="section" id="computing-roi-wise-statistics">
-<span id="roi-stats"></span><h2>Computing ROI-wise statistics<a class="headerlink" href="#computing-roi-wise-statistics" title="Permalink to this headline">¶</a></h2>
+<span id="roi-stats-vol"></span><h2>Computing ROI-wise statistics<a class="headerlink" href="#computing-roi-wise-statistics" title="Permalink to this headline">¶</a></h2>
 <p>When available, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> will help compute ROI-wise statistics (individual, not pair-wise) for visualization (e.g. mean and variance of GM density within amygdala), as well as to serve as a baseline for network-level features. Use the <code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--roi_stats</span></code> flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.</p>
 </div>
 </div>
@@ -107,6 +111,7 @@ graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w ch
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Volumetric graynet</a><ul>
+<li><a class="reference internal" href="#processing-large-datasets-or-atlases-with-many-rois">Processing large datasets or atlases with many ROIs</a></li>
 <li><a class="reference internal" href="#computing-roi-wise-statistics">Computing ROI-wise statistics</a></li>
 </ul>
 </li>
