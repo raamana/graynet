@@ -42,7 +42,11 @@ Suppose, you prefer to analyze ROIs as defined by other atlases, graynet also su
 
 You could also study other features by simply adding more features to the ``-f``, such as ``spm_cat_wmdensity`` (white matter density).
 
-However, if you have 100s of subjects or your atlas has a large number of ROIs (like the AAL atlas which has 120), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this `script <https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py>`_ to process any large dataset at once (produce jobs for processing on a cluster).
+
+Processing large datasets or atlases with many ROIs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have 100s of subjects or your atlas has a large number of ROIs (like the AAL atlas which has 120), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this `script <https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py>`_ to process any large dataset at once (produce jobs for processing on a cluster).
 
     - If you have access to a computer cluster, you can submit the generated jobs to the cluster.
     - If you don't have access to a cluster, you could still use the generated job/script files to run them locally - few at a time.
@@ -58,9 +62,9 @@ The output folder will be graynet within ``proc_dir`` you choose in the script -
 
 which after expansion looks something like based on your choices: ``/your_proc_dir/graynet/spm_cat_gmdensity_cat_aal_range_0_1_nbins25/``
 
+Take a look at :doc:`extra_scripts` also.
 
-
-.. _roi_stats:
+.. _roi_stats_vol:
 
 Computing ROI-wise statistics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

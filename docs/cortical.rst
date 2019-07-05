@@ -36,7 +36,22 @@ Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation publ
     cd /work/project
     graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p 10 -o /work/project/graynet
 
+
 You could also study curvature and sulcal depth features by simply adding more features to the ``-f``, such as ``freesurfer_curv`` and ``freesurfer_sulc``.
+
+
+Using a different Atlas
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+when you want to use a different atlas, you must have already processed and resampled the desired features in that atlas space, with a separate ``mgh`` file for each atlas. For example, when you run Freesurfer's ``QCache`` with ``fsaverage`` atlas, you would see the files with the following pattern  ``?h.thickness.fwhm10.fsaverage.mgh`` in the ``surf`` folder of the subject's Freesurfer output (e.g. in ``$SUBJECTS_DIR/$SUBID``).
+
+If you want to use a different atlas such as ``glasser2016``, graynet expects to see files of the pattern ``?h.thickness.fwhm10.glasser2016.mgh``. The ``glasser2016`` atlas distributed with graynet is already in vertex-wise correspondence with ``fsaverage``, so you can simply add symbolic links (with ``symlink`` command in Unix variants of the OS) for ``?h.thickness.fwhm10.glasser2016.mgh`` to point to ``?h.thickness.fwhm10.fsaverage.mgh`` as a workaround.
+
+That said, if you use a slightly different version of Glasser atlas or something else say ``XYZ42`` e.g. by pointing ``--atlas`` argument to a Freesurfer folder (say ``/work/atlases/XYZ42/freesurfer_parc``) that may not be in vertex-wise correspondence with fsaverage, you need to run the Qcache properly and produce the corresponding features files resampled on the space of ``XYZ42`` and the files must be named accordingly: ``?h.thickness.fwhm10.XYZ42.mgh``. Note I used fwhm as 10 here for illustrative purposes, it could be anything else you choose.
+
+
+Processing large datasets or atlases with many ROIs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 However, if you have 100s of subjects or your atlas has a large number of ROIs (like the Glasser 2016 which has 360), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this `script <https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py>`_ to process any large dataset at once (produce jobs for processing on a cluster).
 
@@ -55,8 +70,9 @@ The output folder will be graynet within ``proc_dir`` you choose in the script -
 which after expansion looks something like based on your choices: ``/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/``
 
 
+Take a look at :doc:`extra_scripts` also.
 
-.. _roi_stats:
+.. _roi_stats_ctx:
 
 Computing ROI-wise statistics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
