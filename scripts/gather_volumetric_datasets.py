@@ -96,9 +96,7 @@ for base_feature in base_feature_list:
         comb_nan_values[base_feature][weight_method] = dict()
         for ds_name in dataset_list:
             # out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}'.format(base_feature, atlas, fwhm))
-            out_dir = pjoin(base_dir, '{]_{}_{}_graynet'.format(expt_prefix, atlas,
-                                                            fwhm))
-
+            out_dir = pjoin(base_dir, 'graynet_{]_{}'.format(expt_prefix, atlas))
             meta_list = pjoin(base_dir, 'diagnosis_meta_data_{}.csv'.format(ds_name))
             sample_ids, classes = run_workflow.get_metadata(meta_list)
 
