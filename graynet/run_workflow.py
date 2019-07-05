@@ -612,16 +612,14 @@ def get_parser():
                          "each ROI or group. Default : {}".format(
             cfg.default_num_bins)
     help_text_edge_range = "The range of edges (two finite values) within which to " \
-                           "bin the given values " \
-                           "e.g. --edge_range 0.0 5.0 - this can be helpful (and " \
-                           "important) to ensure correspondence " \
-                           "across multiple invocations of graynet (for different " \
-                           "subjects), " \
-                           "in terms of range across all bins as well as " \
-                           "individual bin edges. " \
-                           "Default : {}, to automatically compute from the given " \
-                           "values.".format(
-            cfg.default_edge_range)
+                           "bin the given values e.g. --edge_range 0.0 5.0 ." \
+                           "Setting this is *crucial* to ensure " \
+                           "correspondence across multiple invocations of graynet, " \
+                           "for different subjects, in terms of range across all " \
+                           "bins as well as individual bin edges. " \
+                           "Default : {}, " \
+                           "to automatically compute from the given values." \
+                           "".format(cfg.default_edge_range)
 
     help_text_multi_edge_range = "Set of edge ranges (for each of the features) " \
                                  "within which to bin the given values - see " \
@@ -716,7 +714,9 @@ def get_parser():
 
     method_params.add_argument("-e", "--edge_range", action="store",
                                dest="edge_range",
-                               default=cfg.default_edge_range, required=False,
+                               default=cfg.default_edge_range,
+                               required=False, #TODO perhaps make this required?
+                               # to ensure users compute it from the entire dataset!
                                nargs=2, metavar=('min', 'max'),
                                help=help_text_edge_range)
 
