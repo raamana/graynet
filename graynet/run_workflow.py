@@ -641,8 +641,18 @@ def get_parser():
                           "#statistical-functions . When this option is chosen, " \
                           "network computation is not allowed. You need to compute " \
                           "networks and ROI stats separately."
-    help_text_atlas = "Name of the atlas to define parcellation of nodes/ROIs. " \
-                      "Default: '{}'".format(cfg.default_atlas)
+    help_text_atlas = "Name or path to atlas to containing the parcellation of ROIs." \
+                      "\nFor cortical features, you can also specify the absolute " \
+                      "path for the Freesurfer parcellation of that atlas. " \
+                      "This directory must have the standard Freesurfer structure, " \
+                      "with the following key files that must exist: " \
+                      "``label/?h.aparc.annot`` and ``surf/?h.orig``.\n\n" \
+                      "*Cortical* atlases supported: ``fsaverage`` and " \
+                      "``glasser2016``.\n\n" \
+                      "*Volumetric* atlases supported for CAT12 features: " \
+                      "``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``.\n\n" \
+                      "Default: ``{}``" \
+                      "".format(cfg.default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. " \
                           "Default : {}".format(cfg.default_node_size)
     help_text_smoothing = "Smoothing parameter for feature. " \

@@ -8,11 +8,8 @@ graynet
 
 .. image:: https://travis-ci.org/raamana/graynet.svg?branch=master
    :target: https://travis-ci.org/raamana/graynet
-.. image:: https://zenodo.org/badge/98567518.svg
-   :target: https://zenodo.org/badge/latestdoi/98567518   
-.. image:: https://landscape.io/github/raamana/graynet/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/raamana/graynet/master
-   :alt: Code Health
+.. image:: http://joss.theoj.org/papers/10.21105/joss.00924/status.svg
+   :target: https://doi.org/10.21105/joss.00924
 .. image:: https://api.codacy.com/project/badge/Grade/cffd80f290544e2e824011bfccf35ff8
    :target: https://www.codacy.com/app/raamana/graynet?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=raamana/graynet&amp;utm_campaign=Badge_Grade
 .. image:: https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6-blue.svg
