@@ -2,19 +2,25 @@
 About
 --------------------------------------------------------------------------------------------------
 
-``graynet`` helps you easily extract single-subject network-level features from T1-weighted mri features such as cortical thickness, gray matter density, subcortical morphometric features, gyrification and curvature.
+``graynet`` helps you easily extract single-subject network-level features from T1-weighted mri features, as well as ROI-wise statistics, such as:
+
+  - Cortical thickness, Gyrification, Curvature, Sulcal depth etc
+  - Gray/white matter density, or any other voxel-wise feature
+  - Subcortical morphometric features
+
+Applicable for whenever network-level features are useful, among which common use cases are:
+
+ - Biomarker development
+ - Brain-behaviour relationships e.g. for the diagnosis and prognosis of many brain disorders such as Alzheimer's, Parkinson's, Schizophrenia and the like
+ - Aging (changes in network properties over age and their relations to other variables)
+ - and any other applications wherein single-subject networks and ROI-stats are helpful.
 
 
-.. image:: https://travis-ci.org/raamana/graynet.svg?branch=master
-   :target: https://travis-ci.org/raamana/graynet
-.. image:: http://joss.theoj.org/papers/10.21105/joss.00924/status.svg
-   :target: https://doi.org/10.21105/joss.00924
-.. image:: https://api.codacy.com/project/badge/Grade/cffd80f290544e2e824011bfccf35ff8
-   :target: https://www.codacy.com/app/raamana/graynet?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=raamana/graynet&amp;utm_campaign=Badge_Grade
-.. image:: https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6-blue.svg
-   :alt: Python versions
-.. image:: https://badge.fury.io/py/graynet.svg
-   :target: https://badge.fury.io/py/graynet
+Quick illustration (cortical version)
+---------------------------------------
+
+.. image:: vis/graynet_flyer.jpg
+   :width: 800px
 
 
 Applicability
