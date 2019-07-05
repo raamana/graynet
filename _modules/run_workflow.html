@@ -429,28 +429,23 @@
 <span class="sd">        Specific type of feature to read for each subject from the input directory.</span>
 
 <span class="sd">    chosen_roi_stats : list of str or callable</span>
-<span class="sd">        If requested, graynet will compute chosen summary statistics (such as median)</span>
-<span class="sd">        within each ROI of the chosen parcellation (and network weight computation is skipped).</span>
-<span class="sd">        Default: &#39;median&#39;.</span>
-<span class="sd">        Supported summary statistics include &#39;median&#39;, &#39;mode&#39;, &#39;mean&#39;, &#39;std&#39;,</span>
-<span class="sd">        &#39;gmean&#39;, &#39;hmean&#39;, &#39;variation&#39;, &#39;entropy&#39;, &#39;skew&#39; and &#39;kurtosis&#39;.</span>
+<span class="sd">        If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).</span>
+<span class="sd">        Default: &#39;median&#39;. Supported summary statistics include &#39;median&#39;, &#39;mode&#39;, &#39;mean&#39;, &#39;std&#39;, &#39;gmean&#39;, &#39;hmean&#39;, &#39;variation&#39;,</span>
+<span class="sd">        &#39;entropy&#39;, &#39;skew&#39; and &#39;kurtosis&#39;.</span>
 
 <span class="sd">        Other appropriate summary statistics listed under scipy.stats could used</span>
 <span class="sd">        by passing in a callable with their parameters encapsulated:</span>
 <span class="sd">        https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</span>
-<span class="sd">        For example, if you would like to compute 3rd k-statistic, you could</span>
-<span class="sd">        construct a callable and passing ``third_kstat`` as in the argument:</span>
+<span class="sd">        For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing ``third_kstat`` as in the argument:</span>
 
 <span class="sd">        .. code-block:: python</span>
 
 <span class="sd">            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</span>
-<span class="sd">            roi_medians = roiwise_stats_indiv(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat, atlas, fwhm, out_dir=None, return_results=True)</span>
-
+<span class="sd">            roi_medians = roiwise_stats_indiv(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat,</span>
+<span class="sd">                atlas, fwhm, out_dir=None, return_results=True)</span>
 
 <span class="sd">        Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:</span>
-
 <span class="sd">        .. code-block:: python</span>
-
 <span class="sd">            trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)</span>
 <span class="sd">            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</span>
 
@@ -657,16 +652,14 @@
                          <span class="s2">&quot;each ROI or group. Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">)</span>
     <span class="n">help_text_edge_range</span> <span class="o">=</span> <span class="s2">&quot;The range of edges (two finite values) within which to &quot;</span> \
-                           <span class="s2">&quot;bin the given values &quot;</span> \
-                           <span class="s2">&quot;e.g. --edge_range 0.0 5.0 - this can be helpful (and &quot;</span> \
-                           <span class="s2">&quot;important) to ensure correspondence &quot;</span> \
-                           <span class="s2">&quot;across multiple invocations of graynet (for different &quot;</span> \
-                           <span class="s2">&quot;subjects), &quot;</span> \
-                           <span class="s2">&quot;in terms of range across all bins as well as &quot;</span> \
-                           <span class="s2">&quot;individual bin edges. &quot;</span> \
-                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, to automatically compute from the given &quot;</span> \
-                           <span class="s2">&quot;values.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">)</span>
+                           <span class="s2">&quot;bin the given values e.g. --edge_range 0.0 5.0 .&quot;</span> \
+                           <span class="s2">&quot;Setting this is *crucial* to ensure &quot;</span> \
+                           <span class="s2">&quot;correspondence across multiple invocations of graynet, &quot;</span> \
+                           <span class="s2">&quot;for different subjects, in terms of range across all &quot;</span> \
+                           <span class="s2">&quot;bins as well as individual bin edges. &quot;</span> \
+                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, &quot;</span> \
+                           <span class="s2">&quot;to automatically compute from the given values.&quot;</span> \
+                           <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">)</span>
 
     <span class="n">help_text_multi_edge_range</span> <span class="o">=</span> <span class="s2">&quot;Set of edge ranges (for each of the features) &quot;</span> \
                                  <span class="s2">&quot;within which to bin the given values - see &quot;</span> \
@@ -703,21 +696,22 @@
     <span class="n">help_text_parc_size</span> <span class="o">=</span> <span class="s2">&quot;Size of individual node for the atlas parcellation. &quot;</span> \
                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">)</span>
     <span class="n">help_text_smoothing</span> <span class="o">=</span> <span class="s2">&quot;Smoothing parameter for feature. &quot;</span> \
-                          <span class="s2">&quot;Default: FWHM of </span><span class="si">{}</span><span class="s2"> for Freesurfer thickness,&quot;</span> \
-                          <span class="s2">&quot;None for volumetric features from CAT12 toolbox&quot;</span> \
+                          <span class="s2">&quot;Default: FWHM of </span><span class="si">{}</span><span class="s2"> &quot;</span> \
+                          <span class="s2">&quot;for Freesurfer thickness&quot;</span> \
                           <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">)</span>
 
     <span class="n">help_text_num_procs</span> <span class="o">=</span> <span class="s2">&quot;Number of CPUs to use in parallel to speed up &quot;</span> \
-                          <span class="s2">&quot;processing. Default : </span><span class="si">{}</span><span class="s2">, capping at available number of &quot;</span> \
-                          <span class="s2">&quot;CPUs in the processing node.&quot;</span> \
-                          <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">)</span>
+                          <span class="s2">&quot;processing. &quot;</span> \
+                          <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, capping at available number of CPUs in &quot;</span> \
+                          <span class="s2">&quot;the processing node.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">)</span>
 
     <span class="n">help_text_overwrite_results</span> <span class="o">=</span> <span class="s2">&quot;Flag to request overwriting of existing &quot;</span> \
-                                  <span class="s2">&quot;results, in case of reruns/failed jobs. By &quot;</span> \
-                                  <span class="s2">&quot;default, if the expected output file exists and &quot;</span> \
-                                  <span class="s2">&quot;is of non-zero size, its computation is skipped &quot;</span> \
-                                  <span class="s2">&quot;(assuming the file is complete, usable and not &quot;</span> \
-                                  <span class="s2">&quot;corrupted).&quot;</span>
+                                  <span class="s2">&quot;results, in case of reruns/failed jobs. &quot;</span> \
+                                  <span class="s2">&quot;By default, if the expected output file exists &quot;</span> \
+                                  <span class="s2">&quot;and is of non-zero size, &quot;</span> \
+                                  <span class="s2">&quot;its computation is skipped (assuming the file &quot;</span> \
+                                  <span class="s2">&quot;is complete, usable and not corrupted).&quot;</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;graynet&quot;</span><span class="p">)</span>
 
@@ -770,7 +764,9 @@
 
     <span class="n">method_params</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--edge_range&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
                                <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;edge_range&quot;</span><span class="p">,</span>
-                               <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">,</span>
+                               <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="c1">#TODO perhaps make this required?</span>
+                               <span class="c1"># to ensure users compute it from the entire dataset!</span>
                                <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">),</span>
                                <span class="n">help</span><span class="o">=</span><span class="n">help_text_edge_range</span><span class="p">)</span>
 

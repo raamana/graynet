@@ -188,25 +188,24 @@ Or another directory with a structure that graynet can parse.</p>
 </dd>
 <dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
 </dd>
-<dt><strong>chosen_roi_stats</strong><span class="classifier">list of str or callable</span></dt><dd><p>If requested, graynet will compute chosen summary statistics (such as median)
-within each ROI of the chosen parcellation (and network weight computation is skipped).
-Default: ‘median’.
-Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’,
-‘gmean’, ‘hmean’, ‘variation’, ‘entropy’, ‘skew’ and ‘kurtosis’.</p>
+<dt><strong>chosen_roi_stats</strong><span class="classifier">list of str or callable</span></dt><dd><p>If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
+Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’,
+‘entropy’, ‘skew’ and ‘kurtosis’.</p>
 <p>Other appropriate summary statistics listed under scipy.stats could used
 by passing in a callable with their parameters encapsulated:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a>
-For example, if you would like to compute 3rd k-statistic, you could
-construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
+For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span>
+    <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">trimmed_mean</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">trim_mean</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">proportiontocut</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span>
-<span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
+.. code-block:: python</p>
+<blockquote>
+<div><p>trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
+third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</p>
+</div></blockquote>
 <p>Notes: ‘hmean’ requires all values be positive.</p>
 </dd>
 <dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.

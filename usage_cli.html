@@ -89,7 +89,7 @@
 <dd><p>Number of bins used to construct the histogram within each ROI or group. Default : 25</p>
 </dd>
 <dt><kbd>-e, --edge_range</kbd></dt>
-<dd><p>The range of edges (two finite values) within which to bin the given values e.g. –edge_range 0.0 5.0 - this can be helpful (and important) to ensure correspondence across multiple invocations of graynet (for different subjects), in terms of range across all bins as well as individual bin edges. Default : None, to automatically compute from the given values.</p>
+<dd><p>The range of edges (two finite values) within which to bin the given values e.g. –edge_range 0.0 5.0 .Setting this is <em>crucial</em> to ensure correspondence across multiple invocations of graynet, for different subjects, in terms of range across all bins as well as individual bin edges. Default : None, to automatically compute from the given values.</p>
 </dd>
 </dl>
 </div>
@@ -120,7 +120,7 @@ For cortical features, you can also specify the absolute path for the Freesurfer
 <dd><p>Size of individual node for the atlas parcellation. Default : None</p>
 </dd>
 <dt><kbd>-p, --smoothing_param</kbd></dt>
-<dd><p>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness,None for volumetric features from CAT12 toolbox</p>
+<dd><p>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness</p>
 </dd>
 </dl>
 </div>
