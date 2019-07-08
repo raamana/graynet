@@ -31,7 +31,11 @@ subject_id_list = ['subject12345', ]
 
 in_dir_vbm = pjoin(base_dir, 'volumetric_CAT12')
 base_feature = 'spm_cat_gmdensity'
-atlas = 'CAT_LPBA40' # 'CAT_IBSR' # 'CAT_AAL'  #
+# atlas = 'CAT_LPBA40' # 'CAT_IBSR' # 'CAT_AAL'  #
+
+cur_dir = os.path.dirname(abspath(__file__))
+atlas_dir = abspath(pjoin(cur_dir, '..', 'atlases'))
+atlas = pjoin(atlas_dir, 'cat_aal', 'aal.nii')
 
 sub_list = pjoin(in_dir_vbm, 'sub_id_list.txt')
 
