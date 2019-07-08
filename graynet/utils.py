@@ -66,6 +66,11 @@ def check_atlas(atlas):
                                  'Must be a nifti 2d volume, readable by nibabel.')
         else:
             raise ValueError('Unable to decipher or use the given atlas.')
+    elif is_image(atlas):
+        if not is_image_3D(atlas):
+            raise ValueError('An image is supplied for atlas. '
+                             'But is not 3D, '
+                             'or one/more dimensions seem to be empty')
     else:
         raise NotImplementedError('Atlas must be a string, providing a name or '
                                   'path to Freesurfer folder or a 3D nifti volume.')
