@@ -13,7 +13,8 @@ import networkx as nx
 import sys
 
 from graynet.utils import import_features, warn_nan, stamp_expt_weight, \
-    save_per_subject_graph, save, roi_info, mask_background_roi
+    save_per_subject_graph, save, roi_info, mask_background_roi, \
+    is_image, is_image_3D
 from graynet import config_graynet as cfg
 from graynet.parcellate import get_atlas_path
 
