@@ -76,6 +76,8 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
 
     for ww, weight_method in enumerate(weight_method_list):
         # unique stamp for each subject and weight
+        # TODO need a way to identify the atlas by a shot string
+        #   when it is originally supplied as an image or a path to an image
         expt_id = stamp_expt_weight(base_feature, atlas, smoothing_param, node_size,
                                     weight_method)
         sys.stdout.write(

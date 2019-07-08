@@ -199,9 +199,7 @@ def extract(subject_id_list,
     # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
 
 
-    print('\nProcessing {} features resampled to {} atlas,'
-          ' smoothed at {} with node size {}'.format(base_feature, atlas,
-                                                     smoothing_param, node_size))
+    print('\nProcessing {} features'.format(base_feature))
 
     if not return_results:
         if out_dir is None:
@@ -864,6 +862,10 @@ def parse_args():
         weight_method_list = None
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
+
+    print('\nData resampled to {} atlas, '
+          ' smoothed at {} with node size {}'
+          ''.format(params.atlas, params.smoothing_param, params.node_size))
 
     atlas = check_atlas(params.atlas)
     # num_procs will be validated inside in the functions using it.
