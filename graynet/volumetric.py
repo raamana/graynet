@@ -13,7 +13,8 @@ import networkx as nx
 import sys
 
 from graynet.utils import import_features, warn_nan, stamp_expt_weight, \
-    save_per_subject_graph, save, roi_info, mask_background_roi
+    save_per_subject_graph, save, roi_info, mask_background_roi, \
+    is_image, is_image_3D
 from graynet import config_graynet as cfg
 from graynet.parcellate import get_atlas_path
 
@@ -75,6 +76,8 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
 
     for ww, weight_method in enumerate(weight_method_list):
         # unique stamp for each subject and weight
+        # TODO need a way to identify the atlas by a shot string
+        #   when it is originally supplied as an image or a path to an image
         expt_id = stamp_expt_weight(base_feature, atlas, smoothing_param, node_size,
                                     weight_method)
         sys.stdout.write(
@@ -131,11 +134,21 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
     return edge_weights_all
 
 
-def volumetric_roi_info(atlas_name):
+def volumetric_roi_info(atlas_spec):
     """Returns a list of unique ROIs, their labels and centroids"""
 
-    atlas_path, atlas_name = get_atlas_path(atlas_name)
-    atlas_labels = nibabel.load(atlas_path).get_data()
+    if is_image(atlas_spec) and is_image_3D(atlas_spec):
+        if atlas_spec.__class__ in nibabel.all_image_classes:
+            atlas_labels = atlas_spec.get_data()
+        else:
+            atlas_labels = np.array(atlas_spec)
+    elif isinstance(atlas_spec, str):
+        atlas_path, atlas_name = get_atlas_path(atlas_spec)
+        atlas_labels = nibabel.load(atlas_path).get_data()
+    else:
+        raise ValueError('Unrecognized atlas specification!'
+                         'Must be a predefined name, or'
+                         'a preloaded image!')
 
     # TODO names for ROIs are not read and used!
 

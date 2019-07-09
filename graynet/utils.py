@@ -41,6 +41,23 @@ def check_features(base_feature_list):
     return given_list
 
 
+def is_image_3D(input_obj):
+    """Checks to ensures number of dimensions are only 3 (or 4th one singleton)
+
+    and none of the fist 3 dimensions or empty or singleton!
+
+    """
+
+    if len(input_obj.shape) == 3 and all(np.array(input_obj.shape) > 1):
+        return True
+    elif not len(input_obj.shape) == 4 \
+        and all(np.array(input_obj.shape[:3]) > 1) \
+            and input_obj.shape[3]==1:
+        return True
+    else:
+        return False
+
+
 def check_atlas(atlas):
     """Validation of atlas input."""
 
@@ -66,11 +83,33 @@ def check_atlas(atlas):
                                  'Must be a nifti 2d volume, readable by nibabel.')
         else:
             raise ValueError('Unable to decipher or use the given atlas.')
+    elif is_image(atlas):
+        if not is_image_3D(atlas):
+            raise ValueError('An image is supplied for atlas. '
+                             'But is not 3D, '
+                             'or one/more dimensions seem to be empty')
     else:
         raise NotImplementedError('Atlas must be a string, providing a name or '
                                   'path to Freesurfer folder or a 3D nifti volume.')
 
     return atlas
+
+
+def is_image(input_obj):
+    """Checks if the input object exhibits the properties of an usable image
+
+    It must either be an instance of nibable compatible classes, or
+    an ndarray of no less than 3 dimensions.
+
+    """
+
+    if isinstance(input_obj, np.ndarray) and len(input_obj.shape)>=3:
+        return True
+    elif input_obj.__class__  in nibabel.all_image_classes \
+            and len(input_obj.shape)>=3:
+        return True
+    else:
+        return False
 
 
 def unique_order(seq):
