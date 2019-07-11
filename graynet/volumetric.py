@@ -20,7 +20,8 @@ from graynet.parcellate import get_atlas_path
 
 
 def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
-                                   centroids, weight_method_list, atlas,
+                                   centroids, weight_method_list,
+                                   atlas_spec, atlas_name,
                                    smoothing_param, node_size, num_bins,
                                    edge_range, out_dir, return_results,
                                    pretty_print_options, subject=None):
@@ -35,7 +36,7 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
     base_feature
     roi_labels
     weight_method_list
-    atlas
+    atlas_spec
     smoothing_param
     node_size
     num_bins
@@ -57,7 +58,7 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
                                    [subject, ],
                                    base_feature,
                                    fwhm=smoothing_param,
-                                   atlas=atlas)
+                                   atlas=atlas_spec)
     except:
         traceback.print_exc()
         warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(
@@ -78,8 +79,8 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
         # unique stamp for each subject and weight
         # TODO need a way to identify the atlas by a shot string
         #   when it is originally supplied as an image or a path to an image
-        expt_id = stamp_expt_weight(base_feature, atlas, smoothing_param, node_size,
-                                    weight_method)
+        expt_id = stamp_expt_weight(base_feature, atlas_name, smoothing_param,
+                                    node_size, weight_method)
         sys.stdout.write(
             '\nProcessing id {:{id_width}} -- weight {:{wtname_width}} '
             '({:{nd_wm}}/{:{nd_wm}})'
