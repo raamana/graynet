@@ -870,7 +870,7 @@ def parse_args():
           ' smoothed at {} with node size {}'
           ''.format(params.atlas, params.smoothing_param, params.node_size))
 
-    atlas = check_atlas(params.atlas)
+    atlas_spec, _ = check_atlas(params.atlas)
     # num_procs will be validated inside in the functions using it.
 
     # TODO should we check atlas compatibility with data for two subjects randomly?

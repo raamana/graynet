@@ -19,7 +19,7 @@ def get_atlas_path(atlas_name=None):
     if atlas_name in [None, 'None', '']:
         atlas_name = 'fsaverage'
 
-    atlas_name = check_atlas(atlas_name)
+    atlas_name, _ = check_atlas(atlas_name)
 
     if atlas_name  in cfg.atlas_list:
 
@@ -33,6 +33,8 @@ def get_atlas_path(atlas_name=None):
             atlas_path = pjoin(this_dir, 'atlases', atlas_name)
         elif atlas_name in ['cat_aal', 'cat_lpba40', 'cat_ibsr']:
             this_dir = dirname(realpath(__file__))
+            # TODO inconsistency: this returns a path to a FILE,
+            #   whereas cortical atlases are referred to by their FS folders
             atlas_path = pjoin(this_dir, 'atlases', atlas_name, 'atlas.nii')
         else:
             raise NotImplementedError('Requested atlas is not implemented or unreadable.')
