@@ -9,7 +9,7 @@ import os
 import sys
 import traceback
 from genericpath import exists as pexists
-from os.path import join as pjoin, isfile, realpath, getsize
+from os.path import join as pjoin, isfile, realpath, getsize, basename, splitext
 import nibabel
 import networkx as nx
 from multiprocessing import cpu_count
@@ -41,36 +41,89 @@ def check_features(base_feature_list):
     return given_list
 
 
-def check_atlas(atlas):
+def is_image_3D(input_obj):
+    """Checks to ensures number of dimensions are only 3 (or 4th one singleton)
+
+    and none of the fist 3 dimensions or empty or singleton!
+
+    """
+
+    if len(input_obj.shape) == 3 and all(np.array(input_obj.shape) > 1):
+        return True
+    elif not len(input_obj.shape) == 4 \
+        and all(np.array(input_obj.shape[:3]) > 1) \
+            and input_obj.shape[3]==1:
+        return True
+    else:
+        return False
+
+
+def filename_without_ext(file_path):
+    """Returns a filename without ext from input absolute path."""
+
+    return splitext(basename(realpath(file_path)))[0]
+
+
+def check_atlas(atlas_spec):
     """Validation of atlas input."""
 
     # when its a name for pre-defined atlas
-    if isinstance(atlas, str):
-        if not pexists(atlas):  # just a name
-            atlas = atlas.lower()
-            if atlas not in cfg.atlas_list:
+    if isinstance(atlas_spec, str):
+        if not pexists(atlas_spec):  # just a name
+            atlas_spec = atlas_spec.lower()
+            if atlas_spec not in cfg.atlas_list:
                 raise ValueError(
                     'Invalid choice of atlas {}.'
-                    ' Accepted : {}'.format(atlas, cfg.atlas_list))
-        elif os.path.isdir(atlas):  # cortical atlas in Freesurfer org
-            if not check_atlas_annot_exist(atlas):
+                    ' Accepted : {}'.format(atlas_spec, cfg.atlas_list))
+            atlas_name = atlas_spec
+        elif os.path.isdir(atlas_spec):  # cortical atlas in Freesurfer org
+            if not check_atlas_annot_exist(atlas_spec):
                 raise ValueError(
                     'Given atlas folder does not contain Freesurfer label annot files. '
                     'Needed : given_atlas_dir/label/?h.aparc.annot')
-        elif pexists(atlas):  # may be a volumetric atlas?
+            atlas_name = filename_without_ext(atlas_spec)
+        elif pexists(atlas_spec):  # may be a volumetric atlas?
+            atlas_name = filename_without_ext(atlas_spec)
             try:
-                atlas = nibabel.load(atlas)
+                atlas_spec = nibabel.load(atlas_spec)
             except:
                 traceback.print_exc()
                 raise ValueError('Unable to read the provided image volume. '
                                  'Must be a nifti 2d volume, readable by nibabel.')
         else:
             raise ValueError('Unable to decipher or use the given atlas.')
+    elif is_image(atlas_spec):
+        if not is_image_3D(atlas_spec):
+            raise ValueError('An image is supplied for atlas. '
+                             'But is not 3D, '
+                             'or one/more dimensions seem to be empty')
+        if atlas_spec.__class__ in nibabel.all_image_classes:
+            atlas_name = filename_without_ext(atlas_spec.get_filename())
+        else:
+            # when the input is an ndarray w/o a way to specify a name
+            atlas_name = 'UnnamedAtlas'
     else:
         raise NotImplementedError('Atlas must be a string, providing a name or '
                                   'path to Freesurfer folder or a 3D nifti volume.')
 
-    return atlas
+    return atlas_spec, atlas_name
+
+
+def is_image(input_obj):
+    """Checks if the input object exhibits the properties of an usable image
+
+    It must either be an instance of nibable compatible classes, or
+    an ndarray of no less than 3 dimensions.
+
+    """
+
+    if isinstance(input_obj, np.ndarray) and len(input_obj.shape)>=3:
+        return True
+    elif input_obj.__class__  in nibabel.all_image_classes \
+            and len(input_obj.shape)>=3:
+        return True
+    else:
+        return False
 
 
 def unique_order(seq):
@@ -416,8 +469,11 @@ def mask_background_roi(data, labels, ignore_label):
     "Returns everything but specified label"
 
     if data.size != labels.size or data.shape != labels.shape:
-        raise ValueError('features and membership (group labels) differ'
-                         ' in length or shape!')
+        raise ValueError('Subject features and membership (group labels) differ'
+                         ' in length or shape!\n'
+                         'This may happen if volumes for atlas and subject differ '
+                         'in size/dimensions. Ensure all the subjects have '
+                         'voxel-wise correspondence with the atlas.')
 
     mask = labels != ignore_label
     masked_data = data[mask]

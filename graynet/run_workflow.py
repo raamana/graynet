@@ -183,7 +183,7 @@ def extract(subject_id_list,
     # All the checks must happen here, as this is key function in the API
     check_params_single_edge(base_feature, input_dir, atlas, smoothing_param,
                              node_size, out_dir, return_results)
-    atlas = check_atlas(atlas)
+    atlas, atlas_name = check_atlas(atlas)
 
     subject_id_list, num_subjects, \
         max_id_width, nd_id = check_subjects(subject_id_list)
@@ -199,9 +199,7 @@ def extract(subject_id_list,
     # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
 
 
-    print('\nProcessing {} features resampled to {} atlas,'
-          ' smoothed at {} with node size {}'.format(base_feature, atlas,
-                                                     smoothing_param, node_size))
+    print('\nProcessing {} features'.format(base_feature))
 
     if not return_results:
         if out_dir is None:
@@ -214,15 +212,17 @@ def extract(subject_id_list,
         uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
         partial_func_extract = partial(extract_per_subject_cortical, input_dir,
                                        base_feature, roi_labels, centroids,
-                                       weight_method_list, atlas, smoothing_param,
-                                       node_size, num_bins, edge_range, out_dir,
-                                       return_results, pretty_print_options)
+                                       weight_method_list, atlas, atlas_name,
+                                       smoothing_param, node_size, num_bins,
+                                       edge_range, out_dir, return_results,
+                                       pretty_print_options)
     elif base_feature in cfg.features_volumetric:
         uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas)
-        partial_func_extract = partial(extract_per_subject_volumetric, input_dir,
-                                       base_feature, roi_labels, centroids,
-                                       weight_method_list, atlas, smoothing_param,
-                                       node_size, num_bins, edge_range, out_dir,
+        partial_func_extract = partial(extract_per_subject_volumetric,
+                                       input_dir, base_feature, roi_labels,
+                                       centroids, weight_method_list, atlas,
+                                       atlas_name, smoothing_param, node_size,
+                                       num_bins, edge_range, out_dir,
                                        return_results, pretty_print_options)
     else:
         raise NotImplementedError('Chosen feature {} is not recognized as '
@@ -250,7 +250,8 @@ def extract(subject_id_list,
 
 
 def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
-                                 weight_method_list, atlas, smoothing_param, node_size,
+                                 weight_method_list, atlas_spec, atlas_name,
+                                 smoothing_param, node_size,
                                  num_bins, edge_range, out_dir, return_results,
                                  pretty_print_options, subject=None):
     # purposefully leaving subject parameter last to enable partial function creation
@@ -264,7 +265,7 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
     base_feature
     roi_labels
     weight_method_list
-    atlas
+    atlas_spec
     smoothing_param
     node_size
     num_bins
@@ -286,7 +287,7 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
                                    [subject, ],
                                    base_feature,
                                    fwhm=smoothing_param,
-                                   atlas=atlas)
+                                   atlas=atlas_spec)
     except:
         traceback.print_exc()
         warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(
@@ -304,8 +305,8 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
 
     for ww, weight_method in enumerate(weight_method_list):
         # unique stamp for each subject and weight
-        expt_id = stamp_expt_weight(base_feature, atlas, smoothing_param, node_size,
-                                    weight_method)
+        expt_id = stamp_expt_weight(base_feature, atlas_name, smoothing_param,
+                                    node_size, weight_method)
         sys.stdout.write(
             '\nProcessing id {:{id_width}} -- weight {:{wtname_width}} '
             '({:{nd_wm}}/{:{nd_wm}})'
@@ -648,9 +649,18 @@ def get_parser():
                       "with the following key files that must exist: " \
                       "``label/?h.aparc.annot`` and ``surf/?h.orig``.\n\n" \
                       "*Cortical* atlases supported: ``fsaverage`` and " \
-                      "``glasser2016``.\n\n" \
-                      "*Volumetric* atlases supported for CAT12 features: " \
-                      "``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``.\n\n" \
+                      "``glasser2016``. In addition, you can also specify an " \
+                      "absolute path to the Freesurfer processing of any " \
+                      "arbitrary atlas. Read these instructions before trying: " \
+                      "https://raamana.github.io/graynet/cortical.html#using-a-different-atlas" \
+                      "\n\n\n*Volumetric* atlases supported for CAT12 features: " \
+                      "``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``." \
+                      "In addition, you can also directly specify an absolute path " \
+                      "to a single 3D volume. Make sure name this file properly as it" \
+                      "would be used to encode all the processing i.e. make it " \
+                      "clean as well as fully reflective of the properties of the " \
+                      "parcellation inside." \
+                      "\n\n" \
                       "Default: ``{}``" \
                       "".format(cfg.default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. " \
@@ -865,7 +875,11 @@ def parse_args():
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
 
-    atlas = check_atlas(params.atlas)
+    print('\nData resampled to {} atlas, '
+          ' smoothed at {} with node size {}'
+          ''.format(params.atlas, params.smoothing_param, params.node_size))
+
+    atlas_spec, _ = check_atlas(params.atlas)
     # num_procs will be validated inside in the functions using it.
 
     # TODO should we check atlas compatibility with data for two subjects randomly?
@@ -875,7 +889,7 @@ def parse_args():
            feature_list, weight_method_list, \
            do_multi_edge, summary_stat, multi_edge_range_out, \
            params.num_bins, params.edge_range, \
-           atlas, out_dir, params.node_size, params.smoothing_param, roi_stats, \
+           atlas_spec, out_dir, params.node_size, params.smoothing_param, roi_stats, \
            params.num_procs, params.overwrite_results
 
 
