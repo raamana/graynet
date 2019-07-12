@@ -37,7 +37,7 @@ cur_dir = os.path.dirname(abspath(__file__))
 atlas_dir = abspath(pjoin(cur_dir, '..', 'atlases'))
 atlas = pjoin(atlas_dir, 'cat_aal', 'aal.nii')
 
-sub_list = pjoin(in_dir_vbm, 'sub_id_list.txt')
+sub_list = pjoin(in_dir_vbm, 'sub_id_list_test.txt')
 
 out_dir = pjoin(in_dir_vbm, 'vol_CAT12_graynet')
 if not pexists(out_dir):
@@ -51,5 +51,17 @@ def test_CLI_weight():
                            ''.format(in_dir_vbm, sub_list, base_feature, out_dir, atlas))
 
     CLI()
+
+def test_CLI_diff_atlases_by_path():
+    " ensures the CLI works. "
+
+    for atlas_name in ('aal', 'lpba40', 'ibsr'):
+        atlas_path = pjoin(atlas_dir, 'cat_{}'.format(atlas_name),
+                           '{}.nii'.format(atlas_name))
+        sys.argv = shlex.split('graynet -i {} -s {} -f {} -w manhattan '
+                               '-o {} -a {} -c 1'
+                               ''.format(in_dir_vbm, sub_list, base_feature,
+                                         out_dir, atlas_path))
+        CLI()
 
 test_CLI_weight()
