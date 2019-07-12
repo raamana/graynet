@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>graynet.parcellate &#8212; graynet 0.4.5 documentation</title>
+    <title>graynet.parcellate &#8212; graynet 0.4.7 documentation</title>
     <link rel="stylesheet" href="../../_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -20,11 +20,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.5 documentation</h1>
+        <h1>graynet 0.4.7 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.4.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.4.7 documentation</a> &#187;
             </li>
                 <li class="nav-item nav-item-1"><a href="../index.html"
                         accesskey="U">Module code</a> &#187;</li>
@@ -59,7 +59,7 @@
     <span class="k">if</span> <span class="n">atlas_name</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]:</span>
         <span class="n">atlas_name</span> <span class="o">=</span> <span class="s1">&#39;fsaverage&#39;</span>
 
-    <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">check_atlas</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
+    <span class="n">atlas_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">check_atlas</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">atlas_name</span>  <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">atlas_list</span><span class="p">:</span>
 
@@ -73,6 +73,8 @@
             <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">this_dir</span><span class="p">,</span> <span class="s1">&#39;atlases&#39;</span><span class="p">,</span> <span class="n">atlas_name</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">atlas_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cat_aal&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_lpba40&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_ibsr&#39;</span><span class="p">]:</span>
             <span class="n">this_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+            <span class="c1"># TODO inconsistency: this returns a path to a FILE,</span>
+            <span class="c1">#   whereas cortical atlases are referred to by their FS folders</span>
             <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">this_dir</span><span class="p">,</span> <span class="s1">&#39;atlases&#39;</span><span class="p">,</span> <span class="n">atlas_name</span><span class="p">,</span> <span class="s1">&#39;atlas.nii&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Requested atlas is not implemented or unreadable.&#39;</span><span class="p">)</span>

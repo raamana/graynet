@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Volumetric graynet &#8212; graynet 0.4.5 documentation</title>
+    <title>Volumetric graynet &#8212; graynet 0.4.7 documentation</title>
     <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.5 documentation</h1>
+        <h1>graynet 0.4.7 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.7 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -45,14 +45,9 @@
 <div><ul class="simple">
 <li><p>Install <a class="reference external" href="http://www.neuro.uni-jena.de/cat/">CAT12 toolbox</a> and read the <a class="reference external" href="http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf">manual</a></p></li>
 <li><p>Ensure you produce the outputs in <em>normalized</em> atlas space, by selecting the output option to be either <code class="docutils literal notranslate"><span class="pre">Modulated</span> <span class="pre">normalized</span></code> or <code class="docutils literal notranslate"><span class="pre">normalized</span></code> depending on your analyses plan. Correct processing would produce images of size 121 x 145 x 121, which must be the same as the atlases included in the CAT12 toolbox</p></li>
-<li><dl class="simple">
-<dt>Run the CAT12 processing and ensure it is complete</dt><dd><ul>
-<li><p>Perform the QA as suggested in their <a class="reference external" href="http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf">manual</a> e.g. “SECOND MODULE: DISPLAY ONE SLICE FOR ALL IMAGES”.</p></li>
-<li><p>For a more comprehensive QC of segmentation accuracy, you can employ <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a></p></li>
-</ul>
-</dd>
-</dl>
-</li>
+<li><p>Run the CAT12 processing and ensure it is complete</p></li>
+<li><p>Perform the QA as suggested in their <a class="reference external" href="http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf">manual</a> e.g. “second module: display one slice for all images”.</p></li>
+<li><p>For a more comprehensive QC of segmentation accuracy, you can employ <a class="reference external" href="https://raamana.github.io/visualqc/gallery_segmentation_volumetric.html">visualqc</a></p></li>
 <li><p>If everything went well, you would have an <code class="docutils literal notranslate"><span class="pre">mri</span></code> folder created in the output folder you chose. This folder would have several files, for each subject you processed e.g. <code class="docutils literal notranslate"><span class="pre">mwp1SUBJECTID.nii</span></code> contains the voxel-wise gray matter densities for SUBJECTID in the modulated (prefix <code class="docutils literal notranslate"><span class="pre">m</span></code> ) normalized (<code class="docutils literal notranslate"><span class="pre">w</span></code> ) atlas space. Similarly <code class="docutils literal notranslate"><span class="pre">mwp2*.nii</span></code> files would contain voxel-wise white matter densities.</p></li>
 </ul>
 </div></blockquote>
@@ -69,16 +64,22 @@
 </div></blockquote>
 <p>You could achieve it all with a single command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
-graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w manhattan -a cat_aal -o /work/project/cat12_vbm/graynet_volumetric
+graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w manhattan -a cat_aal <span class="se">\</span>
+    -o /work/project/cat12_vbm/graynet_volumetric
 </pre></div>
 </div>
 <p>That’s it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.</p>
 <p>Suppose, you prefer to analyze ROIs as defined by other atlases, graynet also supports the IBSR and LPBA40 as supplied by the CAT12 toolbox. If you are also curious to try multiple weight metrics -  <code class="docutils literal notranslate"><span class="pre">chebyshev</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine</span></code>, you can achieve it via the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
-graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w chebyshev cosine manhattan -a cat_LPBA40 -o /work/project/cat12_vbm/graynet_volumetric
+graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm <span class="se">\</span>
+    -w chebyshev cosine manhattan -a cat_LPBA40 -o /work/project/cat12_vbm/graynet_volumetric
 </pre></div>
 </div>
 <p>You could also study other features by simply adding more features to the <code class="docutils literal notranslate"><span class="pre">-f</span></code>, such as <code class="docutils literal notranslate"><span class="pre">spm_cat_wmdensity</span></code> (white matter density).</p>
+<div class="section" id="atlas-choices">
+<h2>Atlas choices<a class="headerlink" href="#atlas-choices" title="Permalink to this headline">¶</a></h2>
+<p>Following volumetric atlases are available for processing from CAT12 by default: <code class="docutils literal notranslate"><span class="pre">cat_aal</span></code>, <code class="docutils literal notranslate"><span class="pre">cat_lpba40</span></code> and <code class="docutils literal notranslate"><span class="pre">cat_ibsr</span></code>, you can specify them just by their name via <code class="docutils literal notranslate"><span class="pre">--atlas</span></code> argument at the command line. To allow maximum choice for the user, we also support specifying an arbitrary path to a 3D volume containing another potentially more appropriate parcellation for your current analyses. Read more details at <code class="docutils literal notranslate"><span class="pre">Atlas</span></code> argument in <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> before trying.</p>
+</div>
 <div class="section" id="processing-large-datasets-or-atlases-with-many-rois">
 <h2>Processing large datasets or atlases with many ROIs<a class="headerlink" href="#processing-large-datasets-or-atlases-with-many-rois" title="Permalink to this headline">¶</a></h2>
 <p>If you have 100s of subjects or your atlas has a large number of ROIs (like the AAL atlas which has 120), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
@@ -90,7 +91,8 @@ graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w ch
 </div></blockquote>
 <p>After processing is done (on the cluster or locally), and assuming no other errors, you should see a CSV file for each subject, with <code class="docutils literal notranslate"><span class="pre">n*(n-1)/2</span></code> values corresponding to the upper-triangular part of the connectivity matrix, where n is the number of ROIs in a atlas you chose (68 for fsaverage or 122 for AAL). In addition to easy to use CSV files, graynet also produces rich graph structure (in the <code class="docutils literal notranslate"><span class="pre">graphml</span></code> format easily usable via the <code class="docutils literal notranslate"><span class="pre">networkx</span></code> package) that identifies different nodes in these subject-wise network and the edges for each node, along with their edge weights.</p>
 <p>The output folder will be graynet within <code class="docutils literal notranslate"><span class="pre">proc_dir</span></code> you choose in the script - determined by this statement in the above script:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span>
+                                                        <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>which after expansion looks something like based on your choices: <code class="docutils literal notranslate"><span class="pre">/your_proc_dir/graynet/spm_cat_gmdensity_cat_aal_range_0_1_nbins25/</span></code></p>
@@ -111,6 +113,7 @@ graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w ch
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Volumetric graynet</a><ul>
+<li><a class="reference internal" href="#atlas-choices">Atlas choices</a></li>
 <li><a class="reference internal" href="#processing-large-datasets-or-atlases-with-many-rois">Processing large datasets or atlases with many ROIs</a></li>
 <li><a class="reference internal" href="#computing-roi-wise-statistics">Computing ROI-wise statistics</a></li>
 </ul>

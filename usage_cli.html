@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Command line interface &#8212; graynet 0.4.5 documentation</title>
+    <title>Command line interface &#8212; graynet 0.4.7 documentation</title>
     <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.5 documentation</h1>
+        <h1>graynet 0.4.7 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.7 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -112,8 +112,8 @@
 <dt><kbd>-a, --atlas</kbd></dt>
 <dd><p>Name or path to atlas to containing the parcellation of ROIs.
 For cortical features, you can also specify the absolute path for the Freesurfer parcellation of that atlas. This directory must have the standard Freesurfer structure, with the following key files that must exist: <code class="docutils literal notranslate"><span class="pre">label/?h.aparc.annot</span></code> and <code class="docutils literal notranslate"><span class="pre">surf/?h.orig</span></code>.</p>
-<p><em>Cortical</em> atlases supported: <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code> and <code class="docutils literal notranslate"><span class="pre">glasser2016</span></code>.</p>
-<p><em>Volumetric</em> atlases supported for CAT12 features: <code class="docutils literal notranslate"><span class="pre">cat_aal</span></code>, <code class="docutils literal notranslate"><span class="pre">cat_lpba40</span></code>, and <code class="docutils literal notranslate"><span class="pre">cat_ibsr</span></code>.</p>
+<p><em>Cortical</em> atlases supported: <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code> and <code class="docutils literal notranslate"><span class="pre">glasser2016</span></code>. In addition, you can also specify an absolute path to the Freesurfer processing of any arbitrary atlas. Read these instructions before trying: <a class="reference external" href="https://raamana.github.io/graynet/cortical.html#using-a-different-atlas">https://raamana.github.io/graynet/cortical.html#using-a-different-atlas</a></p>
+<p><em>Volumetric</em> atlases supported for CAT12 features: <code class="docutils literal notranslate"><span class="pre">cat_aal</span></code>, <code class="docutils literal notranslate"><span class="pre">cat_lpba40</span></code>, and <code class="docutils literal notranslate"><span class="pre">cat_ibsr</span></code>.In addition, you can also directly specify an absolute path to a single 3D volume. Make sure name this file properly as itwould be used to encode all the processing i.e. make it clean as well as fully reflective of the properties of the parcellation inside.</p>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code></p>
 </dd>
 <dt><kbd>-n, --node_size</kbd></dt>
@@ -139,11 +139,15 @@ For cortical features, you can also specify the absolute path for the Freesurfer
 </dd>
 </dl>
 </div>
+</div>
+<div class="section" id="simple-example">
+<h1>Simple example<a class="headerlink" href="#simple-example" title="Permalink to this headline">¶</a></h1>
 <p>A rough example of usage can be:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 <span class="c1">#$ -l mf=2G -q queue_name.q -wd /work/project</span>
 <span class="nb">cd</span> /work/project
-graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan eucledian chebyshev -a GLASSER2016 -p <span class="m">10</span> -o /work/project/graynet_processing
+graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall <span class="se">\</span>
+    -w manhattan eucledian chebyshev -a GLASSER2016 -p <span class="m">10</span> -o /work/project/graynet_processing
 </pre></div>
 </div>
 <p>Note you can specify mulitple weight metrics to save on I/O activity and walltime on HPC.</p>
@@ -166,6 +170,7 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 <li><a class="reference internal" href="#Computing">Computing</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#simple-example">Simple example</a></li>
 </ul>
 
   <h4>Previous topic</h4>

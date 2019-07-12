@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Cortical graynet &#8212; graynet 0.4.5 documentation</title>
+    <title>Cortical graynet &#8212; graynet 0.4.7 documentation</title>
     <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.5 documentation</h1>
+        <h1>graynet 0.4.7 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.7 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -43,13 +43,8 @@
 <p>The following steps should help you get started and going quickly:</p>
 <blockquote>
 <div><ul class="simple">
-<li><dl class="simple">
-<dt>Ensure Freesurfer processing is complete</dt><dd><ul>
-<li><p>It is <strong>highly</strong> recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. This QC is quite easy now using <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a></p></li>
-</ul>
-</dd>
-</dl>
-</li>
+<li><p>Ensure Freesurfer processing is complete</p></li>
+<li><p>It is <strong>highly</strong> recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. Such QC is quite easy now using <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a></p></li>
 <li><p>Ensure you ran <code class="docutils literal notranslate"><span class="pre">recon-all</span></code> with <code class="docutils literal notranslate"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.</p></li>
 <li><p>check <a class="reference internal" href="#run-fs"><span class="std std-ref">How to run Freesurfer</span></a> for more details.</p></li>
 </ul>
@@ -67,13 +62,15 @@
 </div></blockquote>
 <p>You could achieve it all with a single command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
-graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan -a fsaverage -p <span class="m">10</span> -o /work/project/graynet
+graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall <span class="se">\</span>
+    -w manhattan -a fsaverage -p <span class="m">10</span> -o /work/project/graynet
 </pre></div>
 </div>
 <p>That’s it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.</p>
 <p>Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation published in Glasser 2016 atlas and also curious to try multiple weight metrics -  <code class="docutils literal notranslate"><span class="pre">chebyshev</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine</span></code>, you can achieve it via the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /work/project
-graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p <span class="m">10</span> -o /work/project/graynet
+graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall <span class="se">\</span>
+    -w manhattan chebyshev cosine -a Glasser2016 -p <span class="m">10</span> -o /work/project/graynet
 </pre></div>
 </div>
 <p>You could also study curvature and sulcal depth features by simply adding more features to the <code class="docutils literal notranslate"><span class="pre">-f</span></code>, such as <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code> and <code class="docutils literal notranslate"><span class="pre">freesurfer_sulc</span></code>.</p>
@@ -94,7 +91,8 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 </div></blockquote>
 <p>After processing is done (on the cluster or locally), and assuming no other errors, you should see a CSV file for each subject, with <code class="docutils literal notranslate"><span class="pre">n*(n-1)/2</span></code> values corresponding to the upper-triangular part of the connectivity matrix, where n is the number of ROIs in a atlas you chose (68 for fsaverage or 360 for Glasser2016).</p>
 <p>The output folder will be graynet within <code class="docutils literal notranslate"><span class="pre">proc_dir</span></code> you choose in the script - determined by this statement in the above script:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_fwhm{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;{}_{}_fwhm{}_range{}_{}_nbins{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span>
+                                            <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>which after expansion looks something like based on your choices: <code class="docutils literal notranslate"><span class="pre">/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/</span></code></p>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Installation &#8212; graynet 0.4.5 documentation</title>
+    <title>Installation &#8212; graynet 0.4.7 documentation</title>
     <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.5 documentation</h1>
+        <h1>graynet 0.4.7 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.7 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -40,20 +40,26 @@
 <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>This package could easily be installed via:</p>
-<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">graynet</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">graynet</span></code> is written in Python completely and is distributed via the Python Package Index. It requires python (Free and awsome!) to be installed and <cite>pip</cite> to install. You most likley have them already. If you do not have python or pip installed, please follow the links below for instructions on installing them:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">graynet</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">graynet</span></code> is written in Python completely and is distributed via the Python Package Index. It requires python (Free and awesome!) to be installed and <cite>pip</cite> to install. You most likley have them already.</p>
+<p>If you do not have python or pip installed, please follow the links below for instructions on installing them:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Python 3 or higher: <a class="reference external" href="https://www.python.org/downloads/">https://www.python.org/downloads/</a> (pip comes packaged with Python)</p></li>
-<li><p>Windows users:</p>
+<li><p><strong>Windows</strong> users:</p>
 <ul>
-<li><p>can follow this guide <a class="reference external" href="https://www.ics.uci.edu/~pattis/common/handouts/pythoneclipsejava/python.html">https://www.ics.uci.edu/~pattis/common/handouts/pythoneclipsejava/python.html</a> or <a class="reference external" href="https://www.python.org/downloads/windows/">https://www.python.org/downloads/windows/</a></p></li>
+<li><p>Follow this guide <a class="reference external" href="https://www.ics.uci.edu/~pattis/common/handouts/pythoneclipsejava/python.html">https://www.ics.uci.edu/~pattis/common/handouts/pythoneclipsejava/python.html</a> or <a class="reference external" href="https://www.python.org/downloads/windows/">https://www.python.org/downloads/windows/</a></p></li>
 <li><p>and read these FAQ to familiarize themselves with typical questions using these FAQ: <a class="reference external" href="https://docs.python.org/3/faq/windows.html">https://docs.python.org/3/faq/windows.html</a></p></li>
 </ul>
 </li>
-<li><p>Note as this package is mainly geared towards batch processing (typically done on high-performance computing clusters). Hence, this has been tested only on Linux, and has not been tested on Windows. The API should work similarly, but the command line interface on Windows might be slightly less easy compared to Windows.</p></li>
 </ul>
 </div></blockquote>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Note as this package is mainly geared towards batch processing (typically done on high-performance computing clusters). Hence, this has been tested only on Linux, and <strong>has not been tested on Windows</strong>. The API should work similarly across all OSes as python is cross-platform by design. However, the command line interface on Windows might be more difficult to use compared to Linux (because of the horrible nature of path specification and handling on Windows, and lack of powerful Terminals for easy file management).</p>
+</div>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <blockquote>

@@ -8,8 +8,8 @@ The following steps should help you get started and going quickly:
     - Install `CAT12 toolbox <http://www.neuro.uni-jena.de/cat/>`_ and read the `manual <http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf>`_
     - Ensure you produce the outputs in *normalized* atlas space, by selecting the output option to be either ``Modulated normalized`` or ``normalized`` depending on your analyses plan. Correct processing would produce images of size 121 x 145 x 121, which must be the same as the atlases included in the CAT12 toolbox
     - Run the CAT12 processing and ensure it is complete
-        - Perform the QA as suggested in their `manual <http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf>`_ e.g. "SECOND MODULE: DISPLAY ONE SLICE FOR ALL IMAGES".
-        - For a more comprehensive QC of segmentation accuracy, you can employ `visualqc <https://raamana.github.io/visualqc/readme.html>`_
+    - Perform the QA as suggested in their `manual <http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf>`_ e.g. "second module: display one slice for all images".
+    - For a more comprehensive QC of segmentation accuracy, you can employ `visualqc <https://raamana.github.io/visualqc/gallery_segmentation_volumetric.html>`_
     - If everything went well, you would have an ``mri`` folder created in the output folder you chose. This folder would have several files, for each subject you processed e.g. ``mwp1SUBJECTID.nii`` contains the voxel-wise gray matter densities for SUBJECTID in the modulated (prefix ``m`` ) normalized (``w`` ) atlas space. Similarly ``mwp2*.nii`` files would contain voxel-wise white matter densities.
 
 
@@ -28,7 +28,8 @@ You could achieve it all with a single command:
 .. code-block:: bash
 
     cd /work/project
-    graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w manhattan -a cat_aal -o /work/project/cat12_vbm/graynet_volumetric
+    graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w manhattan -a cat_aal \
+        -o /work/project/cat12_vbm/graynet_volumetric
 
 That's it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.
 
@@ -37,10 +38,17 @@ Suppose, you prefer to analyze ROIs as defined by other atlases, graynet also su
 .. code-block:: bash
 
     cd /work/project
-    graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm -w chebyshev cosine manhattan -a cat_LPBA40 -o /work/project/cat12_vbm/graynet_volumetric
+    graynet -s subject_ids.txt -f spm_cat_gmdensity -i /work/project/cat12_vbm \
+        -w chebyshev cosine manhattan -a cat_LPBA40 -o /work/project/cat12_vbm/graynet_volumetric
 
 
 You could also study other features by simply adding more features to the ``-f``, such as ``spm_cat_wmdensity`` (white matter density).
+
+
+Atlas choices
+~~~~~~~~~~~~~~~~~
+
+Following volumetric atlases are available for processing from CAT12 by default: ``cat_aal``, ``cat_lpba40`` and ``cat_ibsr``, you can specify them just by their name via ``--atlas`` argument at the command line. To allow maximum choice for the user, we also support specifying an arbitrary path to a 3D volume containing another potentially more appropriate parcellation for your current analyses. Read more details at ``Atlas`` argument in :doc:`usage_cli` before trying.
 
 
 Processing large datasets or atlases with many ROIs
@@ -57,7 +65,8 @@ The output folder will be graynet within ``proc_dir`` you choose in the script -
 
 .. code-block:: python
 
-    out_dir = pjoin(proc_dir, 'graynet', '{}_{}_range{}_{}_nbins{}'.format(base_feature, atlas, edge_range[0], edge_range[1], num_bins))
+    out_dir = pjoin(proc_dir, 'graynet', '{}_{}_range{}_{}_nbins{}'.format(base_feature, atlas,
+                                                            edge_range[0], edge_range[1], num_bins))
 
 
 which after expansion looks something like based on your choices: ``/your_proc_dir/graynet/spm_cat_gmdensity_cat_aal_range_0_1_nbins25/``
