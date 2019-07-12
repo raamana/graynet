@@ -185,10 +185,17 @@ def extract_multiedge(subject_id_list,
         If return_results is False, this will be None, which is the default.
     """
 
+    # volumetric version is not fully tested yet!
+    for feat in base_feature_list:
+        if feat in cfg.features_volumetric:
+            raise NotImplementedError('MultiEdge networks are not yet supported '
+                                      'for volumetric features! '
+                                      'They are under development. Stay tuned.')
+
     # All the checks must happen here, as this is key function in the API
-    check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param, node_size, out_dir,
-                           return_results)
-    atlas = check_atlas(atlas)
+    check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
+                           node_size, out_dir, return_results)
+    atlas, atlas_name = check_atlas(atlas)
 
     subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
 
@@ -208,20 +215,21 @@ def extract_multiedge(subject_id_list,
     uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
 
     print('\nProcessing {} features resampled to {} atlas,'
-          ' smoothed at {} with node size {}'.format(base_feature_list, atlas,
+          ' smoothed at {} with node size {}'.format(base_feature_list, atlas_name,
                                                      smoothing_param, node_size))
 
     if not return_results:
         if out_dir is None:
-            raise ValueError(
-                'When return_results=False, out_dir must be specified to be able to save the results.')
+            raise ValueError('When return_results=False, '
+                             'out_dir must be specified '
+                             'to be able to save the results.')
         if not pexists(out_dir):
             os.mkdir(out_dir)
 
     partial_func_extract = partial(per_subject_multi_edge, input_dir, base_feature_list,
                                    roi_labels, centroids,
                                    weight_method_list, summary_stats, summary_stat_names,
-                                   atlas, smoothing_param, node_size,
+                                   atlas, atlas_name, smoothing_param, node_size,
                                    num_bins, edge_range_dict,
                                    out_dir, return_results, overwrite_results, pretty_print_options)
     if num_procs > 1:
@@ -249,7 +257,7 @@ def extract_multiedge(subject_id_list,
 
 def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                            weight_method_list, summary_stats, summary_stat_names,
-                           atlas, smoothing_param, node_size,
+                           atlas, atlas_name, smoothing_param, node_size,
                            num_bins, edge_range_dict,
                            out_dir, return_results, overwrite_results, pretty_print_options,
                            subject=None):  # purposefully leaving it last to enable partial function creation
@@ -269,7 +277,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
 
     for ww, weight_method in enumerate(weight_method_list):
 
-        expt_id_multi = stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size,
+        expt_id_multi = stamp_expt_multiedge(base_feature_list, atlas_name,
+                                             smoothing_param, node_size,
                                              weight_method)
         out_path_multigraph = make_output_path_graph(out_dir, subject,
                                                      [expt_id_multi, 'multigraph'])
@@ -309,8 +318,9 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                                                cfg.null_roi_name)
 
                 # unique stamp for each subject and weight
-                expt_id_single = stamp_expt_weight(base_feature, atlas, smoothing_param,
-                                                                 node_size, weight_method)
+                expt_id_single = stamp_expt_weight(base_feature, atlas_name,
+                                                   smoothing_param, node_size,
+                                                   weight_method)
                 sys.stdout.write('\nProcessing id {:{id_width}} --'
                                  ' weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
                                  ' :'.format(subject, weight_method, ww + 1, num_weights,
