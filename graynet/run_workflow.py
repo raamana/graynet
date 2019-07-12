@@ -649,9 +649,18 @@ def get_parser():
                       "with the following key files that must exist: " \
                       "``label/?h.aparc.annot`` and ``surf/?h.orig``.\n\n" \
                       "*Cortical* atlases supported: ``fsaverage`` and " \
-                      "``glasser2016``.\n\n" \
-                      "*Volumetric* atlases supported for CAT12 features: " \
-                      "``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``.\n\n" \
+                      "``glasser2016``. In addition, you can also specify an " \
+                      "absolute path to the Freesurfer processing of any " \
+                      "arbitrary atlas. Read these instructions before trying: " \
+                      "https://raamana.github.io/graynet/cortical.html#using-a-different-atlas" \
+                      "\n\n\n*Volumetric* atlases supported for CAT12 features: " \
+                      "``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``." \
+                      "In addition, you can also directly specify an absolute path " \
+                      "to a single 3D volume. Make sure name this file properly as it" \
+                      "would be used to encode all the processing i.e. make it " \
+                      "clean as well as fully reflective of the properties of the " \
+                      "parcellation inside." \
+                      "\n\n" \
                       "Default: ``{}``" \
                       "".format(cfg.default_atlas)
     help_text_parc_size = "Size of individual node for the atlas parcellation. " \
