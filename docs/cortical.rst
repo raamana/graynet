@@ -6,7 +6,7 @@ For the cortical stream of processing, ``graynet`` relies on outputs from Freesu
 The following steps should help you get started and going quickly:
 
     - Ensure Freesurfer processing is complete
-        - It is **highly** recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. This QC is quite easy now using `visualqc <https://raamana.github.io/visualqc/readme.html>`_
+    - It is **highly** recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. Such QC is quite easy now using `visualqc <https://raamana.github.io/visualqc/readme.html>`_
     - Ensure you ran ``recon-all`` with ``-qcache`` flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.
     - check :ref:`run_fs` for more details.
 
@@ -25,7 +25,8 @@ You could achieve it all with a single command:
 .. code-block:: bash
 
     cd /work/project
-    graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan -a fsaverage -p 10 -o /work/project/graynet
+    graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall \
+        -w manhattan -a fsaverage -p 10 -o /work/project/graynet
 
 That's it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.
 
@@ -34,7 +35,8 @@ Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation publ
 .. code-block:: bash
 
     cd /work/project
-    graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p 10 -o /work/project/graynet
+    graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall \
+        -w manhattan chebyshev cosine -a Glasser2016 -p 10 -o /work/project/graynet
 
 
 You could also study curvature and sulcal depth features by simply adding more features to the ``-f``, such as ``freesurfer_curv`` and ``freesurfer_sulc``.
@@ -64,7 +66,8 @@ The output folder will be graynet within ``proc_dir`` you choose in the script -
 
 .. code-block:: python
 
-    out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_range{}_{}_nbins{}'.format(base_feature, atlas, fwhm, edge_range[0], edge_range[1], num_bins))
+    out_dir = pjoin(proc_dir, 'graynet', '{}_{}_fwhm{}_range{}_{}_nbins{}'.format(base_feature, atlas, fwhm,
+                                                edge_range[0], edge_range[1], num_bins))
 
 
 which after expansion looks something like based on your choices: ``/your_proc_dir/graynet/freesurfer_thickness_GLASSER2016_fwhm10_range0_5_nbins25/``

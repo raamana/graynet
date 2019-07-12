@@ -20,11 +20,11 @@ In both streams, in addition to the computation of pair-wise network-level featu
 
 The package offers both :doc:`usage_cli` and an :doc:`API`, to better integrate with your workflow. However, the CLI is the recommended/most-tested gateway.
 
-For uniform processing across subjects, ``graynet`` needs:
+For uniform processing across subjects, ``graynet`` **needs**:
 
   - an atlas with pre-defined ROIs
-  - each subject be registered to atlas (vertex- or voxel-wise), so ROIs correspond across all subjects.
-  - the extracted features are in a format readable by ``nibabel``
+  - each subject be registered to that atlas (vertex- or voxel-wise), so ROIs correspond across all subjects
+  - the extracted features are in a format readable by ``nibabel`` (Freesurfer formats and Nifti are strongly recommended)
 
 The following steps should help you get started and going quickly:
 
