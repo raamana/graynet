@@ -9,7 +9,7 @@ The following steps should help you get started and going quickly:
     - Ensure you produce the outputs in *normalized* atlas space, by selecting the output option to be either ``Modulated normalized`` or ``normalized`` depending on your analyses plan. Correct processing would produce images of size 121 x 145 x 121, which must be the same as the atlases included in the CAT12 toolbox
     - Run the CAT12 processing and ensure it is complete
     - Perform the QA as suggested in their `manual <http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf>`_ e.g. "second module: display one slice for all images".
-    - For a more comprehensive QC of segmentation accuracy, you can employ `visualqc https://raamana.github.io/visualqc/gallery_segmentation_volumetric.html`_
+    - For a more comprehensive QC of segmentation accuracy, you can employ `visualqc <https://raamana.github.io/visualqc/gallery_segmentation_volumetric.html>`_
     - If everything went well, you would have an ``mri`` folder created in the output folder you chose. This folder would have several files, for each subject you processed e.g. ``mwp1SUBJECTID.nii`` contains the voxel-wise gray matter densities for SUBJECTID in the modulated (prefix ``m`` ) normalized (``w`` ) atlas space. Similarly ``mwp2*.nii`` files would contain voxel-wise white matter densities.
 
 
