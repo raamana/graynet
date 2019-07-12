@@ -469,8 +469,11 @@ def mask_background_roi(data, labels, ignore_label):
     "Returns everything but specified label"
 
     if data.size != labels.size or data.shape != labels.shape:
-        raise ValueError('features and membership (group labels) differ'
-                         ' in length or shape!')
+        raise ValueError('Subject features and membership (group labels) differ'
+                         ' in length or shape!\n'
+                         'This may happen if volumes for atlas and subject differ '
+                         'in size/dimensions. Ensure all the subjects have '
+                         'voxel-wise correspondence with the atlas.')
 
     mask = labels != ignore_label
     masked_data = data[mask]
