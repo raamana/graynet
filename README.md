@@ -7,6 +7,13 @@
 
 [![saythanks](https://img.shields.io/badge/say-thanks-ff69b4.svg)](https://saythanks.io/to/raamana)
 
+# News
+
+ - Volumetric version of graynet is available now - [check here](https://raamana.github.io/graynet/volumetric.html)
+
+
+# Overview
+
 Individualized single-subject networks from T1-weighted magnetic resonance imaging (MRI) features such as:
   - Cortical thickness.
   - Gray matter density.
