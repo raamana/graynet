@@ -1,5 +1,5 @@
 numpy
-nibabel
+nibabel==2.5.1
 networkx
 hiwenet
 plotly
