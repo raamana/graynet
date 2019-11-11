@@ -1,4 +1,4 @@
 networkx
-numpy
+numpy==1.17.4
 nibabel
 hiwenet
