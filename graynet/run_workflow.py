@@ -330,9 +330,9 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
 
             # adding position info to nodes (for visualization later)
             for roi in centroids:
-                graph.node[roi]['x'] = float(centroids[roi][0])
-                graph.node[roi]['y'] = float(centroids[roi][1])
-                graph.node[roi]['z'] = float(centroids[roi][2])
+                graph.nodes[roi]['x'] = float(centroids[roi][0])
+                graph.nodes[roi]['y'] = float(centroids[roi][1])
+                graph.nodes[roi]['z'] = float(centroids[roi][2])
 
             if return_results:
                 edge_weights_all[(weight_method, subject)] = weight_vec

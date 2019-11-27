@@ -37,11 +37,11 @@ def draw3Dnx(graph=None,
     if positions_array is not None:
         for node in graph.nodes():
             for ix, attr in enumerate(position_attr):
-                graph.node[node][attr] = positions_array[node][ix]
+                graph.nodes[node][attr] = positions_array[node][ix]
     elif positions_dict is not None:
         for node in graph.nodes():
             for attr in position_attr:
-                graph.node[node][attr] = positions_array[node][attr]
+                graph.nodes[node][attr] = positions_array[node][attr]
 
     for attr in position_attr:
         if not nx.get_node_attributes(graph, attr):
@@ -74,8 +74,8 @@ def draw3Dnx(graph=None,
     for src, dest in graph.edges():
         # adding only the strongest edges
         if perc_threshold is None or graph.get_edge_data(src, dest)['weight'] > edge_threshold:
-            x0, y0, z0 = get_position(graph.node[src ])  # ['position']
-            x1, y1, z1 = get_position(graph.node[dest])  # ['position']
+            x0, y0, z0 = get_position(graph.nodes[src ])  # ['position']
+            x1, y1, z1 = get_position(graph.nodes[dest])  # ['position']
             edge_trace['x'].extend([x0, x1, None])
             edge_trace['y'].extend([y0, y1, None])
             edge_trace['z'].extend([z0, z1, None])
@@ -104,7 +104,7 @@ def draw3Dnx(graph=None,
 
     # setting nodal positions and info
     for ix, node in enumerate(graph.nodes()):
-        x, y, z = get_position(graph.node[node])
+        x, y, z = get_position(graph.nodes[node])
         node_trace['x'].append(x)
         node_trace['y'].append(y)
         node_trace['z'].append(z)
