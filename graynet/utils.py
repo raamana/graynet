@@ -340,7 +340,7 @@ def check_num_bins(num_bins):
         num_bins = np.float(num_bins)
 
     # rounding it to ensure it is int
-    num_bins = np.rint(num_bins)
+    num_bins = int(num_bins)
 
     if np.isnan(num_bins) or np.isinf(num_bins):
         raise ValueError('Invalid value for number of bins! '
