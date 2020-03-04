@@ -140,12 +140,12 @@ def volumetric_roi_info(atlas_spec):
 
     if is_image(atlas_spec) and is_image_3D(atlas_spec):
         if atlas_spec.__class__ in nibabel.all_image_classes:
-            atlas_labels = atlas_spec.get_data()
+            atlas_labels = atlas_spec.get_fdata()
         else:
             atlas_labels = np.array(atlas_spec)
     elif isinstance(atlas_spec, str):
         atlas_path, atlas_name = get_atlas_path(atlas_spec)
-        atlas_labels = nibabel.load(atlas_path).get_data()
+        atlas_labels = nibabel.load(atlas_path).get_fdata()
     else:
         raise ValueError('Unrecognized atlas specification!'
                          'Must be a predefined name, or'

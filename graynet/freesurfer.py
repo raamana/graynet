@@ -95,9 +95,10 @@ def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10,
                  '{}.{}.fwhm{}.{}.mgh'.format(hemi, feature, fwhm, atlas))
 
 
-def __read_morph_feature(tpath):
+def __read_morph_feature(thk_path):
     "Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"
-    vec = nibabel.load(tpath).get_data() # typically of shape: (163842, 1, 1)
+
+    vec = nibabel.load(thk_path).get_fdata() # typically of shape: (163842, 1, 1)
 
     return np.squeeze(vec) # becomes (163842, )
 
