@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Cortical graynet &#8212; graynet 0.4.7+0.g99da605.dirty documentation</title>
+    <title>Cortical graynet &#8212; graynet 0.4.9 documentation</title>
     <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.7+0.g99da605.dirty documentation</h1>
+        <h1>graynet 0.4.9 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.7+0.g99da605.dirty documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.9 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -43,10 +43,9 @@
 <p>The following steps should help you get started and going quickly:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Ensure Freesurfer processing is complete</p></li>
-<li><p>It is <strong>highly</strong> recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. Such QC is quite easy now using <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a></p></li>
-<li><p>Ensure you ran <code class="docutils literal notranslate"><span class="pre">recon-all</span></code> with <code class="docutils literal notranslate"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.</p></li>
-<li><p>check <a class="reference internal" href="#run-fs"><span class="std std-ref">How to run Freesurfer</span></a> for more details.</p></li>
+<li><p>Ensure Freesurfer processing is complete. Check <a class="reference internal" href="#run-fs"><span class="std std-ref">How to run Freesurfer</span></a> for more details</p></li>
+<li><p>Ensure you ran <code class="docutils literal notranslate"><span class="pre">recon-all</span></code> with <code class="docutils literal notranslate"><span class="pre">-qcache</span></code> flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing. See <a class="reference internal" href="#qcache-flag"><span class="std std-ref">Qcache recon-all flag</span></a> for more details</p></li>
+<li><p>It is <strong>highly</strong> recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. Such QC is quite easy now using <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a>.</p></li>
 </ul>
 </div></blockquote>
 <p>If graynet is installed without error, you should have <code class="docutils literal notranslate"><span class="pre">graynet</span></code> command in your path. Just type <code class="docutils literal notranslate"><span class="pre">graynet</span></code> and you should see it display options and usage instructions, as presented in <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> page.</p>
@@ -128,6 +127,14 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
 </ul>
 </div></blockquote>
 <p>We encourage the use of default behaviour (simple inclusion of <code class="docutils literal notranslate"><span class="pre">-qcache</span></code>), which will smooth the surface data for thickness, curv, sulc, area and jacobian_white at 0, 5, 10, 15, 20, and 25 mm FWHM.</p>
+<p>If you already have a completed run of Freesurfer, you can use the following command to run the <code class="docutils literal notranslate"><span class="pre">-qcache</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>recon-all -s <span class="nv">$SUBJECT_ID</span> -qcache
+</pre></div>
+</div>
+<p>which will run it with default parameters i.e. all measures available such as thickness, curvature, sulcal depth, area and the like. In addition, the default behaviour is to smooth them at 5mm FWHM to 25mm FWHM in steps of 5mm. You can control for a fewer combinations (e.g. one measure and one smoothing level) with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>recon-all -s <span class="nv">$SUBJECT_ID</span> -qcache -measure thickness -fwhm <span class="m">10</span>
+</pre></div>
+</div>
 <p>If you are interested in resampling the data on to a different atlas or process features outside Freesurfer structure, check <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/qcache">https://surfer.nmr.mgh.harvard.edu/fswiki/qcache</a> for more info.</p>
 <p>The parcellation for the <a class="reference external" href="http://www.nature.com/nature/journal/vaop/ncurrent/full/nature18933.html">Glasser et al 2016</a> atlas has been resampled onto the fsaverage space already, courtesy of <a class="reference external" href="https://figshare.com/articles/HCP-MMP1_0_projected_on_fsaverage/3498446">Kathryn Mills</a>.</p>
 <p>If you run into any issues, or have a feature you would like, please let me know here <a class="reference external" href="https://github.com/raamana/graynet/issues/new">by opening an issue</a>.</p>

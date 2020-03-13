@@ -5,10 +5,9 @@ For the cortical stream of processing, ``graynet`` relies on outputs from Freesu
 
 The following steps should help you get started and going quickly:
 
-    - Ensure Freesurfer processing is complete
-    - It is **highly** recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. Such QC is quite easy now using `visualqc <https://raamana.github.io/visualqc/readme.html>`_
-    - Ensure you ran ``recon-all`` with ``-qcache`` flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing.
-    - check :ref:`run_fs` for more details.
+    - Ensure Freesurfer processing is complete. Check :ref:`run_fs` for more details
+    - Ensure you ran ``recon-all`` with ``-qcache`` flag choosing atleast one FWHM value (10 is the default). If not already run, it is quick to rerun on existing Freesurfer processing. See :ref:`qcache_flag` for more details
+    - It is **highly** recommended that you perform quality control on the Freesurfer outputs before you use them for analysis. Such QC is quite easy now using `visualqc <https://raamana.github.io/visualqc/readme.html>`_.
 
 If graynet is installed without error, you should have ``graynet`` command in your path. Just type ``graynet`` and you should see it display options and usage instructions, as presented in :doc:`usage_cli` page.
 
@@ -112,6 +111,19 @@ The Qcache recon-all flag does the following:
     - smooth it at a range of FWHM (full-width/half-max) values, usually 0, 5, 10, 15, 20, and 25mm.
 
 We encourage the use of default behaviour (simple inclusion of ``-qcache``), which will smooth the surface data for thickness, curv, sulc, area and jacobian_white at 0, 5, 10, 15, 20, and 25 mm FWHM.
+
+If you already have a completed run of Freesurfer, you can use the following command to run the ``-qcache``
+
+.. code-block:: bash
+
+    recon-all -s $SUBJECT_ID -qcache
+
+which will run it with default parameters i.e. all measures available such as thickness, curvature, sulcal depth, area and the like. In addition, the default behaviour is to smooth them at 5mm FWHM to 25mm FWHM in steps of 5mm. You can control for a fewer combinations (e.g. one measure and one smoothing level) with:
+
+.. code-block:: bash
+
+    recon-all -s $SUBJECT_ID -qcache -measure thickness -fwhm 10
+
 
 If you are interested in resampling the data on to a different atlas or process features outside Freesurfer structure, check https://surfer.nmr.mgh.harvard.edu/fswiki/qcache for more info.
 
