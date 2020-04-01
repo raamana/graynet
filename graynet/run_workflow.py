@@ -209,7 +209,7 @@ def extract(subject_id_list,
             os.mkdir(out_dir)
 
     if base_feature in cfg.features_cortical:
-        uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
+        uniq_rois, centroids, roi_labels = roi_labels_centroids(atlas, node_size)
         partial_func_extract = partial(extract_per_subject_cortical, input_dir,
                                        base_feature, roi_labels, centroids,
                                        weight_method_list, atlas, atlas_name,

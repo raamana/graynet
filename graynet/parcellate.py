@@ -58,7 +58,7 @@ def get_atlas_annot(atlas_name=None):
     return annot, atlas_path
 
 
-def freesurfer_roi_labels(atlas_name):
+def freesurfer_roi_labels(atlas_name, node_size):
     """
     Returns just the vertex-wise indices for grouping the vertices into ROIs.
         Order:  left followed by right.
@@ -67,6 +67,21 @@ def freesurfer_roi_labels(atlas_name):
 
     annot, _ = get_atlas_annot(atlas_name)
     roi_labels = __combine_annotations(annot, atlas_name)
+
+    if node_size is not None:
+        patch_index = load_subdivision_patchwise(atlas_name, node_size).ravel()
+
+        numbered = list()
+        for rl, pi in zip(roi_labels, patch_index):
+            if rl == cfg.null_roi_name or np.isnan(pi):
+                numbered.append(cfg.null_roi_name)
+                # as there is no subdivision in a Null ROI
+            else:
+                numbered.append('{}_p{}'.format(rl, int(pi)))
+        # results --> 'lh_precuneus_p9' indicating patch 9 of left precuneus
+        #   except when the ROI was labelled cfg.null_roi_name / 'null_roi_ignore'
+
+        roi_labels = np.array(numbered)
 
     return roi_labels, annot
 
@@ -156,12 +171,12 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     return coords, faces, annot
 
 
-def roi_labels_centroids(atlas_name):
+def roi_labels_centroids(atlas_name, node_size):
     "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
 
     atlas_dir, atlas_name = get_atlas_path(atlas_name)
     coords, faces, annot = read_freesurfer_atlas(atlas_dir)
-    vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name)
+    vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name, node_size)
     uniq_rois, roi_size, num_nodes = roi_info(vertex_labels)
 
     centroids = dict()
