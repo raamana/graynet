@@ -293,11 +293,36 @@ def test_invalid_nbins():
         ew = graynet.extract(subject_id_list, fs_dir, num_bins=2)
 
 
+def test_atlas_parcel_subdivision():
+
+    wm = 'manhattan'
+    # much slower: zip(cfg.allowed_mvpp, cfg.mvpp_to_total_num_patches)
+    for mvpp, tot_patch_count in zip((1000, 10000), (273, 68)):
+        edge_weights_all = extract(subject_id_list, example_dir,
+                                   base_feature=base_feature,
+                                   weight_method_list=[wm,],
+                                   atlas='fsaverage', node_size=mvpp,
+                                   smoothing_param=fwhm, out_dir=out_dir,
+                                   return_results=True, num_procs=1)
+
+        num_combinations = len(list(edge_weights_all))
+
+        if num_combinations != len(subject_id_list):
+            raise ValueError('mvpp: invalid count : # subjects')
+
+        num_links = tot_patch_count * (tot_patch_count - 1) / 2
+        for sub in subject_id_list:
+            if edge_weights_all[(wm, sub)].size != num_links:
+                raise ValueError('mvpp: invalid count : # links')
+
+
 # test_multi_edge()
 # test_multi_edge_CLI()
 # test_empty_subject_list()
 # test_run_no_IO()
-test_run_roi_stats_via_API()
+# test_run_roi_stats_via_API()
 # test_run_roi_stats_via_CLI()
 # test_CLI_only_weight_or_stats()
 # test_run_API_on_original_features()
+
+test_atlas_parcel_subdivision()
