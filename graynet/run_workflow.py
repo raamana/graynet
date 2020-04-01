@@ -665,10 +665,12 @@ def get_parser():
 
     help_text_parc_size = "Size of individual patch for the atlas parcellation, " \
                           "in terms of minimum number of vertices per patch. " \
-                          "This is ONLY valid for cortical version of graynet, " \
+                          "This is *ONLY* valid for cortical version of graynet, " \
                           "when using atlas fsaverage only, that has precomputed " \
-                          "parcellation for a set of predetermined patch sizes. " \
-                          "Default : {}".format(cfg.default_node_size)
+                          "parcellation for a set of predetermined patch sizes.\n" \
+                          "\nAllowed values: (None, 250, 500, 1000, 2000, 3000, " \
+                          "5000, 10000). \n" \
+                          "\nDefault : {}".format(cfg.default_node_size)
 
     help_text_smoothing = "Smoothing parameter for feature. " \
                           "Default: FWHM of {} " \
