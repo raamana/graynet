@@ -99,25 +99,29 @@ def __combine_annotations(annot, atlas_name):
         named_labels[hemi] = np.empty(annot[hemi]['labels'].shape, str_dtype)
         uniq_labels = np.unique(annot[hemi]['labels'])
         for label in uniq_labels:
-            if not (label == cfg.null_roi_index or label in cfg.ignore_roi_labels[
-                atlas_name]):  # to be ignored
+            if not ( (label == cfg.null_roi_index) or
+                     (label in cfg.ignore_roi_labels[atlas_name])):  # to be ignored
                 idx_roi = np.nonzero(annot[hemi]['ctab'][:, 4] == label)[0][0]
                 mask_label = annot[hemi]['labels'] == label
-                named_labels[hemi][mask_label] = '{}_{}'.format(hemi, annot[hemi]['names'][idx_roi])
+                named_labels[hemi][mask_label] = \
+                    '{}_{}'.format(hemi, annot[hemi]['names'][idx_roi])
 
-        # setting the non-accessed vertices (part of non-cortex) to specific label to ignore later
+        # setting the non-accessed vertices (part of non-cortex)
+        # to a specific label to ignore later
         null_mask = named_labels[hemi] == ''
         named_labels[hemi][null_mask] = cfg.null_roi_name
 
-    wholebrain_named_labels = np.hstack((named_labels['lh'], named_labels['rh']))
+    # wb stands for whole brain
+    wb_named_labels = np.hstack((named_labels['lh'], named_labels['rh']))
 
     for ignore_label in cfg.ignore_roi_names[atlas_name]:
-        wholebrain_named_labels[wholebrain_named_labels == ignore_label] = cfg.null_roi_name
+        wb_named_labels[wb_named_labels == ignore_label] = cfg.null_roi_name
 
-    # # original implementation for glasser2016, with labels in different hemi coded differently
+    # # original implementation for glasser2016,
+    # #  with labels in different hemi coded differently
     # roi_labels = np.hstack((annot['lh']['labels'], annot['rh']['labels']))
 
-    return wholebrain_named_labels
+    return wb_named_labels
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):

@@ -6,23 +6,26 @@ import versioneer
 setup(name='graynet',
       version=versioneer.get_version(),
       cmdclass=versioneer.get_cmdclass(),
-      description='Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density. ',
-      long_description="""Individualized single-subject networks from T1-weighted magnetic resonance imaging (MRI) features such as:
-  - Cortical thickness.
-  - Gray matter density.
-  - Subcortical morphometric features.
-  - Gyrification and curvature. 
+      description='Individualized single-subject networks from T1 mri features '
+                  'such as cortical thickness and gray matter density. ',
+      long_description="""
+Individualized single-subject networks from T1-weighted MRI features such as:
+  - Cortical thickness
+  - Gray matter density
+  - Subcortical morphometric features
+  - Gyrification and curvature
 
 Applicable for whenever network-level features are useful, among which common use cases are: 
  - Biomarker development.
  - Brain-behaviour relationships (e.g. for the diagnosis and prognosis of many brain disorders such as Alzheimer's, Parkinson's, Schizophrenia and the like).
  - Aging (changes in network properties over age and their relations to other variables).
 
-Docs: https://raamana.github.io/graynet/""",
+Docs: https://raamana.github.io/graynet/
+""",
       author='Pradeep Reddy Raamana',
       author_email='raamana@gmail.com',
       url='https://github.com/raamana/graynet',
-      packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]), # ['neuropredict'],
+      packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
       install_requires=['numpy', 'pyradigm', 'nibabel', 'networkx', 'medpy'],
       classifiers=[
               'Intended Audience :: Science/Research',

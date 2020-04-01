@@ -27,7 +27,7 @@ from sys import version_info
 if version_info.major > 2:
     from graynet import utils
     from graynet.volumetric import extract_per_subject_volumetric, volumetric_roi_info
-    from graynet import parcellate
+    from graynet.parcellate import roi_labels_centroids
     from graynet import config_graynet as cfg
     from graynet import __version__
 else:
@@ -195,9 +195,8 @@ def extract(subject_id_list,
     num_procs = check_num_procs(num_procs)
     pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
 
-    # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
+    # roi_labels, ctx_annot = freesurfer_roi_labels(atlas)
     # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
-
 
     print('\nProcessing {} features'.format(base_feature))
 
@@ -454,7 +453,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
 
     if base_feature in cfg.features_cortical:
-        uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
+        uniq_rois, centroids, roi_labels = roi_labels_centroids(atlas)
         null_roi_to_be_ignored = cfg.null_roi_name
     elif base_feature in cfg.features_volumetric:
         uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas)
