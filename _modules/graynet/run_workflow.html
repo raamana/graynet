@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>graynet.run_workflow &#8212; graynet 0.4.9 documentation</title>
+    <title>graynet.run_workflow &#8212; graynet 0.5 documentation</title>
     <link rel="stylesheet" href="../../_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -20,11 +20,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.9 documentation</h1>
+        <h1>graynet 0.5 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.4.9 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.5 documentation</a> &#187;
             </li>
                 <li class="nav-item nav-item-1"><a href="../index.html"
                         accesskey="U">Module code</a> &#187;</li>
@@ -67,7 +67,7 @@
 <span class="k">if</span> <span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">utils</span>
     <span class="kn">from</span> <span class="nn">graynet.volumetric</span> <span class="k">import</span> <span class="n">extract_per_subject_volumetric</span><span class="p">,</span> <span class="n">volumetric_roi_info</span>
-    <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">parcellate</span>
+    <span class="kn">from</span> <span class="nn">graynet.parcellate</span> <span class="k">import</span> <span class="n">roi_labels_centroids</span>
     <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">config_graynet</span> <span class="k">as</span> <span class="n">cfg</span>
     <span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">__version__</span>
 <span class="k">else</span><span class="p">:</span>
@@ -235,9 +235,8 @@
     <span class="n">num_procs</span> <span class="o">=</span> <span class="n">check_num_procs</span><span class="p">(</span><span class="n">num_procs</span><span class="p">)</span>
     <span class="n">pretty_print_options</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_id_width</span><span class="p">,</span> <span class="n">nd_id</span><span class="p">,</span> <span class="n">num_weights</span><span class="p">,</span> <span class="n">max_wtname_width</span><span class="p">,</span> <span class="n">nd_wm</span><span class="p">)</span>
 
-    <span class="c1"># roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)</span>
+    <span class="c1"># roi_labels, ctx_annot = freesurfer_roi_labels(atlas)</span>
     <span class="c1"># uniq_rois, roi_size, num_nodes = roi_info(roi_labels)</span>
-
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Processing </span><span class="si">{}</span><span class="s1"> features&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">))</span>
 
@@ -249,7 +248,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">base_feature</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">features_cortical</span><span class="p">:</span>
-        <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">parcellate</span><span class="o">.</span><span class="n">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas</span><span class="p">)</span>
+        <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas</span><span class="p">,</span> <span class="n">node_size</span><span class="p">)</span>
         <span class="n">partial_func_extract</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">extract_per_subject_cortical</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span>
                                        <span class="n">base_feature</span><span class="p">,</span> <span class="n">roi_labels</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span>
                                        <span class="n">weight_method_list</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">atlas_name</span><span class="p">,</span>
@@ -370,9 +369,9 @@
 
             <span class="c1"># adding position info to nodes (for visualization later)</span>
             <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">centroids</span><span class="p">:</span>
-                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="n">return_results</span><span class="p">:</span>
                 <span class="n">edge_weights_all</span><span class="p">[(</span><span class="n">weight_method</span><span class="p">,</span> <span class="n">subject</span><span class="p">)]</span> <span class="o">=</span> <span class="n">weight_vec</span>
@@ -494,7 +493,7 @@
 
 
     <span class="k">if</span> <span class="n">base_feature</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">features_cortical</span><span class="p">:</span>
-        <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">parcellate</span><span class="o">.</span><span class="n">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas</span><span class="p">)</span>
+        <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas</span><span class="p">)</span>
         <span class="n">null_roi_to_be_ignored</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span>
     <span class="k">elif</span> <span class="n">base_feature</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">features_volumetric</span><span class="p">:</span>
         <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">volumetric_roi_info</span><span class="p">(</span><span class="n">atlas</span><span class="p">)</span>
@@ -626,134 +625,50 @@
 <span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
     <span class="s2">&quot;Method to specify arguments and defaults. &quot;</span>
 
-    <span class="n">help_text_subject_ids</span> <span class="o">=</span> <span class="s2">&quot;Path to a file containing list of subject IDs &quot;</span> \
-                            <span class="s2">&quot;(one per line)&quot;</span>
-
+    <span class="n">help_text_subject_ids</span> <span class="o">=</span> <span class="s2">&quot;Path to file containing list of subject IDs (one per &quot;</span> \
+                            <span class="s2">&quot;line)&quot;</span>
     <span class="n">help_text_input_dir</span> <span class="o">=</span> <span class="s2">&quot;Path to a folder containing input data. It could, &quot;</span> \
-                          <span class="s2">&quot;for example, be a Freesurfer SUBJECTS_DIR, if the &quot;</span> \
-                          <span class="s2">&quot;chosen feature is from Freesurfer output.&quot;</span>
-
-    <span class="n">help_text_feature</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    Type of feature to be used for analysis. </span>
-<span class="s2">    </span>
-<span class="s2">    Default: ``</span><span class="si">{}</span><span class="s2">``. </span>
-<span class="s2">    </span>
-<span class="s2">    Choices: </span><span class="si">{}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cfg</span><span class="o">.</span><span class="n">base_feature_list</span><span class="p">)</span>
-
+                          <span class="s2">&quot;for example, &quot;</span> \
+                          <span class="s2">&quot;be a Freesurfer SUBJECTS_DIR, if the chosen feature is &quot;</span> \
+                          <span class="s2">&quot;from Freesurfer output.&quot;</span>
+    <span class="n">help_text_feature</span> <span class="o">=</span> <span class="s2">&quot;Type of feature to be used for analysis. Default: &#39;</span><span class="si">{}</span><span class="s2">&#39;. &quot;</span> \
+                        <span class="s2">&quot;Choices: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                             <span class="n">cfg</span><span class="o">.</span><span class="n">base_feature_list</span><span class="p">)</span>
     <span class="n">help_text_multi_edge</span> <span class="o">=</span> <span class="s2">&quot;Option to compute multiple edges between ROIs based on &quot;</span> \
-                           <span class="s2">&quot;different features. Default False. If True, two valid &quot;</span> \
-                           <span class="s2">&quot;features must be specified. Use --multi_edge_range to &quot;</span> \
-                           <span class="s2">&quot;specify edge ranges for each feature to be processed.&quot;</span>
-
+                           <span class="s2">&quot;different features. &quot;</span> \
+                           <span class="s2">&quot;Default False. If True, two valid features must be &quot;</span> \
+                           <span class="s2">&quot;specified. &quot;</span> \
+                           <span class="s2">&quot;Use --multi_edge_range to specify edge ranges for each &quot;</span> \
+                           <span class="s2">&quot;feature to be processed.&quot;</span>
     <span class="n">help_text_summary_stat</span> <span class="o">=</span> <span class="s2">&quot;Summary statistic [one or more] to compute on all &quot;</span> \
-                             <span class="s2">&quot;the weights from multiple edges.This must be a &quot;</span> \
-                             <span class="s2">&quot;string representing a method (like &#39;median&#39;, &quot;</span> \
-                             <span class="s2">&quot;&#39;prod&#39; or &#39;max&#39;),  that is available as a member of &quot;</span> \
-                             <span class="s2">&quot;numpy or scipy.stats.&quot;</span>
-    <span class="n">help_text_weight</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        Method to estimate the weight of the edge between the pair of nodes</span>
-<span class="s2">        </span>
-<span class="s2">        If a string (and not a callable), it can be *one or more* of the following </span>
-<span class="s2">        methods:</span>
-
-<span class="s2">        - &#39;chebyshev&#39;</span>
-<span class="s2">        - &#39;chebyshev_neg&#39;</span>
-<span class="s2">        - &#39;chi_square&#39;</span>
-<span class="s2">        - &#39;correlate&#39;</span>
-<span class="s2">        - &#39;correlate_1&#39;</span>
-<span class="s2">        - &#39;cosine&#39;</span>
-<span class="s2">        - &#39;cosine_1&#39;</span>
-<span class="s2">        - &#39;cosine_2&#39;</span>
-<span class="s2">        - &#39;cosine_alt&#39;</span>
-<span class="s2">        - &#39;euclidean&#39;</span>
-<span class="s2">        - &#39;fidelity_based&#39;</span>
-<span class="s2">        - &#39;histogram_intersection&#39;</span>
-<span class="s2">        - &#39;histogram_intersection_1&#39;</span>
-<span class="s2">        - &#39;jensen_shannon&#39;</span>
-<span class="s2">        - &#39;kullback_leibler&#39;</span>
-<span class="s2">        - &#39;manhattan&#39;</span>
-<span class="s2">        - &#39;minowski&#39;</span>
-<span class="s2">        - &#39;noelle_1&#39;</span>
-<span class="s2">        - &#39;noelle_2&#39;</span>
-<span class="s2">        - &#39;noelle_3&#39;</span>
-<span class="s2">        - &#39;noelle_4&#39;</span>
-<span class="s2">        - &#39;noelle_5&#39;</span>
-<span class="s2">        - &#39;relative_bin_deviation&#39;</span>
-<span class="s2">        - &#39;relative_deviation&#39;</span>
-<span class="s2">        - &#39;diff_medians&#39;</span>
-<span class="s2">        - &#39;diff_means&#39;</span>
-<span class="s2">        - &#39;diff_medians_abs&#39;</span>
-<span class="s2">        - &#39;diff_means_abs&#39;</span>
-<span class="s2">        - &#39;exp_diff_means_norm_std&#39;</span>
-<span class="s2">        - &#39;ranksum_statistic&#39;</span>
-<span class="s2">         </span>
-<span class="s2">        Note only the following are *metrics*:</span>
-
-<span class="s2">        - &#39;manhattan&#39;</span>
-<span class="s2">        - &#39;minowski&#39;</span>
-<span class="s2">        - &#39;euclidean&#39;</span>
-<span class="s2">        - &#39;noelle_2&#39;</span>
-<span class="s2">        - &#39;noelle_4&#39;</span>
-<span class="s2">        - &#39;noelle_5&#39;</span>
-
-<span class="s2">        The following are *semi- or quasi-metrics*:</span>
-
-<span class="s2">        - &#39;kullback_leibler&#39;</span>
-<span class="s2">        - &#39;jensen_shannon&#39;</span>
-<span class="s2">        - &#39;chi_square&#39;</span>
-<span class="s2">        - &#39;chebyshev&#39;</span>
-<span class="s2">        - &#39;cosine_1&#39;</span>
-<span class="s2">        - &#39;chebyshev_neg&#39;</span>
-<span class="s2">        - &#39;correlate_1&#39;</span>
-<span class="s2">        - &#39;histogram_intersection_1&#39;</span>
-<span class="s2">        - &#39;relative_deviation&#39;</span>
-<span class="s2">        - &#39;relative_bin_deviation&#39;</span>
-<span class="s2">        - &#39;noelle_1&#39;</span>
-<span class="s2">        - &#39;noelle_3&#39;</span>
-
-<span class="s2">        The following are  classified to be *similarity* functions:</span>
-
-<span class="s2">        - &#39;histogram_intersection&#39;</span>
-<span class="s2">        - &#39;correlate&#39;</span>
-<span class="s2">        - &#39;cosine&#39;</span>
-<span class="s2">        - &#39;cosine_2&#39;</span>
-<span class="s2">        - &#39;cosine_alt&#39;</span>
-<span class="s2">        - &#39;fidelity_based&#39;</span>
-
-<span class="s2">        The following metrics operate on the *original data directly* i.e. no </span>
-<span class="s2">        histograms are computed first. An example: difference in the medians of ROI </span>
-<span class="s2">        distributions of the two ROIs</span>
-
-<span class="s2">         - &#39;diff_medians&#39;</span>
-<span class="s2">         - &#39;diff_means&#39;</span>
-<span class="s2">         - &#39;diff_medians_abs&#39;</span>
-<span class="s2">         - &#39;diff_means_abs&#39;</span>
-<span class="s2">         - &#39;exp_diff_means_norm_std&#39;</span>
-<span class="s2">         - &#39;ranksum_statistic&#39;</span>
-<span class="s2">                       </span>
-<span class="s2">        Default: </span><span class="si">{}</span><span class="s2"> &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_weight_method</span><span class="p">)</span>
-
+                             <span class="s2">&quot;the weights from multiple edges.&quot;</span> \
+                             <span class="s2">&quot;This must be a string representing a method (like &quot;</span> \
+                             <span class="s2">&quot;&#39;median&#39;, &#39;prod&#39; or &#39;max&#39;),  &quot;</span> \
+                             <span class="s2">&quot;that is available as a member of numpy or scipy.stats.&quot;</span>
+    <span class="n">help_text_weight</span> <span class="o">=</span> <span class="s2">&quot;List of methods used to estimate the weight of the edge &quot;</span> \
+                       <span class="s2">&quot;between the pair of nodes.&quot;</span>  <span class="c1"># .format(</span>
+    <span class="c1"># cfg.default_weight_method)</span>
     <span class="n">help_text_num_bins</span> <span class="o">=</span> <span class="s2">&quot;Number of bins used to construct the histogram within &quot;</span> \
                          <span class="s2">&quot;each ROI or group. Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">)</span>
-
+            <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">)</span>
     <span class="n">help_text_edge_range</span> <span class="o">=</span> <span class="s2">&quot;The range of edges (two finite values) within which to &quot;</span> \
-                           <span class="s2">&quot;bin the given values e.g. --edge_range 0.0 5.0 &quot;</span> \
-                           <span class="s2">&quot;.Setting this is *crucial* to ensure correspondence &quot;</span> \
-                           <span class="s2">&quot;across multiple invocations of graynet, for different &quot;</span> \
-                           <span class="s2">&quot;subjects, in terms of range across all bins as well as &quot;</span> \
-                           <span class="s2">&quot;individual bin edges. Default : </span><span class="si">{}</span><span class="s2">, to automatically &quot;</span> \
-                           <span class="s2">&quot;compute from the given values.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">)</span>
+                           <span class="s2">&quot;bin the given values e.g. --edge_range 0.0 5.0 .&quot;</span> \
+                           <span class="s2">&quot;Setting this is *crucial* to ensure &quot;</span> \
+                           <span class="s2">&quot;correspondence across multiple invocations of graynet, &quot;</span> \
+                           <span class="s2">&quot;for different subjects, in terms of range across all &quot;</span> \
+                           <span class="s2">&quot;bins as well as individual bin edges. &quot;</span> \
+                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, &quot;</span> \
+                           <span class="s2">&quot;to automatically compute from the given values.&quot;</span> \
+                           <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">)</span>
 
     <span class="n">help_text_multi_edge_range</span> <span class="o">=</span> <span class="s2">&quot;Set of edge ranges (for each of the features) &quot;</span> \
                                  <span class="s2">&quot;within which to bin the given values - see &quot;</span> \
-                                 <span class="s2">&quot;above. e.g. -f freesurfer_thickness &quot;</span> \
-                                 <span class="s2">&quot;freesurfer_curv --edge_range 0.0 5.0 -0.3 +0.3 &quot;</span> \
+                                 <span class="s2">&quot;above. &quot;</span> \
+                                 <span class="s2">&quot;e.g. -f freesurfer_thickness freesurfer_curv &quot;</span> \
+                                 <span class="s2">&quot;--edge_range 0.0 5.0 -0.3 +0.3 &quot;</span> \
                                  <span class="s2">&quot;will set the a range of [0.0, 5.0] for thickness &quot;</span> \
-                                 <span class="s2">&quot;and [-0.3, 0.3] for curvature.Default : {&quot;</span> \
-                                 <span class="s2">&quot;}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">edge_range_predefined</span><span class="p">)</span>
+                                 <span class="s2">&quot;and [-0.3, 0.3] for curvature.&quot;</span> \
+                                 <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">edge_range_predefined</span><span class="p">)</span>
 
     <span class="n">help_text_roi_stats</span> <span class="o">=</span> <span class="s2">&quot;Option to compute summary statistics within each ROI of &quot;</span> \
                           <span class="s2">&quot;the chosen parcellation. These statistics (such as the &quot;</span> \
@@ -766,46 +681,54 @@
                           <span class="s2">&quot;#statistical-functions . When this option is chosen, &quot;</span> \
                           <span class="s2">&quot;network computation is not allowed. You need to compute &quot;</span> \
                           <span class="s2">&quot;networks and ROI stats separately.&quot;</span>
+    <span class="n">help_text_atlas</span> <span class="o">=</span> <span class="s2">&quot;Name or path to atlas to containing the parcellation of ROIs.&quot;</span> \
+                      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">For cortical features, you can also specify the absolute &quot;</span> \
+                      <span class="s2">&quot;path for the Freesurfer parcellation of that atlas. &quot;</span> \
+                      <span class="s2">&quot;This directory must have the standard Freesurfer structure, &quot;</span> \
+                      <span class="s2">&quot;with the following key files that must exist: &quot;</span> \
+                      <span class="s2">&quot;``label/?h.aparc.annot`` and ``surf/?h.orig``.</span><span class="se">\n\n</span><span class="s2">&quot;</span> \
+                      <span class="s2">&quot;*Cortical* atlases supported: ``fsaverage`` and &quot;</span> \
+                      <span class="s2">&quot;``glasser2016``. In addition, you can also specify an &quot;</span> \
+                      <span class="s2">&quot;absolute path to the Freesurfer processing of any &quot;</span> \
+                      <span class="s2">&quot;arbitrary atlas. Read these instructions before trying: &quot;</span> \
+                      <span class="s2">&quot;https://raamana.github.io/graynet/cortical.html#using-a-different-atlas&quot;</span> \
+                      <span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">*Volumetric* atlases supported for CAT12 features: &quot;</span> \
+                      <span class="s2">&quot;``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``.&quot;</span> \
+                      <span class="s2">&quot;In addition, you can also directly specify an absolute path &quot;</span> \
+                      <span class="s2">&quot;to a single 3D volume. Make sure name this file properly as it&quot;</span> \
+                      <span class="s2">&quot;would be used to encode all the processing i.e. make it &quot;</span> \
+                      <span class="s2">&quot;clean as well as fully reflective of the properties of the &quot;</span> \
+                      <span class="s2">&quot;parcellation inside.&quot;</span> \
+                      <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> \
+                      <span class="s2">&quot;Default: ``</span><span class="si">{}</span><span class="s2">``&quot;</span> \
+                      <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">)</span>
 
-    <span class="n">help_text_atlas</span> <span class="o">=</span> <span class="s2">&quot;Name or path to atlas to containing the parcellation of &quot;</span> \
-                      <span class="s2">&quot;ROIs.</span><span class="se">\n</span><span class="s2">For cortical features, you can also specify the &quot;</span> \
-                      <span class="s2">&quot;absolute path for the Freesurfer parcellation of that &quot;</span> \
-                      <span class="s2">&quot;atlas. This directory must have the standard Freesurfer &quot;</span> \
-                      <span class="s2">&quot;structure, with the following key files that must exist: &quot;</span> \
-                      <span class="s2">&quot;``label/?h.aparc.annot`` and &quot;</span> \
-                      <span class="s2">&quot;``surf/?h.orig``.</span><span class="se">\n\n</span><span class="s2">*Cortical* atlases supported: &quot;</span> \
-                      <span class="s2">&quot;``fsaverage`` and ``glasser2016``. In addition, you can &quot;</span> \
-                      <span class="s2">&quot;also specify an absolute path to the Freesurfer processing &quot;</span> \
-                      <span class="s2">&quot;of any arbitrary atlas. Read these instructions before &quot;</span> \
-                      <span class="s2">&quot;trying: https://raamana.github.io/graynet/cortical.html&quot;</span> \
-                      <span class="s2">&quot;#using-a-different-atlas</span><span class="se">\n\n\n</span><span class="s2">*Volumetric* atlases &quot;</span> \
-                      <span class="s2">&quot;supported for CAT12 features: ``cat_aal``, ``cat_lpba40``, &quot;</span> \
-                      <span class="s2">&quot;and ``cat_ibsr``.In addition, you can also directly specify &quot;</span> \
-                      <span class="s2">&quot;an absolute path to a single 3D volume. Make sure name this &quot;</span> \
-                      <span class="s2">&quot;file properly as itwould be used to encode all the &quot;</span> \
-                      <span class="s2">&quot;processing i.e. make it clean as well as fully reflective &quot;</span> \
-                      <span class="s2">&quot;of the properties of the parcellation inside.</span><span class="se">\n\n</span><span class="s2">Default: &quot;</span> \
-                      <span class="s2">&quot;``</span><span class="si">{}</span><span class="s2">``&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">)</span>
+    <span class="n">help_text_parc_size</span> <span class="o">=</span> <span class="s2">&quot;Size of individual patch for the atlas parcellation, &quot;</span> \
+                          <span class="s2">&quot;in terms of minimum number of vertices per patch. &quot;</span> \
+                          <span class="s2">&quot;This is *ONLY* valid for cortical version of graynet, &quot;</span> \
+                          <span class="s2">&quot;when using atlas fsaverage only, that has precomputed &quot;</span> \
+                          <span class="s2">&quot;parcellation for a set of predetermined patch sizes.</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                          <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Allowed values: (None, 250, 500, 1000, 2000, 3000, &quot;</span> \
+                          <span class="s2">&quot;5000, 10000). </span><span class="se">\n</span><span class="s2">&quot;</span> \
+                          <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">)</span>
 
-    <span class="n">help_text_parc_size</span> <span class="o">=</span> <span class="s2">&quot;Size of individual node for the atlas parcellation. &quot;</span> \
-                          <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">)</span>
-
-    <span class="n">help_text_smoothing</span> <span class="o">=</span> <span class="s2">&quot;Smoothing parameter for feature. Default: FWHM of </span><span class="si">{}</span><span class="s2"> &quot;</span> \
-                          <span class="s2">&quot;for Freesurfer thickness&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">)</span>
+    <span class="n">help_text_smoothing</span> <span class="o">=</span> <span class="s2">&quot;Smoothing parameter for feature. &quot;</span> \
+                          <span class="s2">&quot;Default: FWHM of </span><span class="si">{}</span><span class="s2"> &quot;</span> \
+                          <span class="s2">&quot;for Freesurfer thickness&quot;</span> \
+                          <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">)</span>
 
     <span class="n">help_text_num_procs</span> <span class="o">=</span> <span class="s2">&quot;Number of CPUs to use in parallel to speed up &quot;</span> \
-                          <span class="s2">&quot;processing. Default : </span><span class="si">{}</span><span class="s2">, capping at available number &quot;</span> \
-                          <span class="s2">&quot;of CPUs in the processing node.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">)</span>
+                          <span class="s2">&quot;processing. &quot;</span> \
+                          <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, capping at available number of CPUs in &quot;</span> \
+                          <span class="s2">&quot;the processing node.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">)</span>
 
     <span class="n">help_text_overwrite_results</span> <span class="o">=</span> <span class="s2">&quot;Flag to request overwriting of existing &quot;</span> \
-                                  <span class="s2">&quot;results, in case of reruns/failed jobs. By &quot;</span> \
-                                  <span class="s2">&quot;default, if the expected output file exists and &quot;</span> \
-                                  <span class="s2">&quot;is of non-zero size, its computation is skipped &quot;</span> \
-                                  <span class="s2">&quot;(assuming the file is complete, usable and not &quot;</span> \
-                                  <span class="s2">&quot;corrupted).&quot;</span>
+                                  <span class="s2">&quot;results, in case of reruns/failed jobs. &quot;</span> \
+                                  <span class="s2">&quot;By default, if the expected output file exists &quot;</span> \
+                                  <span class="s2">&quot;and is of non-zero size, &quot;</span> \
+                                  <span class="s2">&quot;its computation is skipped (assuming the file &quot;</span> \
+                                  <span class="s2">&quot;is complete, usable and not corrupted).&quot;</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;graynet&quot;</span><span class="p">)</span>
 
@@ -999,6 +922,11 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;One of weight_method and roi_stats must be chosen.&#39;</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">node_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">node_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">node_size</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">node_size</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Data resampled to </span><span class="si">{}</span><span class="s1"> atlas, &#39;</span>
           <span class="s1">&#39; smoothed at </span><span class="si">{}</span><span class="s1"> with node size </span><span class="si">{}</span><span class="s1">&#39;</span>
           <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">atlas</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">smoothing_param</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">node_size</span><span class="p">))</span>
@@ -1013,7 +941,7 @@
            <span class="n">feature_list</span><span class="p">,</span> <span class="n">weight_method_list</span><span class="p">,</span> \
            <span class="n">do_multi_edge</span><span class="p">,</span> <span class="n">summary_stat</span><span class="p">,</span> <span class="n">multi_edge_range_out</span><span class="p">,</span> \
            <span class="n">params</span><span class="o">.</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">edge_range</span><span class="p">,</span> \
-           <span class="n">atlas_spec</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">node_size</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">smoothing_param</span><span class="p">,</span> <span class="n">roi_stats</span><span class="p">,</span> \
+           <span class="n">atlas_spec</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">smoothing_param</span><span class="p">,</span> <span class="n">roi_stats</span><span class="p">,</span> \
            <span class="n">params</span><span class="o">.</span><span class="n">num_procs</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">overwrite_results</span>
 
 

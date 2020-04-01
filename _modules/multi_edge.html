@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>multi_edge &#8212; graynet 0.4.9 documentation</title>
+    <title>multi_edge &#8212; graynet 0.5 documentation</title>
     <link rel="stylesheet" href="../_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -20,11 +20,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.9 documentation</h1>
+        <h1>graynet 0.5 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="../index.html">graynet 0.4.9 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="../index.html">graynet 0.5 documentation</a> &#187;
             </li>
                 <li class="nav-item nav-item-1"><a href="index.html"
                         accesskey="U">Module code</a> &#187;</li>
@@ -453,9 +453,9 @@
 
     <span class="c1"># adding position info to nodes (for visualization later)</span>
     <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">centroids</span><span class="p">:</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
 
     <span class="k">return</span>
 

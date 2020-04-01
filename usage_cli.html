@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Command line interface &#8212; graynet 0.4.9 documentation</title>
+    <title>Command line interface &#8212; graynet 0.5 documentation</title>
     <link rel="stylesheet" href="_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.9 documentation</h1>
+        <h1>graynet 0.5 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.4.9 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -53,17 +53,13 @@
 <h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h2>
 <dl class="option-list">
 <dt><kbd>-s, --subject_ids_path</kbd></dt>
-<dd><p>Path to a file containing list of subject IDs (one per line)</p>
+<dd><p>Path to file containing list of subject IDs (one per line)</p>
 </dd>
 <dt><kbd>-i, --input_dir</kbd></dt>
 <dd><p>Path to a folder containing input data. It could, for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output.</p>
 </dd>
 <dt><kbd>-f, --feature</kbd></dt>
-<dd><blockquote>
-<div><p>Type of feature to be used for analysis.</p>
-<p>Default: <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code>.</p>
-<p>Choices: (‘freesurfer_thickness’, ‘freesurfer_sulc’, ‘freesurfer_curv’, ‘freesurfer_area’, ‘freesurfer_pial_area’, ‘freesurfer_pial_lgi’, ‘freesurfer_jacobian_white’, ‘freesurfer_volume’, ‘gmdensity’, ‘spm_cat_gmdensity’, ‘spm_cat_wmdensity’)</p>
-</div></blockquote>
+<dd><p>Type of feature to be used for analysis. Default: ‘freesurfer_thickness’. Choices: (‘freesurfer_thickness’, ‘freesurfer_sulc’, ‘freesurfer_curv’, ‘freesurfer_area’, ‘freesurfer_pial_area’, ‘freesurfer_pial_lgi’, ‘freesurfer_jacobian_white’, ‘freesurfer_volume’, ‘gmdensity’, ‘spm_cat_gmdensity’, ‘spm_cat_wmdensity’)</p>
 </dd>
 <dt><kbd>-o, --out_dir</kbd></dt>
 <dd><p>Where to save the extracted features.</p>
@@ -75,90 +71,7 @@
 <p>Choose one among single edge, multiedge or simply ROI stats.</p>
 <dl class="option-list">
 <dt><kbd>-w, --weight_method</kbd></dt>
-<dd><blockquote>
-<div><p>Method to estimate the weight of the edge between the pair of nodes</p>
-<p>If a string (and not a callable), it can be <em>one or more</em> of the following
-methods:</p>
-<ul class="simple">
-<li><p>‘chebyshev’</p></li>
-<li><p>‘chebyshev_neg’</p></li>
-<li><p>‘chi_square’</p></li>
-<li><p>‘correlate’</p></li>
-<li><p>‘correlate_1’</p></li>
-<li><p>‘cosine’</p></li>
-<li><p>‘cosine_1’</p></li>
-<li><p>‘cosine_2’</p></li>
-<li><p>‘cosine_alt’</p></li>
-<li><p>‘euclidean’</p></li>
-<li><p>‘fidelity_based’</p></li>
-<li><p>‘histogram_intersection’</p></li>
-<li><p>‘histogram_intersection_1’</p></li>
-<li><p>‘jensen_shannon’</p></li>
-<li><p>‘kullback_leibler’</p></li>
-<li><p>‘manhattan’</p></li>
-<li><p>‘minowski’</p></li>
-<li><p>‘noelle_1’</p></li>
-<li><p>‘noelle_2’</p></li>
-<li><p>‘noelle_3’</p></li>
-<li><p>‘noelle_4’</p></li>
-<li><p>‘noelle_5’</p></li>
-<li><p>‘relative_bin_deviation’</p></li>
-<li><p>‘relative_deviation’</p></li>
-<li><p>‘diff_medians’</p></li>
-<li><p>‘diff_means’</p></li>
-<li><p>‘diff_medians_abs’</p></li>
-<li><p>‘diff_means_abs’</p></li>
-<li><p>‘exp_diff_means_norm_std’</p></li>
-<li><p>‘ranksum_statistic’</p></li>
-</ul>
-<p>Note only the following are <em>metrics</em>:</p>
-<ul class="simple">
-<li><p>‘manhattan’</p></li>
-<li><p>‘minowski’</p></li>
-<li><p>‘euclidean’</p></li>
-<li><p>‘noelle_2’</p></li>
-<li><p>‘noelle_4’</p></li>
-<li><p>‘noelle_5’</p></li>
-</ul>
-<p>The following are <em>semi- or quasi-metrics</em>:</p>
-<ul class="simple">
-<li><p>‘kullback_leibler’</p></li>
-<li><p>‘jensen_shannon’</p></li>
-<li><p>‘chi_square’</p></li>
-<li><p>‘chebyshev’</p></li>
-<li><p>‘cosine_1’</p></li>
-<li><p>‘chebyshev_neg’</p></li>
-<li><p>‘correlate_1’</p></li>
-<li><p>‘histogram_intersection_1’</p></li>
-<li><p>‘relative_deviation’</p></li>
-<li><p>‘relative_bin_deviation’</p></li>
-<li><p>‘noelle_1’</p></li>
-<li><p>‘noelle_3’</p></li>
-</ul>
-<p>The following are  classified to be <em>similarity</em> functions:</p>
-<ul class="simple">
-<li><p>‘histogram_intersection’</p></li>
-<li><p>‘correlate’</p></li>
-<li><p>‘cosine’</p></li>
-<li><p>‘cosine_2’</p></li>
-<li><p>‘cosine_alt’</p></li>
-<li><p>‘fidelity_based’</p></li>
-</ul>
-<p>The following metrics operate on the <em>original data directly</em> i.e. no
-histograms are computed first. An example: difference in the medians of ROI
-distributions of the two ROIs</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>‘diff_medians’</p></li>
-<li><p>‘diff_means’</p></li>
-<li><p>‘diff_medians_abs’</p></li>
-<li><p>‘diff_means_abs’</p></li>
-<li><p>‘exp_diff_means_norm_std’</p></li>
-<li><p>‘ranksum_statistic’</p></li>
-</ul>
-</div></blockquote>
-<p>Default: (‘manhattan’,)</p>
-</div></blockquote>
+<dd><p>List of methods used to estimate the weight of the edge between the pair of nodes.</p>
 </dd>
 <dt><kbd>-r, --roi_stats</kbd></dt>
 <dd><p>Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and any other appropriate summary statistics listed under scipy.stats:  <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a> . When this option is chosen, network computation is not allowed. You need to compute networks and ROI stats separately.</p>
@@ -204,7 +117,9 @@ For cortical features, you can also specify the absolute path for the Freesurfer
 <p>Default: <code class="docutils literal notranslate"><span class="pre">fsaverage</span></code></p>
 </dd>
 <dt><kbd>-n, --node_size</kbd></dt>
-<dd><p>Size of individual node for the atlas parcellation. Default : None</p>
+<dd><p>Size of individual patch for the atlas parcellation, in terms of minimum number of vertices per patch. This is <em>ONLY</em> valid for cortical version of graynet, when using atlas fsaverage only, that has precomputed parcellation for a set of predetermined patch sizes.</p>
+<p>Allowed values: (None, 250, 500, 1000, 2000, 3000, 5000, 10000).</p>
+<p>Default : None</p>
 </dd>
 <dt><kbd>-p, --smoothing_param</kbd></dt>
 <dd><p>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness</p>

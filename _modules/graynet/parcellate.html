@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>graynet.parcellate &#8212; graynet 0.4.9 documentation</title>
+    <title>graynet.parcellate &#8212; graynet 0.5 documentation</title>
     <link rel="stylesheet" href="../../_static/pd.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -20,11 +20,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.4.9 documentation</h1>
+        <h1>graynet 0.5 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.4.9 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.5 documentation</a> &#187;
             </li>
                 <li class="nav-item nav-item-1"><a href="../index.html"
                         accesskey="U">Module code</a> &#187;</li>
@@ -98,7 +98,7 @@
     <span class="k">return</span> <span class="n">annot</span><span class="p">,</span> <span class="n">atlas_path</span>
 
 
-<div class="viewcode-block" id="freesurfer_roi_labels"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.freesurfer_roi_labels">[docs]</a><span class="k">def</span> <span class="nf">freesurfer_roi_labels</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">):</span>
+<div class="viewcode-block" id="freesurfer_roi_labels"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.freesurfer_roi_labels">[docs]</a><span class="k">def</span> <span class="nf">freesurfer_roi_labels</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns just the vertex-wise indices for grouping the vertices into ROIs.</span>
 <span class="sd">        Order:  left followed by right.</span>
@@ -107,6 +107,21 @@
 
     <span class="n">annot</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_atlas_annot</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
     <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">__combine_annotations</span><span class="p">(</span><span class="n">annot</span><span class="p">,</span> <span class="n">atlas_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">node_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">patch_index</span> <span class="o">=</span> <span class="n">load_subdivision_patchwise</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+        <span class="n">numbered</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">rl</span><span class="p">,</span> <span class="n">pi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">roi_labels</span><span class="p">,</span> <span class="n">patch_index</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rl</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">pi</span><span class="p">):</span>
+                <span class="n">numbered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span><span class="p">)</span>
+                <span class="c1"># as there is no subdivision in a Null ROI</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">numbered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_p</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rl</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">pi</span><span class="p">)))</span>
+        <span class="c1"># results --&gt; &#39;lh_precuneus_p9&#39; indicating patch 9 of left precuneus</span>
+        <span class="c1">#   except when the ROI was labelled cfg.null_roi_name / &#39;null_roi_ignore&#39;</span>
+
+        <span class="n">roi_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">numbered</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">roi_labels</span><span class="p">,</span> <span class="n">annot</span></div>
 
@@ -124,25 +139,29 @@
         <span class="n">named_labels</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">str_dtype</span><span class="p">)</span>
         <span class="n">uniq_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">uniq_labels</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_index</span> <span class="ow">or</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">ignore_roi_labels</span><span class="p">[</span>
-                <span class="n">atlas_name</span><span class="p">]):</span>  <span class="c1"># to be ignored</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_index</span><span class="p">)</span> <span class="ow">or</span>
+                     <span class="p">(</span><span class="n">label</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">ignore_roi_labels</span><span class="p">[</span><span class="n">atlas_name</span><span class="p">])):</span>  <span class="c1"># to be ignored</span>
                 <span class="n">idx_roi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;ctab&#39;</span><span class="p">][:,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">mask_label</span> <span class="o">=</span> <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span>
-                <span class="n">named_labels</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="n">mask_label</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;names&#39;</span><span class="p">][</span><span class="n">idx_roi</span><span class="p">])</span>
+                <span class="n">named_labels</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="n">mask_label</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;names&#39;</span><span class="p">][</span><span class="n">idx_roi</span><span class="p">])</span>
 
-        <span class="c1"># setting the non-accessed vertices (part of non-cortex) to specific label to ignore later</span>
+        <span class="c1"># setting the non-accessed vertices (part of non-cortex)</span>
+        <span class="c1"># to a specific label to ignore later</span>
         <span class="n">null_mask</span> <span class="o">=</span> <span class="n">named_labels</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span>
         <span class="n">named_labels</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="n">null_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span>
 
-    <span class="n">wholebrain_named_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">named_labels</span><span class="p">[</span><span class="s1">&#39;lh&#39;</span><span class="p">],</span> <span class="n">named_labels</span><span class="p">[</span><span class="s1">&#39;rh&#39;</span><span class="p">]))</span>
+    <span class="c1"># wb stands for whole brain</span>
+    <span class="n">wb_named_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">named_labels</span><span class="p">[</span><span class="s1">&#39;lh&#39;</span><span class="p">],</span> <span class="n">named_labels</span><span class="p">[</span><span class="s1">&#39;rh&#39;</span><span class="p">]))</span>
 
     <span class="k">for</span> <span class="n">ignore_label</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">ignore_roi_names</span><span class="p">[</span><span class="n">atlas_name</span><span class="p">]:</span>
-        <span class="n">wholebrain_named_labels</span><span class="p">[</span><span class="n">wholebrain_named_labels</span> <span class="o">==</span> <span class="n">ignore_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span>
+        <span class="n">wb_named_labels</span><span class="p">[</span><span class="n">wb_named_labels</span> <span class="o">==</span> <span class="n">ignore_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span>
 
-    <span class="c1"># # original implementation for glasser2016, with labels in different hemi coded differently</span>
+    <span class="c1"># # original implementation for glasser2016,</span>
+    <span class="c1"># #  with labels in different hemi coded differently</span>
     <span class="c1"># roi_labels = np.hstack((annot[&#39;lh&#39;][&#39;labels&#39;], annot[&#39;rh&#39;][&#39;labels&#39;]))</span>
 
-    <span class="k">return</span> <span class="n">wholebrain_named_labels</span>
+    <span class="k">return</span> <span class="n">wb_named_labels</span>
 
 
 <span class="k">def</span> <span class="nf">read_atlas_annot</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">,</span> <span class="n">hemi_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -196,12 +215,12 @@
     <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">annot</span></div>
 
 
-<span class="k">def</span> <span class="nf">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="p">):</span>
     <span class="s2">&quot;Returns a list of ROI centroids, for use in visualizations (nodes on a network)&quot;</span>
 
     <span class="n">atlas_dir</span><span class="p">,</span> <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">get_atlas_path</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
     <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">annot</span> <span class="o">=</span> <span class="n">read_freesurfer_atlas</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">)</span>
-    <span class="n">vertex_labels</span><span class="p">,</span> <span class="n">ctx_annot</span> <span class="o">=</span> <span class="n">freesurfer_roi_labels</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
+    <span class="n">vertex_labels</span><span class="p">,</span> <span class="n">ctx_annot</span> <span class="o">=</span> <span class="n">freesurfer_roi_labels</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="p">)</span>
     <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">roi_size</span><span class="p">,</span> <span class="n">num_nodes</span> <span class="o">=</span> <span class="n">roi_info</span><span class="p">(</span><span class="n">vertex_labels</span><span class="p">)</span>
 
     <span class="n">centroids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -237,7 +256,37 @@
 
         <span class="c1"># # cortex_label[hemi] is an index into annot[hemi][&#39;labels&#39;]</span>
 
-        <span class="n">mask_for_cortex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span> <span class="n">cortex_label</span><span class="p">,</span> <span class="n">assume_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mask_for_cortex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span> <span class="n">cortex_label</span><span class="p">,</span>
+                                  <span class="n">assume_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">load_subdivision_patchwise</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">min_vtx_per_patch</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a precomputed subdivision of the cortex</span>
+<span class="sd">    Originally generated in Matlab based on k-means clustering (Raamana PhD thesis);</span>
+<span class="sd">     adaptive subdivision ensuring a specified minimum number of vertices per patch</span>
+
+<span class="sd">    more details --&gt; graynet/scripts/export_precomputed_ctx_parc_in_numpy_format.py</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">atlas_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">atlas_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;fsaverage&#39;</span><span class="p">,):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only fsaverage is supported at the moment!&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">min_vtx_per_patch</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">allowed_mvpp</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid min_vtx_per_patch. Choose one of </span><span class="si">{}</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">allowed_mvpp</span><span class="p">))</span>
+
+    <span class="n">this_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="n">parc_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">this_dir</span><span class="p">,</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;CorticalSubdivisionIntoPatches&#39;</span><span class="p">,</span>
+                     <span class="n">atlas_name</span><span class="p">)</span>
+
+    <span class="n">file_name</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">mvp</span><span class="p">:</span> <span class="s1">&#39;CortexSubdivision_Kmeans_&#39;</span> \
+                           <span class="s1">&#39;MinVertexCountPerPartition</span><span class="si">{}</span><span class="s1">.npy&#39;</span> \
+                           <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mvp</span><span class="p">)</span>
+    <span class="n">parc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">parc_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">(</span><span class="n">min_vtx_per_patch</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">parc</span>
 </pre></div>
 
           </div>
