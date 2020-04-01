@@ -1,5 +1,6 @@
 include README.md
 recursive-include graynet/atlases *
+recursive-include graynet/resources *
 recursive-include example_data/freesurfer *include versioneer.py
 include _version.py
 include versioneer.py
