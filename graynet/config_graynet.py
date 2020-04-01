@@ -56,12 +56,10 @@ default_edge_range = None  # edge_range_predefined[default_feature_single_edge]
 default_roi_statistic = 'median'
 default_num_procs = 2
 
-# multiedge
 
-
-# -----------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 #  atlas and parcellation related
-# -----------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 
 # keep all the names in lowercase
 atlas_list = ['fsaverage', 'glasser2016',
@@ -93,9 +91,10 @@ null_roi_index = 0
 null_roi_name = 'null_roi_ignore'
 
 # min_vtx_per_patch
-allowed_mvpp = (250, 500, 1000, 2000, 3000, 5000, 10000)
+allowed_mvpp = (None, 250, 500, 1000, 2000, 3000, 5000, 10000)
+mvpp_to_total_num_patches = (68, 1162, 565, 273, 136, 97, 74, 68 )
 
-# -----------------------------------------------------------------------------------------------
+# -----  multiedge ---------------------------------------------------------------
 
 multi_edge_summary_func_default = ('prod', 'median')
 
