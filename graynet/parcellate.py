@@ -197,4 +197,34 @@ def subdivide_cortex(atlas_dir, hemi_list=None):
 
         # # cortex_label[hemi] is an index into annot[hemi]['labels']
 
-        mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label, assume_unique=True)
+        mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label,
+                                  assume_unique=True)
+
+
+def load_subdivision_patchwise(atlas_name, min_vtx_per_patch=100):
+    """
+    Loads a precomputed subdivision of the cortex
+    Originally generated in Matlab based on k-means clustering (Raamana PhD thesis);
+     adaptive subdivision ensuring a specified minimum number of vertices per patch
+
+    more details --> graynet/scripts/export_precomputed_ctx_parc_in_numpy_format.py
+    """
+
+    atlas_name = atlas_name.lower()
+    if atlas_name not in ('fsaverage',):
+        raise ValueError('Only fsaverage is supported at the moment!')
+
+    if min_vtx_per_patch not in cfg.allowed_mvpp:
+        raise ValueError('Invalid min_vtx_per_patch. Choose one of {}'
+                         ''.format(cfg.allowed_mvpp))
+
+    this_dir = dirname(realpath(__file__))
+    parc_dir = pjoin(this_dir, 'resources', 'CorticalSubdivisionIntoPatches',
+                     atlas_name)
+
+    file_name = lambda mvp: 'CortexSubdivision_Kmeans_' \
+                           'MinVertexCountPerPartition{}.npy' \
+                           ''.format(mvp)
+    parc = np.load(pjoin(parc_dir, file_name(min_vtx_per_patch)))
+
+    return parc
