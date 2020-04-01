@@ -663,8 +663,14 @@ def get_parser():
                       "\n\n" \
                       "Default: ``{}``" \
                       "".format(cfg.default_atlas)
-    help_text_parc_size = "Size of individual node for the atlas parcellation. " \
+
+    help_text_parc_size = "Size of individual patch for the atlas parcellation, " \
+                          "in terms of minimum number of vertices per patch. " \
+                          "This is ONLY valid for cortical version of graynet, " \
+                          "when using atlas fsaverage only, that has precomputed " \
+                          "parcellation for a set of predetermined patch sizes. " \
                           "Default : {}".format(cfg.default_node_size)
+
     help_text_smoothing = "Smoothing parameter for feature. " \
                           "Default: FWHM of {} " \
                           "for Freesurfer thickness" \
@@ -875,6 +881,11 @@ def parse_args():
     else:
         raise ValueError('One of weight_method and roi_stats must be chosen.')
 
+    if params.node_size is not None:
+        node_size = int(params.node_size)
+    else:
+        node_size = None
+
     print('\nData resampled to {} atlas, '
           ' smoothed at {} with node size {}'
           ''.format(params.atlas, params.smoothing_param, params.node_size))
@@ -889,7 +900,7 @@ def parse_args():
            feature_list, weight_method_list, \
            do_multi_edge, summary_stat, multi_edge_range_out, \
            params.num_bins, params.edge_range, \
-           atlas_spec, out_dir, params.node_size, params.smoothing_param, roi_stats, \
+           atlas_spec, out_dir, node_size, params.smoothing_param, roi_stats, \
            params.num_procs, params.overwrite_results
 
 

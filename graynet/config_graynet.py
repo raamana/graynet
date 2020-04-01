@@ -92,6 +92,9 @@ ignore_roi_names = {'glasser2016'              : ['??', '???',
 null_roi_index = 0
 null_roi_name = 'null_roi_ignore'
 
+# min_vtx_per_patch
+allowed_mvpp = (250, 500, 1000, 2000, 3000, 5000, 10000)
+
 # -----------------------------------------------------------------------------------------------
 
 multi_edge_summary_func_default = ('prod', 'median')

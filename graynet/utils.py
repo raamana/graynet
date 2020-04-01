@@ -402,7 +402,9 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param,
     if out_dir is not None and not pexists(out_dir):
         os.mkdir(out_dir)
 
-    # no checks on subdivison size yet, as its not implemented
+    if node_size not in cfg.allowed_mvpp:
+        raise ValueError('Invalid min_vtx_per_patch. Choose one of {}'
+                         ''.format(cfg.allowed_mvpp))
 
     return
 
