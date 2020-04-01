@@ -58,7 +58,7 @@ def get_atlas_annot(atlas_name=None):
     return annot, atlas_path
 
 
-def freesurfer_roi_labels(atlas_name):
+def freesurfer_roi_labels(atlas_name, node_size):
     """
     Returns just the vertex-wise indices for grouping the vertices into ROIs.
         Order:  left followed by right.
@@ -67,6 +67,21 @@ def freesurfer_roi_labels(atlas_name):
 
     annot, _ = get_atlas_annot(atlas_name)
     roi_labels = __combine_annotations(annot, atlas_name)
+
+    if node_size is not None:
+        patch_index = load_subdivision_patchwise(atlas_name, node_size).ravel()
+
+        numbered = list()
+        for rl, pi in zip(roi_labels, patch_index):
+            if rl == cfg.null_roi_name or np.isnan(pi):
+                numbered.append(cfg.null_roi_name)
+                # as there is no subdivision in a Null ROI
+            else:
+                numbered.append('{}_p{}'.format(rl, int(pi)))
+        # results --> 'lh_precuneus_p9' indicating patch 9 of left precuneus
+        #   except when the ROI was labelled cfg.null_roi_name / 'null_roi_ignore'
+
+        roi_labels = np.array(numbered)
 
     return roi_labels, annot
 
@@ -84,25 +99,29 @@ def __combine_annotations(annot, atlas_name):
         named_labels[hemi] = np.empty(annot[hemi]['labels'].shape, str_dtype)
         uniq_labels = np.unique(annot[hemi]['labels'])
         for label in uniq_labels:
-            if not (label == cfg.null_roi_index or label in cfg.ignore_roi_labels[
-                atlas_name]):  # to be ignored
+            if not ( (label == cfg.null_roi_index) or
+                     (label in cfg.ignore_roi_labels[atlas_name])):  # to be ignored
                 idx_roi = np.nonzero(annot[hemi]['ctab'][:, 4] == label)[0][0]
                 mask_label = annot[hemi]['labels'] == label
-                named_labels[hemi][mask_label] = '{}_{}'.format(hemi, annot[hemi]['names'][idx_roi])
+                named_labels[hemi][mask_label] = \
+                    '{}_{}'.format(hemi, annot[hemi]['names'][idx_roi])
 
-        # setting the non-accessed vertices (part of non-cortex) to specific label to ignore later
+        # setting the non-accessed vertices (part of non-cortex)
+        # to a specific label to ignore later
         null_mask = named_labels[hemi] == ''
         named_labels[hemi][null_mask] = cfg.null_roi_name
 
-    wholebrain_named_labels = np.hstack((named_labels['lh'], named_labels['rh']))
+    # wb stands for whole brain
+    wb_named_labels = np.hstack((named_labels['lh'], named_labels['rh']))
 
     for ignore_label in cfg.ignore_roi_names[atlas_name]:
-        wholebrain_named_labels[wholebrain_named_labels == ignore_label] = cfg.null_roi_name
+        wb_named_labels[wb_named_labels == ignore_label] = cfg.null_roi_name
 
-    # # original implementation for glasser2016, with labels in different hemi coded differently
+    # # original implementation for glasser2016,
+    # #  with labels in different hemi coded differently
     # roi_labels = np.hstack((annot['lh']['labels'], annot['rh']['labels']))
 
-    return wholebrain_named_labels
+    return wb_named_labels
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):
@@ -156,12 +175,12 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     return coords, faces, annot
 
 
-def roi_labels_centroids(atlas_name):
+def roi_labels_centroids(atlas_name, node_size):
     "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
 
     atlas_dir, atlas_name = get_atlas_path(atlas_name)
     coords, faces, annot = read_freesurfer_atlas(atlas_dir)
-    vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name)
+    vertex_labels, ctx_annot = freesurfer_roi_labels(atlas_name, node_size)
     uniq_rois, roi_size, num_nodes = roi_info(vertex_labels)
 
     centroids = dict()
@@ -197,4 +216,34 @@ def subdivide_cortex(atlas_dir, hemi_list=None):
 
         # # cortex_label[hemi] is an index into annot[hemi]['labels']
 
-        mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label, assume_unique=True)
+        mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label,
+                                  assume_unique=True)
+
+
+def load_subdivision_patchwise(atlas_name, min_vtx_per_patch=100):
+    """
+    Loads a precomputed subdivision of the cortex
+    Originally generated in Matlab based on k-means clustering (Raamana PhD thesis);
+     adaptive subdivision ensuring a specified minimum number of vertices per patch
+
+    more details --> graynet/scripts/export_precomputed_ctx_parc_in_numpy_format.py
+    """
+
+    atlas_name = atlas_name.lower()
+    if atlas_name not in ('fsaverage',):
+        raise ValueError('Only fsaverage is supported at the moment!')
+
+    if min_vtx_per_patch not in cfg.allowed_mvpp:
+        raise ValueError('Invalid min_vtx_per_patch. Choose one of {}'
+                         ''.format(cfg.allowed_mvpp))
+
+    this_dir = dirname(realpath(__file__))
+    parc_dir = pjoin(this_dir, 'resources', 'CorticalSubdivisionIntoPatches',
+                     atlas_name)
+
+    file_name = lambda mvp: 'CortexSubdivision_Kmeans_' \
+                           'MinVertexCountPerPartition{}.npy' \
+                           ''.format(mvp)
+    parc = np.load(pjoin(parc_dir, file_name(min_vtx_per_patch)))
+
+    return parc
