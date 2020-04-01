@@ -44,7 +44,7 @@ Docs: https://raamana.github.io/graynet/
           ]
       },
       package_dir ={'graynet':'graynet'},
-      package_data={'graynet':'atlases/*'},
+      package_data={'graynet':['atlases/*', 'resources/*']},
       include_package_data=True
 
      )
