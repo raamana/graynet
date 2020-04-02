@@ -24,7 +24,8 @@ default_features_multi_edge = ('freesurfer_thickness', 'freesurfer_curv')
 default_weight_method = ('manhattan',)
 
 weights_on_original_features = ('diff_medians', 'diff_medians_abs',
-                                'diff_means', 'diff_means_abs')
+                                'diff_means', 'diff_means_abs',
+                                'exp_diff_means_norm_std', 'ranksum_statistic')
 
 histogram_weights = (
     'chebyshev', 'chebyshev_neg', 'chi_square',
