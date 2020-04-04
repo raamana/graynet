@@ -2,49 +2,48 @@ from __future__ import print_function
 
 __all__ = ['import_features', 'get_data']
 
-from graynet import config_graynet as cfg
+from collections.abc import Iterable
+from os.path import exists as pexists, join as pjoin
+from traceback import print_exc
 
-from os.path import join as pjoin, exists as pexists
-import collections
 import nibabel
-import warnings
-import traceback
 import numpy as np
+from graynet import config_graynet as cfg
 
 _base_feature_list = ['thickness', 'curv', 'sulc', 'area',
                       'area.pial', 'jacobian_white']
 
+
 def import_features(fs_dir,
                     subject_list,
-                    base_feature= 'freesurfer_thickness',
+                    base_feature='freesurfer_thickness',
                     fwhm=10,
                     atlas='fsaverage'):
-    "Ensure subjects are provided and their data exist."
+    "Reads the features after ensuring subjects are provided and their data exist."
 
-    if isinstance(subject_list, collections.Iterable):
+    if isinstance(subject_list, Iterable):
         if len(subject_list) < 1:
             raise ValueError('Empty subject list.')
         subjects_list = subject_list
     elif isinstance(subject_list, str):
         if not pexists(subject_list):
-            raise IOError('path to subject list does not exist: {}'
-                          ''.format(subject_list))
+            raise IOError("subject list path doesn't exist: {}".format(subject_list))
         subjects_list = np.atleast_1d(np.genfromtxt(subject_list, dtype=str).astype(str))
     else:
-        raise ValueError('Invalid value provided for subject list. \n '
-                         'Must be a list of paths, or '
-                         'path to file containing list of paths, one for each subject.')
+        raise ValueError('Invalid value provided for subject list.'
+                         '\n Must be a list of paths, or path to a file containing '
+                         'list of paths, one for each subject.')
 
-    features= dict()
-    for subject_id in subjects_list:
+    features = dict()
+    for subj_id in subjects_list:
         try:
-            print('Reading {} for {} ... '.format(base_feature, subject_id), end='')
-            features[subject_id] = get_data(fs_dir, subject_id, base_feature, fwhm, atlas)
+            print('Reading {} for {} ... '.format(base_feature, subj_id), end='')
+            features[subj_id] = get_data(fs_dir, subj_id, base_feature, fwhm, atlas)
             print(' Done.')
         except:
-            traceback.print_exc()
+            print_exc()
             raise ValueError('{} data for {} could not be read!'
-                             ''.format(base_feature, subject_id))
+                             ''.format(base_feature, subj_id))
 
     return features
 
@@ -54,13 +53,13 @@ def get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
 
     feat_name = base_feature.lower()
     if feat_name in cfg.features_freesurfer:
-        bare_name_feature = feat_name.replace('freesurfer_','')
-        left  = __read_morph_feature(
+        bare_name_feat = feat_name.replace('freesurfer_', '')
+        left = __read_morph_feature(
                 path_to_vertex_data(fs_dir, subject_id, hemi='lh',
-                                    feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
+                                    feature=bare_name_feat, atlas=atlas, fwhm=fwhm))
         right = __read_morph_feature(
                 path_to_vertex_data(fs_dir, subject_id, hemi='rh',
-                                    feature=bare_name_feature, atlas=atlas, fwhm=fwhm))
+                                    feature=bare_name_feat, atlas=atlas, fwhm=fwhm))
         whole = np.hstack((left, right))
     else:
         raise ValueError('Invalid choice for freesurfer data.'
@@ -88,7 +87,7 @@ def __all_data_exists(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverag
 
 
 def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10,
-                        atlas='fsaverage', feature ='thickness'):
+                        atlas='fsaverage', feature='thickness'):
     "Returning the path to surface features. Using a smoothed version"
 
     return pjoin(fsd, sid, 'surf',
@@ -98,8 +97,6 @@ def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10,
 def __read_morph_feature(thk_path):
     "Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"
 
-    vec = nibabel.load(thk_path).get_fdata() # typically of shape: (163842, 1, 1)
+    vec = nibabel.load(thk_path).get_fdata()  # typically of shape: (163842, 1, 1)
 
-    return np.squeeze(vec) # becomes (163842, )
-
-
+    return np.squeeze(vec)  # becomes (163842, )

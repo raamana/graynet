@@ -31,8 +31,8 @@ if version_info.major > 2:
     from graynet import config_graynet as cfg
     from graynet import __version__
 else:
-    raise NotImplementedError(
-        'graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
+    raise NotImplementedError('graynet supports only 3+. '
+                              'Upgrade to Python 3+ is required.')
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -281,6 +281,8 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
     if subject is None:
         return
 
+    print('')
+
     try:
         features = import_features(input_dir,
                                    [subject, ],
@@ -307,11 +309,11 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
         expt_id = stamp_expt_weight(base_feature, atlas_name, smoothing_param,
                                     node_size, weight_method)
         sys.stdout.write(
-            '\nProcessing id {:{id_width}} -- weight {:{wtname_width}} '
-            '({:{nd_wm}}/{:{nd_wm}})'
-            ' :'.format(subject, weight_method, ww + 1, num_weights,
-                        nd_id=nd_id, nd_wm=nd_wm,
-                        id_width=max_id_width, wtname_width=max_wtname_width))
+            '\nProcessing {sid:{id_width}} -- weight {wm:{wtname_width}} '
+            '({wc:{nd_wm}}/{nw:{nd_wm}}) :\n'
+            ''.format(sid=subject, wm=weight_method, wc=ww + 1, nw=num_weights,
+                      nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width,
+                      wtname_width=max_wtname_width))
 
         # actual computation of pair-wise features
         try:
@@ -355,7 +357,6 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
             print('Unable to extract {} features for {}'.format(weight_method, subject))
             traceback.print_exc()
 
-        sys.stdout.write('Done.')
 
     return edge_weights_all
 
