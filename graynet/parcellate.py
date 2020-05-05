@@ -58,7 +58,7 @@ def get_atlas_annot(atlas_name=None):
     return annot, atlas_path
 
 
-def freesurfer_roi_labels(atlas_name, node_size):
+def freesurfer_roi_labels(atlas_name, node_size=None):
     """
     Returns just the vertex-wise indices for grouping the vertices into ROIs.
         Order:  left followed by right.
@@ -175,7 +175,7 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     return coords, faces, annot
 
 
-def roi_labels_centroids(atlas_name, node_size):
+def roi_labels_centroids(atlas_name, node_size=None):
     "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
 
     atlas_dir, atlas_name = get_atlas_path(atlas_name)
