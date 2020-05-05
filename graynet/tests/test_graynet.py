@@ -21,9 +21,9 @@ if __name__ == '__main__' and __package__ is None:
 
 if version_info.major > 2:
     from graynet import config_graynet as cfg
-    from graynet.run_workflow import cli_run as CLI
+    from graynet.run_workflow import cli_run as run_cli
     from graynet import run_workflow as graynet
-    from graynet.run_workflow import extract
+    from graynet.run_workflow import extract, roiwise_stats_indiv
     from graynet.multi_edge import extract_multiedge
 else:
     raise NotImplementedError('graynet requires Python 3+.')
@@ -34,7 +34,6 @@ base_dir = realpath(pjoin(test_dir, '..', '..', 'example_data'))
 out_dir = pjoin(base_dir, 'graynet')
 if not pexists(out_dir):
     os.mkdir(out_dir)
-
 
 fs_dir = pjoin(base_dir, 'freesurfer')
 subject_id_list = ['subject12345', ]
@@ -51,9 +50,9 @@ base_feature_list = ('freesurfer_thickness',
 num_base_features = len(base_feature_list)
 
 # 'glasser2016' not tested regularly
-feature_to_atlas_list = {'freesurfer_thickness': ('fsaverage', ),
+feature_to_atlas_list = {'freesurfer_thickness': ('fsaverage',),
                          'spm_cat_gmdensity'   : (
-                         'cat_aal', 'cat_lpba40', 'cat_ibsr')}
+                             'cat_aal', 'cat_lpba40', 'cat_ibsr')}
 
 feature_to_in_dir = {'freesurfer_thickness': fs_dir,
                      'spm_cat_gmdensity'   : vbm_in_dir}
@@ -82,22 +81,20 @@ num_groups = 5
 
 cur_dir = os.path.dirname(abspath(__file__))
 
+
 # TODO tests for volumetric version of multiedge to be done!
 def test_multi_edge():
-    edge_weights_all = extract_multiedge(subject_id_list,
-                                         input_dir=fs_dir,
-                                         base_feature_list=cfg.default_features_multi_edge,
-                                         edge_range_dict=cfg.edge_range_predefined,
-                                         weight_method_list=weight_methods,
-                                         atlas=atlas,
-                                         smoothing_param=fwhm,
-                                         out_dir=out_dir,
-                                         return_results=True,
-                                         num_procs=1,
-                                         overwrite_results=True)
+    edge_weights_all = extract_multiedge(
+            subject_id_list, input_dir=fs_dir,
+            base_feature_list=cfg.default_features_multi_edge,
+            edge_range_dict=cfg.edge_range_predefined,
+            weight_method_list=weight_methods, atlas=atlas, smoothing_param=fwhm,
+            out_dir=out_dir, return_results=True, num_procs=1,
+            overwrite_results=True)
 
     num_combinations = len(list(edge_weights_all))
-    expected_num_comb = len(subject_id_list)*len(weight_methods)*len(cfg.default_features_multi_edge)
+    expected_num_comb = len(subject_id_list) * len(weight_methods) * len(
+        cfg.default_features_multi_edge)
     if num_combinations != expected_num_comb:
         raise ValueError('invalid results : # subjects')
 
@@ -109,18 +106,18 @@ def test_multi_edge():
 
     print('')
 
-def test_multi_edge_CLI():
 
+def test_multi_edge_CLI():
     sys.argv = shlex.split('graynet -s {} -i {} '
                            ' -f freesurfer_thickness freesurfer_curv'
                            ' --do_multi_edge --multi_edge_range 0.0 5.0 -0.3 +0.3 '
                            ' -w manhattan -o {} -a {}'
                            ''.format(sub_list, example_dir, out_dir, atlas))
 
-    CLI()
+    run_cli()
+
 
 def test_multi_edge_summary_stat_CLI():
-
     ss_list = ' '.join(['prod', 'median', 'max', 'min', 'gmean', 'hmean', 'std'])
     sys.argv = shlex.split('graynet -s {} -i {} '
                            ' -f freesurfer_thickness freesurfer_curv'
@@ -129,19 +126,19 @@ def test_multi_edge_summary_stat_CLI():
                            '-o {} -a {}'
                            ''.format(sub_list, example_dir, ss_list, out_dir, atlas))
 
-    CLI()
+    run_cli()
+
 
 @hyp_settings(max_examples=num_base_features, deadline=None)
 @given(strategies.sampled_from(base_feature_list))
 def test_run_no_IO(base_feature):
-
     for atlas in feature_to_atlas_list[base_feature]:
         try:
             sud_id_list = feature_to_subject_id_list[base_feature]
             edge_weights_all = graynet.extract(sud_id_list,
                                                feature_to_in_dir[base_feature],
                                                base_feature=base_feature,
-                                               weight_method_list= weight_methods,
+                                               weight_method_list=weight_methods,
                                                atlas=atlas,
                                                smoothing_param=fwhm,
                                                out_dir=out_dir,
@@ -163,21 +160,18 @@ def test_run_no_IO(base_feature):
             traceback.print_exc()
             raise
 
+
 @hyp_settings(max_examples=num_base_features, deadline=None)
 @given(strategies.sampled_from(base_feature_list))
 def test_run_API_on_original_features(base_feature):
-
     for atlas in feature_to_atlas_list[base_feature]:
         sud_id_list = feature_to_subject_id_list[base_feature]
-        edge_weights_all = extract(sud_id_list,
-                                   feature_to_in_dir[base_feature],
-                                   base_feature=base_feature,
-                                   weight_method_list=cfg.weights_on_original_features,
-                                   atlas=atlas,
-                                   smoothing_param=fwhm,
-                                   out_dir=out_dir,
-                                   return_results=True,
-                                   num_procs=1)
+        edge_weights_all = extract(
+                sud_id_list, feature_to_in_dir[base_feature],
+                base_feature=base_feature,
+                weight_method_list=cfg.weights_on_original_features, atlas=atlas,
+                smoothing_param=fwhm, out_dir=out_dir, return_results=True,
+                num_procs=1)
 
         num_combinations = len(list(edge_weights_all))
 
@@ -192,6 +186,7 @@ def test_run_API_on_original_features(base_feature):
                 if edge_weights_all[(wm, sub)].size != num_links:
                     raise ValueError('invalid results : # links')
 
+
 @hyp_settings(max_examples=num_base_features, deadline=None)
 @given(strategies.sampled_from(base_feature_list))
 def test_run_roi_stats_via_API(base_feature):
@@ -202,7 +197,7 @@ def test_run_roi_stats_via_API(base_feature):
                        'kurtosis']
     # 'mode' returns more than one value; 'gmean' requires only positive values,
     # 'hmean' can not always be computed
-    from scipy.stats import  trim_mean, kstat
+    from scipy.stats import trim_mean, kstat
     from functools import partial
     trimmed_mean = partial(trim_mean, proportiontocut=0.05)
     third_kstat = partial(kstat, n=3)
@@ -215,14 +210,14 @@ def test_run_roi_stats_via_API(base_feature):
     for atlas in feature_to_atlas_list[base_feature]:
         num_roi_wholebrain = num_roi_atlas[atlas]
         for summary_method in summary_methods:
-            roi_medians = graynet.roiwise_stats_indiv(sud_id_list,
-                                                      feature_to_in_dir[base_feature],
-                                                      base_feature=base_feature,
-                                                      chosen_roi_stats=summary_method,
-                                                      atlas=atlas,
-                                                      smoothing_param=fwhm,
-                                                      out_dir=out_dir,
-                                                      return_results=True)
+            roi_medians = roiwise_stats_indiv(sud_id_list,
+                                              feature_to_in_dir[base_feature],
+                                              base_feature=base_feature,
+                                              chosen_roi_stats=summary_method,
+                                              atlas=atlas,
+                                              smoothing_param=fwhm,
+                                              out_dir=out_dir,
+                                              return_results=True)
 
             for sub in sud_id_list:
                 if roi_medians[sub].size != num_roi_wholebrain:
@@ -235,7 +230,7 @@ def test_CLI_weight():
     sys.argv = shlex.split('graynet -s {} -i {} -w manhattan -o {} -a {}'
                            ''.format(sub_list, example_dir, out_dir, atlas))
 
-    CLI()
+    run_cli()
 
 
 def test_run_roi_stats_via_CLI():
@@ -244,7 +239,7 @@ def test_run_roi_stats_via_CLI():
     sys.argv = shlex.split('graynet -s {} -i {} -r median gmean -o {} -a {}'
                            ''.format(sub_list, example_dir, out_dir, atlas))
 
-    CLI()
+    run_cli()
 
 
 def test_CLI_only_weight_or_stats():
@@ -252,9 +247,9 @@ def test_CLI_only_weight_or_stats():
 
     with raises(SystemExit):
         sys.argv = shlex.split(
-            'graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'
-            ''.format(sub_list, example_dir, out_dir, atlas))
-        CLI()
+                'graynet -s {} -i {} -w cosine -r median gmean -o {} -a {}'
+                ''.format(sub_list, example_dir, out_dir, atlas))
+        run_cli()
 
 
 def test_empty_subject_list():
@@ -301,13 +296,12 @@ def test_invalid_nbins():
 
 
 def test_atlas_parcel_subdivision():
-
     wm = 'manhattan'
     # much slower: zip(cfg.allowed_mvpp, cfg.mvpp_to_total_num_patches)
     for mvpp, tot_patch_count in zip((1000, 10000), (273, 68)):
         edge_weights_all = extract(subject_id_list, example_dir,
                                    base_feature=base_feature,
-                                   weight_method_list=[wm,],
+                                   weight_method_list=[wm, ],
                                    atlas='fsaverage', node_size=mvpp,
                                    smoothing_param=fwhm, out_dir=out_dir,
                                    return_results=True, num_procs=1)
@@ -322,14 +316,3 @@ def test_atlas_parcel_subdivision():
             if edge_weights_all[(wm, sub)].size != num_links:
                 raise ValueError('mvpp: invalid count : # links')
 
-
-# test_multi_edge()
-# test_multi_edge_CLI()
-# test_empty_subject_list()
-# test_run_no_IO()
-# test_run_roi_stats_via_API()
-# test_run_roi_stats_via_CLI()
-# test_CLI_only_weight_or_stats()
-# test_run_API_on_original_features()
-
-test_atlas_parcel_subdivision()
