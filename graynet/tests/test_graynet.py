@@ -258,8 +258,15 @@ def test_CLI_only_weight_or_stats():
 
 
 def test_empty_subject_list():
+    # API
     with raises(ValueError):
         ew = graynet.extract([], fs_dir)
+
+    # in CLI, only non-Freesurfer lead to an error
+    for feat in cfg.features_volumetric:  # invalid list
+        with raises(ValueError):
+            sys.argv = shlex.split('graynet -i {} -f {}'.format(fs_dir, feat))
+            run_cli()
 
 
 def test_invalid_edge_range():
