@@ -1,28 +1,27 @@
+__all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
+
+import argparse
+import logging
+import os
+import pickle
+import sys
+import traceback
+import warnings
+from functools import partial
+from multiprocessing import Manager, Pool
+from os.path import exists as pexists, join as pjoin
+from pathlib import Path
+from sys import version_info
+
+import hiwenet
+import networkx as nx
+import numpy as np
 from graynet.utils import (calc_roi_statistics, check_atlas, check_num_procs,
                            check_params_single_edge, check_stat_methods,
                            check_subjects, check_weight_params, check_weights,
-                           import_features, mask_background_roi, save,
+                           import_features, mask_background_roi,
                            save_per_subject_graph, save_summary_stats,
                            stamp_experiment, stamp_expt_weight, warn_nan)
-
-__all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
-
-import os
-import sys
-import argparse
-import warnings
-import traceback
-import logging
-from os.path import join as pjoin, exists as pexists
-from multiprocessing import Manager, Pool
-from functools import partial
-import pickle
-
-import hiwenet
-import numpy as np
-import networkx as nx
-
-from sys import version_info
 
 if version_info.major > 2:
     from graynet import utils
@@ -586,8 +585,11 @@ def cli_run():
 def get_parser():
     "Method to specify arguments and defaults. "
 
-    help_text_subject_ids = "Path to file containing list of subject IDs (one per " \
-                            "line)"
+    help_text_subject_ids = """Path to file containing subject IDs (one per line).
+    
+    Optional when the input directory is Freesurfer, but required for all others.
+    """
+
     help_text_input_dir = "Path to a folder containing input data. It could, " \
                           "for example, " \
                           "be a Freesurfer SUBJECTS_DIR, if the chosen feature is " \
@@ -695,7 +697,7 @@ def get_parser():
 
     parser.add_argument("-s", "--subject_ids_path", action="store",
                         dest="subject_ids_path",
-                        required=True,
+                        required=False, default=None,
                         help=help_text_subject_ids)
 
     parser.add_argument("-i", "--input_dir", action="store", dest="input_dir",
@@ -820,20 +822,49 @@ def parse_args():
         print(exc)
         raise ValueError('Unable to parse command-line arguments.')
 
-    subject_ids_path = os.path.abspath(params.subject_ids_path)
-    if not os.path.exists(subject_ids_path):
-        raise IOError("Given subject IDs file doesn't exist.")
+    feature_list = utils.check_features(params.features)
 
-    input_dir = os.path.abspath(params.input_dir)
-    if not os.path.exists(input_dir):
-        raise IOError("Given input directory doesn't exist.")
+    input_dir = Path(params.input_dir).resolve()
+    if not input_dir.exists():
+        raise IOError("Given input directory doesn't exist!")
 
     out_dir = params.out_dir
     if out_dir is not None:
-        if not pexists(out_dir):
-            os.mkdir(out_dir)
+        out_dir = Path(out_dir).resolve()
+        if not out_dir.exists():
+            out_dir.mkdir(exist_ok=True, parents=True)
+    else:
+        out_dir = input_dir / "graynet"
 
-    feature_list = utils.check_features(params.features)
+    # allowing auto population of subject IDs for freesurfer directory
+    sub_id_list_path = params.subject_ids_path
+    if sub_id_list_path is None:
+        # this is allowed only when all features are freesurfer-related only
+        for feat in feature_list:
+            if feat not in cfg.features_freesurfer:
+                raise ValueError("Path to subject ID list must be specified "
+                                 "when non-Freesurfer features are being processed!")
+
+        # get all IDs in Freesurfer $SUBJECTS_DIR that are folders with surf subdir
+        id_list = [sub_id for sub_id in input_dir.iterdir()
+                   if (sub_id.is_dir() and sub_id.joinpath('surf').is_dir() )]
+
+        if len(id_list) < 1:
+            raise ValueError('Given Freesurfer folder does not any subjects:\n{}'
+                             ''.format(input_dir))
+
+        # write to a file in out folder
+        try:
+            sub_id_list_path = input_dir / 'id_list_freesurfer_graynet.txt'
+            with open(sub_id_list_path, 'w') as idlf:
+                idlf.writelines('\n'.join(id_list))
+        except:
+            raise IOError('Unable to write auto generated id list (n={}) to disk'
+                          ' to\n  {}'.format(len(id_list), sub_id_list_path))
+    else:
+        sub_id_list_path = Path(params.subject_ids_path).resolve()
+        if not sub_id_list_path.exists():
+            raise IOError("Given subject IDs file doesn't exist.")
 
     do_multi_edge = bool(params.do_multi_edge)
     summary_stat = params.summary_stat
@@ -898,7 +929,7 @@ def parse_args():
     # TODO should we check atlas compatibility with data for two subjects randomly?
     #  load data for subjects, check atlas parcellation is compatible in size with data
 
-    return subject_ids_path, input_dir, \
+    return sub_id_list_path, input_dir, \
            feature_list, weight_method_list, \
            do_multi_edge, summary_stat, multi_edge_range_out, \
            params.num_bins, params.edge_range, \
