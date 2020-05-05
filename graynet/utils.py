@@ -256,7 +256,8 @@ def warn_nan(array):
 def check_subjects(subjects_info):
     "Ensure subjects are provided and their data exist."
 
-    if isinstance(subjects_info, str):
+    from pathlib import Path
+    if isinstance(subjects_info, (Path, str)):
         if not pexists(subjects_info):
             raise IOError('path to subject list does not exist: {}'.format(subjects_info))
         subjects_list = np.genfromtxt(subjects_info, dtype=str)
