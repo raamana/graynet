@@ -59,7 +59,9 @@
 <dd><p>Path to a folder containing input data. It could, for example, be a Freesurfer SUBJECTS_DIR, if the chosen feature is from Freesurfer output.</p>
 </dd>
 <dt><kbd>-f, --feature</kbd></dt>
-<dd><p>Type of feature to be used for analysis. Default: ‘freesurfer_thickness’. Choices: (‘freesurfer_thickness’, ‘freesurfer_sulc’, ‘freesurfer_curv’, ‘freesurfer_area’, ‘freesurfer_pial_area’, ‘freesurfer_pial_lgi’, ‘freesurfer_jacobian_white’, ‘freesurfer_volume’, ‘gmdensity’, ‘spm_cat_gmdensity’, ‘spm_cat_wmdensity’)</p>
+<dd><p>Type of feature to be used for analysis.</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code></p>
+<p>Choices: freesurfer_thickness, freesurfer_sulc, freesurfer_curv, freesurfer_area, freesurfer_pial_area, freesurfer_pial_lgi, freesurfer_jacobian_white, freesurfer_volume, gmdensity, spm_cat_gmdensity, spm_cat_wmdensity</p>
 </dd>
 <dt><kbd>-o, --out_dir</kbd></dt>
 <dd><p>Where to save the extracted features.</p>
@@ -72,6 +74,12 @@
 <dl class="option-list">
 <dt><kbd>-w, --weight_method</kbd></dt>
 <dd><p>List of methods used to estimate the weight of the edge between the pair of nodes.</p>
+<p>Default : manhattan.</p>
+<p>Available options:</p>
+<blockquote>
+<div><p><strong>histogram</strong>-based: chebyshev, chebyshev_neg, chi_square, correlate, correlate_1, cosine, cosine_1, cosine_2, cosine_alt, euclidean, fidelity_based, histogram_intersection, histogram_intersection_1, jensen_shannon, kullback_leibler, manhattan, minowski, noelle_1, noelle_2, noelle_3, noelle_4, noelle_5, relative_bin_deviation, relative_deviation</p>
+<p>weights on <strong>original</strong> features : diff_medians, diff_medians_abs, diff_means, diff_means_abs, exp_diff_means_norm_std, ranksum_statistic</p>
+</div></blockquote>
 </dd>
 <dt><kbd>-r, --roi_stats</kbd></dt>
 <dd><p>Option to compute summary statistics within each ROI of the chosen parcellation. These statistics (such as the median) can serve as a baseline for network-level values produced by graynet. Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and any other appropriate summary statistics listed under scipy.stats:  <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a> . When this option is chosen, network computation is not allowed. You need to compute networks and ROI stats separately.</p>
@@ -89,7 +97,8 @@
 <dd><p>Number of bins used to construct the histogram within each ROI or group. Default : 25</p>
 </dd>
 <dt><kbd>-e, --edge_range</kbd></dt>
-<dd><p>The range of edges (two finite values) within which to bin the given values e.g. –edge_range 0.0 5.0 .Setting this is <em>crucial</em> to ensure correspondence across multiple invocations of graynet, for different subjects, in terms of range across all bins as well as individual bin edges. Default : None, to automatically compute from the given values.</p>
+<dd><p>The range of edges (two finite values) within which to bin the given values e.g. <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0.0</span> <span class="pre">5.0</span></code> .Setting this is <em>crucial</em> to ensure correspondence across multiple invocations of graynet, for different subjects, in terms of range across all bins as well as individual bin edges.</p>
+<p>Default : None, to automatically compute from the given values.</p>
 </dd>
 </dl>
 </div>
@@ -101,7 +110,13 @@
 <dd><p>Summary statistic [one or more] to compute on all the weights from multiple edges.This must be a string representing a method (like ‘median’, ‘prod’ or ‘max’),  that is available as a member of numpy or scipy.stats.</p>
 </dd>
 <dt><kbd>-l, --multi_edge_range</kbd></dt>
-<dd><p>Set of edge ranges (for each of the features) within which to bin the given values - see above. e.g. -f freesurfer_thickness freesurfer_curv –edge_range 0.0 5.0 -0.3 +0.3 will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curvature.Default : {‘freesurfer_thickness’: (0.0, 5.0), ‘freesurfer_curv’: (-0.3, 0.3), ‘freesurfer_sulc’: (-1.5, 1.5), ‘freesurfer_area’: (0.0, 1.5)}.</p>
+<dd><dl>
+<dt>Set of edge ranges (for each of the features)</dt><dd><p>within which to bin the given values - see above. For example,</p>
+<p><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">freesurfer_thickness</span> <span class="pre">freesurfer_curv</span> <span class="pre">--edge_range</span> <span class="pre">0.0</span> <span class="pre">5.0</span> <span class="pre">-0.3</span> <span class="pre">+0.3</span></code></p>
+<p>will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curv.</p>
+<p>Default : {‘freesurfer_thickness’: (0.0, 5.0), ‘freesurfer_curv’: (-0.3, 0.3), ‘freesurfer_sulc’: (-1.5, 1.5), ‘freesurfer_area’: (0.0, 1.5)}.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </div>
@@ -122,7 +137,7 @@ For cortical features, you can also specify the absolute path for the Freesurfer
 <p>Default : None</p>
 </dd>
 <dt><kbd>-p, --smoothing_param</kbd></dt>
-<dd><p>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness</p>
+<dd><p>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness.</p>
 </dd>
 </dl>
 </div>

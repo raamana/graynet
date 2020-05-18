@@ -625,50 +625,56 @@
 <span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
     <span class="s2">&quot;Method to specify arguments and defaults. &quot;</span>
 
-    <span class="n">help_text_subject_ids</span> <span class="o">=</span> <span class="s2">&quot;Path to file containing list of subject IDs (one per &quot;</span> \
-                            <span class="s2">&quot;line)&quot;</span>
+    <span class="n">help_text_subject_ids</span> <span class="o">=</span> <span class="s2">&quot;Path to file containing list of subject IDs &quot;</span> \
+                            <span class="s2">&quot;(one per line)&quot;</span>
+
     <span class="n">help_text_input_dir</span> <span class="o">=</span> <span class="s2">&quot;Path to a folder containing input data. It could, &quot;</span> \
-                          <span class="s2">&quot;for example, &quot;</span> \
-                          <span class="s2">&quot;be a Freesurfer SUBJECTS_DIR, if the chosen feature is &quot;</span> \
-                          <span class="s2">&quot;from Freesurfer output.&quot;</span>
-    <span class="n">help_text_feature</span> <span class="o">=</span> <span class="s2">&quot;Type of feature to be used for analysis. Default: &#39;</span><span class="si">{}</span><span class="s2">&#39;. &quot;</span> \
-                        <span class="s2">&quot;Choices: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                             <span class="n">cfg</span><span class="o">.</span><span class="n">base_feature_list</span><span class="p">)</span>
+                          <span class="s2">&quot;for example, be a Freesurfer SUBJECTS_DIR, if the &quot;</span> \
+                          <span class="s2">&quot;chosen feature is from Freesurfer output.&quot;</span>
+
+    <span class="n">help_text_feature</span> <span class="o">=</span> <span class="s2">&quot;Type of feature to be used for analysis.</span><span class="se">\n\n</span><span class="s2">&quot;</span> \
+                        <span class="s2">&quot;Default: ``</span><span class="si">{}</span><span class="s2">`` </span><span class="se">\n\n</span><span class="s2">Choices: </span><span class="si">{}</span><span class="s2">&quot;</span> \
+                        <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_feature_single_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                  <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">base_feature_list</span><span class="p">))</span>
+
     <span class="n">help_text_multi_edge</span> <span class="o">=</span> <span class="s2">&quot;Option to compute multiple edges between ROIs based on &quot;</span> \
-                           <span class="s2">&quot;different features. &quot;</span> \
-                           <span class="s2">&quot;Default False. If True, two valid features must be &quot;</span> \
-                           <span class="s2">&quot;specified. &quot;</span> \
-                           <span class="s2">&quot;Use --multi_edge_range to specify edge ranges for each &quot;</span> \
-                           <span class="s2">&quot;feature to be processed.&quot;</span>
+                           <span class="s2">&quot;different features. Default False. If True, two valid &quot;</span> \
+                           <span class="s2">&quot;features must be specified. Use --multi_edge_range to &quot;</span> \
+                           <span class="s2">&quot;specify edge ranges for each feature to be processed.&quot;</span>
+
     <span class="n">help_text_summary_stat</span> <span class="o">=</span> <span class="s2">&quot;Summary statistic [one or more] to compute on all &quot;</span> \
-                             <span class="s2">&quot;the weights from multiple edges.&quot;</span> \
-                             <span class="s2">&quot;This must be a string representing a method (like &quot;</span> \
-                             <span class="s2">&quot;&#39;median&#39;, &#39;prod&#39; or &#39;max&#39;),  &quot;</span> \
-                             <span class="s2">&quot;that is available as a member of numpy or scipy.stats.&quot;</span>
+                             <span class="s2">&quot;the weights from multiple edges.This must be a &quot;</span> \
+                             <span class="s2">&quot;string representing a method (like &#39;median&#39;, &quot;</span> \
+                             <span class="s2">&quot;&#39;prod&#39; or &#39;max&#39;),  that is available as a member of &quot;</span> \
+                             <span class="s2">&quot;numpy or scipy.stats.&quot;</span>
+
     <span class="n">help_text_weight</span> <span class="o">=</span> <span class="s2">&quot;List of methods used to estimate the weight of the edge &quot;</span> \
-                       <span class="s2">&quot;between the pair of nodes.&quot;</span>  <span class="c1"># .format(</span>
-    <span class="c1"># cfg.default_weight_method)</span>
+                       <span class="s2">&quot;between the pair of nodes.</span><span class="se">\n\n</span><span class="s2">Default : </span><span class="si">{}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">&quot;</span> \
+                       <span class="s2">&quot;Available options:&quot;</span> \
+                       <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2"> **histogram**-based: </span><span class="si">{}</span><span class="s2">&quot;</span> \
+                       <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2"> weights on **original** features : </span><span class="si">{}</span><span class="s2">&quot;</span> \
+                       <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_weight_method</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                 <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">histogram_weights</span><span class="p">),</span>
+                                 <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">weights_on_original_features</span><span class="p">))</span>
+
     <span class="n">help_text_num_bins</span> <span class="o">=</span> <span class="s2">&quot;Number of bins used to construct the histogram within &quot;</span> \
-                         <span class="s2">&quot;each ROI or group. Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">)</span>
+                         <span class="s2">&quot;each ROI or group. &quot;</span> \
+                         <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_num_bins</span><span class="p">)</span>
+
     <span class="n">help_text_edge_range</span> <span class="o">=</span> <span class="s2">&quot;The range of edges (two finite values) within which to &quot;</span> \
-                           <span class="s2">&quot;bin the given values e.g. --edge_range 0.0 5.0 .&quot;</span> \
-                           <span class="s2">&quot;Setting this is *crucial* to ensure &quot;</span> \
-                           <span class="s2">&quot;correspondence across multiple invocations of graynet, &quot;</span> \
-                           <span class="s2">&quot;for different subjects, in terms of range across all &quot;</span> \
-                           <span class="s2">&quot;bins as well as individual bin edges. &quot;</span> \
-                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, &quot;</span> \
-                           <span class="s2">&quot;to automatically compute from the given values.&quot;</span> \
+                           <span class="s2">&quot;bin the given values e.g. ``--edge_range 0.0 5.0`` &quot;</span> \
+                           <span class="s2">&quot;.Setting this is *crucial* to ensure correspondence &quot;</span> \
+                           <span class="s2">&quot;across multiple invocations of graynet, for different &quot;</span> \
+                           <span class="s2">&quot;subjects, in terms of range across all bins as well as &quot;</span> \
+                           <span class="s2">&quot;individual bin edges.</span><span class="se">\n\n</span><span class="s2">&quot;</span> \
+                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, to automatically compute from the given values.&quot;</span> \
                            <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_edge_range</span><span class="p">)</span>
 
-    <span class="n">help_text_multi_edge_range</span> <span class="o">=</span> <span class="s2">&quot;Set of edge ranges (for each of the features) &quot;</span> \
-                                 <span class="s2">&quot;within which to bin the given values - see &quot;</span> \
-                                 <span class="s2">&quot;above. &quot;</span> \
-                                 <span class="s2">&quot;e.g. -f freesurfer_thickness freesurfer_curv &quot;</span> \
-                                 <span class="s2">&quot;--edge_range 0.0 5.0 -0.3 +0.3 &quot;</span> \
-                                 <span class="s2">&quot;will set the a range of [0.0, 5.0] for thickness &quot;</span> \
-                                 <span class="s2">&quot;and [-0.3, 0.3] for curvature.&quot;</span> \
-                                 <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">edge_range_predefined</span><span class="p">)</span>
+    <span class="n">help_text_multi_edge_range</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Set of edge ranges (for each of the features) </span>
+<span class="s2">    within which to bin the given values - see above. For example, </span><span class="se">\n\n</span><span class="s2"></span>
+<span class="s2">    ``-f freesurfer_thickness freesurfer_curv --edge_range 0.0 5.0 -0.3 +0.3``</span><span class="se">\n\n</span><span class="s2"> </span>
+<span class="s2">    will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curv.</span><span class="se">\n\n</span><span class="s2"> </span>
+<span class="s2">    Default : </span><span class="si">{}</span><span class="s2">.&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">edge_range_predefined</span><span class="p">)</span>
 
     <span class="n">help_text_roi_stats</span> <span class="o">=</span> <span class="s2">&quot;Option to compute summary statistics within each ROI of &quot;</span> \
                           <span class="s2">&quot;the chosen parcellation. These statistics (such as the &quot;</span> \
@@ -681,27 +687,26 @@
                           <span class="s2">&quot;#statistical-functions . When this option is chosen, &quot;</span> \
                           <span class="s2">&quot;network computation is not allowed. You need to compute &quot;</span> \
                           <span class="s2">&quot;networks and ROI stats separately.&quot;</span>
-    <span class="n">help_text_atlas</span> <span class="o">=</span> <span class="s2">&quot;Name or path to atlas to containing the parcellation of ROIs.&quot;</span> \
-                      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">For cortical features, you can also specify the absolute &quot;</span> \
-                      <span class="s2">&quot;path for the Freesurfer parcellation of that atlas. &quot;</span> \
-                      <span class="s2">&quot;This directory must have the standard Freesurfer structure, &quot;</span> \
-                      <span class="s2">&quot;with the following key files that must exist: &quot;</span> \
-                      <span class="s2">&quot;``label/?h.aparc.annot`` and ``surf/?h.orig``.</span><span class="se">\n\n</span><span class="s2">&quot;</span> \
-                      <span class="s2">&quot;*Cortical* atlases supported: ``fsaverage`` and &quot;</span> \
-                      <span class="s2">&quot;``glasser2016``. In addition, you can also specify an &quot;</span> \
-                      <span class="s2">&quot;absolute path to the Freesurfer processing of any &quot;</span> \
-                      <span class="s2">&quot;arbitrary atlas. Read these instructions before trying: &quot;</span> \
-                      <span class="s2">&quot;https://raamana.github.io/graynet/cortical.html#using-a-different-atlas&quot;</span> \
-                      <span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">*Volumetric* atlases supported for CAT12 features: &quot;</span> \
-                      <span class="s2">&quot;``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``.&quot;</span> \
-                      <span class="s2">&quot;In addition, you can also directly specify an absolute path &quot;</span> \
-                      <span class="s2">&quot;to a single 3D volume. Make sure name this file properly as it&quot;</span> \
-                      <span class="s2">&quot;would be used to encode all the processing i.e. make it &quot;</span> \
-                      <span class="s2">&quot;clean as well as fully reflective of the properties of the &quot;</span> \
-                      <span class="s2">&quot;parcellation inside.&quot;</span> \
-                      <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> \
-                      <span class="s2">&quot;Default: ``</span><span class="si">{}</span><span class="s2">``&quot;</span> \
-                      <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">)</span>
+
+    <span class="n">help_text_atlas</span> <span class="o">=</span> <span class="s2">&quot;Name or path to atlas to containing the parcellation of &quot;</span> \
+                      <span class="s2">&quot;ROIs.</span><span class="se">\n</span><span class="s2">For cortical features, you can also specify the &quot;</span> \
+                      <span class="s2">&quot;absolute path for the Freesurfer parcellation of that &quot;</span> \
+                      <span class="s2">&quot;atlas. This directory must have the standard Freesurfer &quot;</span> \
+                      <span class="s2">&quot;structure, with the following key files that must exist: &quot;</span> \
+                      <span class="s2">&quot;``label/?h.aparc.annot`` and &quot;</span> \
+                      <span class="s2">&quot;``surf/?h.orig``.</span><span class="se">\n\n</span><span class="s2">*Cortical* atlases supported: &quot;</span> \
+                      <span class="s2">&quot;``fsaverage`` and ``glasser2016``. In addition, you can &quot;</span> \
+                      <span class="s2">&quot;also specify an absolute path to the Freesurfer processing &quot;</span> \
+                      <span class="s2">&quot;of any arbitrary atlas. Read these instructions before &quot;</span> \
+                      <span class="s2">&quot;trying: https://raamana.github.io/graynet/cortical.html&quot;</span> \
+                      <span class="s2">&quot;#using-a-different-atlas</span><span class="se">\n\n\n</span><span class="s2">*Volumetric* atlases &quot;</span> \
+                      <span class="s2">&quot;supported for CAT12 features: ``cat_aal``, ``cat_lpba40``, &quot;</span> \
+                      <span class="s2">&quot;and ``cat_ibsr``.In addition, you can also directly specify &quot;</span> \
+                      <span class="s2">&quot;an absolute path to a single 3D volume. Make sure name this &quot;</span> \
+                      <span class="s2">&quot;file properly as itwould be used to encode all the &quot;</span> \
+                      <span class="s2">&quot;processing i.e. make it clean as well as fully reflective &quot;</span> \
+                      <span class="s2">&quot;of the properties of the parcellation inside.</span><span class="se">\n\n</span><span class="s2">Default: &quot;</span> \
+                      <span class="s2">&quot;``</span><span class="si">{}</span><span class="s2">``&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_atlas</span><span class="p">)</span>
 
     <span class="n">help_text_parc_size</span> <span class="o">=</span> <span class="s2">&quot;Size of individual patch for the atlas parcellation, &quot;</span> \
                           <span class="s2">&quot;in terms of minimum number of vertices per patch. &quot;</span> \
@@ -713,15 +718,13 @@
                           <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Default : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_node_size</span><span class="p">)</span>
 
     <span class="n">help_text_smoothing</span> <span class="o">=</span> <span class="s2">&quot;Smoothing parameter for feature. &quot;</span> \
-                          <span class="s2">&quot;Default: FWHM of </span><span class="si">{}</span><span class="s2"> &quot;</span> \
-                          <span class="s2">&quot;for Freesurfer thickness&quot;</span> \
+                          <span class="s2">&quot;Default: FWHM of </span><span class="si">{}</span><span class="s2"> for Freesurfer thickness.&quot;</span> \
                           <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_smoothing_param</span><span class="p">)</span>
 
     <span class="n">help_text_num_procs</span> <span class="o">=</span> <span class="s2">&quot;Number of CPUs to use in parallel to speed up &quot;</span> \
                           <span class="s2">&quot;processing. &quot;</span> \
                           <span class="s2">&quot;Default : </span><span class="si">{}</span><span class="s2">, capping at available number of CPUs in &quot;</span> \
-                          <span class="s2">&quot;the processing node.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">)</span>
+                          <span class="s2">&quot;the processing node.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">default_num_procs</span><span class="p">)</span>
 
     <span class="n">help_text_overwrite_results</span> <span class="o">=</span> <span class="s2">&quot;Flag to request overwriting of existing &quot;</span> \
                                   <span class="s2">&quot;results, in case of reruns/failed jobs. &quot;</span> \
@@ -750,11 +753,11 @@
                         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Where to save the extracted features. &quot;</span><span class="p">)</span>
 
-    <span class="n">method_selector</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Type of computation&#39;</span><span class="p">,</span>
-                                                <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Choose one among &#39;</span>
-                                                            <span class="s1">&#39;single edge, &#39;</span>
-                                                            <span class="s1">&#39;multiedge or simply &#39;</span>
-                                                            <span class="s1">&#39;ROI stats.&#39;</span><span class="p">)</span>
+    <span class="n">method_selector</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Type of computation&#39;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Choose one among single edge, multiedge or simply ROI &#39;</span> \
+                        <span class="s1">&#39;stats.&#39;</span><span class="p">)</span>
+
     <span class="c1"># method_selector = parser.add_argument_group(required=True)</span>
     <span class="n">method_selector</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--weight_method&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
                                  <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;weight_methods&quot;</span><span class="p">,</span>
