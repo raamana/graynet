@@ -16,7 +16,7 @@ this_file = Path(__file__).resolve()
 
 if __name__ == '__main__' and __package__ is None:
     pkg_dir = this_file.parents[1]
-    repo_dir = parent_dir.parent
+    repo_dir = pkg_dir.parent
     sys.path.append(pkg_dir)
     sys.path.append(repo_dir)
 
