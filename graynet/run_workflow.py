@@ -2,7 +2,6 @@ __all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
 
 import argparse
 import logging
-import os
 import pickle
 import sys
 import traceback
@@ -203,8 +202,8 @@ def extract(subject_id_list,
         if out_dir is None:
             raise ValueError('When return_results=False, out_dir must be specified '
                              'to be able to save the results.')
-        if not pexists(out_dir):
-            os.mkdir(out_dir)
+        if not out_dir.exists():
+            out_dir.mkdir(exist_ok=True, parents=True)
 
     if base_feature in cfg.features_cortical:
         uniq_rois, centroids, roi_labels = roi_labels_centroids(atlas, node_size)
@@ -473,8 +472,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         if out_dir is None:
             raise ValueError('When return_results=False, out_dir must be specified '
                              'to be able to save the results.')
-        if not pexists(out_dir):
-            os.mkdir(out_dir)
+        if not out_dir.exists():
+            out_dir.mkdir(exist_ok=True, parents=True)
 
     for sub_idx, subject in enumerate(subject_id_list):
 
@@ -539,7 +538,7 @@ def cli_run():
                     do_multi_edge, summary_stats, multi_edge_range, num_bins, edge_range,
                     atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs,
                     overwrite_results]
-        with open(pjoin(out_dir, 'user_options.pkl'), 'wb') as of:
+        with open(out_dir.joinpath('user_options.pkl'), 'wb') as of:
             pickle.dump(user_opt, of)
     except:
         # ignore
@@ -831,10 +830,11 @@ def parse_args():
     out_dir = params.out_dir
     if out_dir is not None:
         out_dir = Path(out_dir).resolve()
-        if not out_dir.exists():
-            out_dir.mkdir(exist_ok=True, parents=True)
     else:
         out_dir = input_dir / "graynet"
+
+    if not out_dir.exists():
+        out_dir.mkdir(exist_ok=True, parents=True)
 
     # allowing auto population of subject IDs for freesurfer directory
     sub_id_list_path = params.subject_ids_path

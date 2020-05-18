@@ -9,11 +9,11 @@ import os
 import sys
 import traceback
 from genericpath import exists as pexists
-from os.path import join as pjoin, isfile, realpath, getsize, basename, splitext
-import nibabel
-import networkx as nx
 from multiprocessing import cpu_count
+from pathlib import Path
 
+import networkx as nx
+import nibabel
 import numpy as np
 
 from graynet import config_graynet as cfg, freesurfer
@@ -61,7 +61,7 @@ def is_image_3D(input_obj):
 def filename_without_ext(file_path):
     """Returns a filename without ext from input absolute path."""
 
-    return splitext(basename(realpath(file_path)))[0]
+    return Path(file_path).resolve().stem
 
 
 def check_atlas(atlas_spec):
@@ -143,15 +143,15 @@ def make_output_path_graph(out_dir, subject, str_prefixes):
     if out_dir is not None:
         # get outpath returned from hiwenet, based on dist name and all other params
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = pjoin(out_dir, subject)
-        if not pexists(out_subject_dir):
-            os.mkdir(out_subject_dir)
+        out_subject_dir = out_dir.joinpath(subject)
+        if not out_subject_dir.exists():
+            out_subject_dir.mkdir(exist_ok=True, parents=True)
 
         if isinstance(str_prefixes, str):
             str_prefixes = [str_prefixes, ]
 
         out_file_name = '{}_graynet.graphml'.format('_'.join(str_prefixes))
-        out_weights_path = pjoin(out_subject_dir, out_file_name)
+        out_weights_path = out_subject_dir.joinpath(out_file_name)
     else:
         out_weights_path = None
 
@@ -515,9 +515,10 @@ def check_atlas_annot_exist(atlas_dir, hemi_list=None):
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
 
+    atlas_dir = Path(atlas_dir).resolve()
     for hemi in hemi_list:
-        annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
-        if not pexists(annot_path) or os.path.getsize(annot_path) == 0:
+        annot_path = atlas_dir / 'label' / '{}.aparc.annot'.format(hemi)
+        if not annot_path.exists() or os.path.getsize(annot_path) == 0:
             return False
 
     return True
@@ -577,16 +578,16 @@ def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_
     if out_dir is not None:
         # get outpath returned from hiwenet, based on dist name and all other parameters
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = pjoin(out_dir, subject)
-        if not pexists(out_subject_dir):
-            os.mkdir(out_subject_dir)
+        out_subject_dir = out_dir.joinpath(subject)
+        if not out_subject_dir.exists():
+            out_subject_dir.mkdir(exist_ok=True, parents=True)
 
         if str_suffix is not None:
             out_file_name = '{}_roi_stats.csv'.format(str_suffix)
         else:
             out_file_name = 'roi_stats.csv'
 
-        out_weights_path = pjoin(out_subject_dir, out_file_name)
+        out_weights_path = out_subject_dir.joinpath(out_file_name)
 
         try:
             with open(out_weights_path, 'w') as of:
@@ -608,16 +609,16 @@ def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
     if out_dir is not None:
         # get outpath returned from hiwenet, based on dist name and all other parameters
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = pjoin(out_dir, subject)
-        if not pexists(out_subject_dir):
-            os.mkdir(out_subject_dir)
+        out_subject_dir = out_dir.joinpath(subject)
+        if not out_subject_dir.exists():
+            out_subject_dir.mkdir(exist_ok=True, parents=True)
 
         if str_suffix is not None:
             out_file_name = '{}_graynet.graphml'.format(str_suffix)
         else:
             out_file_name = 'graynet.graphml'
 
-        out_weights_path = pjoin(out_subject_dir, out_file_name)
+        out_weights_path = out_subject_dir.joinpath(out_file_name)
 
         try:
             print(nx.info(graph_nx))
@@ -636,16 +637,16 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
     if out_dir is not None:
         # get outpath returned from hiwenet, based on dist name and all other parameters
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = pjoin(out_dir, subject)
-        if not pexists(out_subject_dir):
-            os.mkdir(out_subject_dir)
+        out_subject_dir = out_dir.joinpath(subject)
+        if not out_subject_dir.exists():
+            out_subject_dir.mkdir(exist_ok=True, parents=True)
 
         if str_suffix is not None:
             out_file_name = '{}_graynet.csv'.format(str_suffix)
         else:
             out_file_name = 'graynet.csv'
 
-        out_weights_path = pjoin(out_subject_dir, out_file_name)
+        out_weights_path = out_subject_dir.joinpath(out_file_name)
 
         try:
             np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
@@ -688,8 +689,8 @@ def get_CAT_data(input_dir, sid, base_feature):
 def get_SPM_CAT_img_path(input_dir, sid, base_feature):
     """Constructs the path for a given subject ID and feature"""
 
-    return pjoin(input_dir, 'mri', '{}{}.nii'.format(
-            cfg.features_spm_cat_prefixes[base_feature], sid))
+    return input_dir / 'mri' / '{}{}.nii'.format(
+            cfg.features_spm_cat_prefixes[base_feature], sid)
 
 
 def fsl_import(input_dir,

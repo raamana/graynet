@@ -3,11 +3,12 @@ from __future__ import print_function
 __all__ = ['import_features', 'get_data']
 
 from collections.abc import Iterable
-from os.path import exists as pexists, join as pjoin
+from os.path import exists as pexists
 from traceback import print_exc
 
 import nibabel
 import numpy as np
+
 from graynet import config_graynet as cfg
 
 _base_feature_list = ['thickness', 'curv', 'sulc', 'area',
@@ -90,13 +91,12 @@ def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10,
                         atlas='fsaverage', feature='thickness'):
     "Returning the path to surface features. Using a smoothed version"
 
-    return pjoin(fsd, sid, 'surf',
-                 '{}.{}.fwhm{}.{}.mgh'.format(hemi, feature, fwhm, atlas))
+    return fsd / sid / 'surf' / '{}.{}.fwhm{}.{}.mgh'.format(hemi, feature, fwhm, atlas)
 
 
 def __read_morph_feature(thk_path):
     "Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"
 
-    vec = nibabel.load(thk_path).get_fdata()  # typically of shape: (163842, 1, 1)
+    vec = nibabel.load(thk_path).get_fdata() #typically of shape: (163842, 1, 1)
 
     return np.squeeze(vec)  # becomes (163842, )

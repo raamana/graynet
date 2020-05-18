@@ -1,20 +1,16 @@
-import graynet.utils
-
 __all__ = ['extract_multiedge', 'summarize_multigraph']
 
-import os
 import sys
-import warnings
 import traceback
-from os.path import join as pjoin, exists as pexists, isfile, realpath, getsize
-from multiprocessing import Manager, Pool
+import warnings
 from functools import partial
-
-import numpy as np
-import networkx as nx
-import hiwenet
-
+from multiprocessing import Manager, Pool
+from os.path import getsize, isfile
 from sys import version_info
+
+import hiwenet
+import networkx as nx
+import numpy as np
 
 if version_info.major > 2:
     from graynet.utils import stamp_expt_multiedge, check_params_multiedge, make_output_path_graph, \
@@ -23,7 +19,6 @@ if version_info.major > 2:
         stamp_expt_weight, import_features, save_per_subject_graph
     from graynet import parcellate
     from graynet import config_graynet as cfg
-    from graynet import run_workflow as single_edge
 else:
     raise NotImplementedError(
         'graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
@@ -223,8 +218,8 @@ def extract_multiedge(subject_id_list,
             raise ValueError('When return_results=False, '
                              'out_dir must be specified '
                              'to be able to save the results.')
-        if not pexists(out_dir):
-            os.mkdir(out_dir)
+        if not out_dir.exists():
+            out_dir.mkdir(exist_ok=True, parents=True)
 
     partial_func_extract = partial(per_subject_multi_edge, input_dir, base_feature_list,
                                    roi_labels, centroids,
@@ -428,16 +423,17 @@ def save_summary_graph(graph, out_dir, subject,
     if out_dir is not None:
         # get outpath returned from hiwenet, based on dist name and all other parameters
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = pjoin(out_dir, subject)
-        if not pexists(out_subject_dir):
-            os.mkdir(out_subject_dir)
+        out_subject_dir = out_dir.joinpath(subject)
+        if not out_subject_dir.exists():
+            out_subject_dir.mkdir(exist_ok=True, parents=True)
 
         if str_suffix is not None:
-            out_file_name = '{}_{}_multigraph_graynet.graphml'.format(str_suffix, summary_descr)
+            out_file_name = '{}_{}_multigraph_graynet.graphml' \
+                            ''.format(str_suffix, summary_descr)
         else:
             out_file_name = '_{}_multigraph_graynet.graphml'.format(summary_descr)
 
-        out_weights_path = pjoin(out_subject_dir, out_file_name)
+        out_weights_path = out_subject_dir / out_file_name
 
         try:
             nx.info(graph)

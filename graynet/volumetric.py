@@ -4,19 +4,21 @@ Module for all things voxelwise and volumetric
 
 """
 
+import sys
 import traceback
 import warnings
-import hiwenet
-import numpy as np
-import nibabel
-import networkx as nx
-import sys
 
-from graynet.utils import import_features, warn_nan, stamp_expt_weight, \
-    save_per_subject_graph, save, roi_info, mask_background_roi, \
-    is_image, is_image_3D
+import hiwenet
+import networkx as nx
+import nibabel
+import numpy as np
+
 from graynet import config_graynet as cfg
 from graynet.parcellate import get_atlas_path
+from graynet.utils import (import_features, is_image, is_image_3D,
+                           mask_background_roi, roi_info, save,
+                           save_per_subject_graph, stamp_expt_weight,
+                           warn_nan)
 
 
 def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,

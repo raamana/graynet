@@ -1,7 +1,6 @@
-import os
 import shlex
 import sys
-from os.path import abspath, dirname, exists as pexists, join as pjoin, realpath
+from pathlib import Path
 from sys import version_info
 
 import numpy as np
@@ -13,11 +12,13 @@ from pytest import raises
 from hypothesis import given, strategies
 from hypothesis import settings as hyp_settings
 
+this_file = Path(__file__).resolve()
+
 if __name__ == '__main__' and __package__ is None:
-    parent_dir = dirname(dirname(abspath(__file__)))
-    pkg_dir = dirname(parent_dir)
-    sys.path.append(parent_dir)
+    pkg_dir = this_file.parents[1]
+    repo_dir = parent_dir.parent
     sys.path.append(pkg_dir)
+    sys.path.append(repo_dir)
 
 if version_info.major > 2:
     from graynet import config_graynet as cfg
@@ -28,21 +29,21 @@ if version_info.major > 2:
 else:
     raise NotImplementedError('graynet requires Python 3+.')
 
-test_dir = dirname(os.path.realpath(__file__))
-base_dir = realpath(pjoin(test_dir, '..', '..', 'example_data'))
+test_dir = this_file.parent
+base_dir = test_dir.joinpath('..', '..', 'example_data').resolve()
 
-out_dir = pjoin(base_dir, 'graynet')
-if not pexists(out_dir):
-    os.mkdir(out_dir)
+out_dir = base_dir / 'graynet'
+if not out_dir.exists():
+    out_dir.mkdir(exist_ok=True, parents=True)
 
-fs_dir = pjoin(base_dir, 'freesurfer')
+fs_dir = base_dir / 'freesurfer'
 subject_id_list = ['subject12345', ]
 
 base_feature = 'freesurfer_thickness'
 atlas = 'fsaverage'  # 'glasser2016' #
 fwhm = 10
 
-vbm_in_dir = pjoin(base_dir, 'volumetric_CAT12')
+vbm_in_dir = base_dir / 'volumetric_CAT12'
 vbm_sub_list = ['CAM_0002_01', ]
 
 base_feature_list = ('freesurfer_thickness',
@@ -69,18 +70,15 @@ num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
 
 weight_methods = ['manhattan', ]
 
-cur_dir = os.path.dirname(abspath(__file__))
-example_dir = abspath(pjoin(cur_dir, '..', '..', 'example_data', 'freesurfer'))
-sub_list = pjoin(example_dir, 'subject_list.txt')
-out_dir = pjoin(example_dir, 'test_outputs')
-if not pexists(out_dir):
-    os.mkdir(out_dir)
+cur_dir = this_file.parent
+example_dir = base_dir / 'freesurfer'
+sub_list = example_dir / 'subject_list.txt'
+out_dir = example_dir / 'test_outputs'
+if not out_dir.exists():
+    out_dir.mkdir(exist_ok=True, parents=True)
 
 dimensionality = 1000
 num_groups = 5
-
-cur_dir = os.path.dirname(abspath(__file__))
-
 
 # TODO tests for volumetric version of multiedge to be done!
 def test_multi_edge():
