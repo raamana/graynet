@@ -585,26 +585,29 @@ def cli_run():
 def get_parser():
     "Method to specify arguments and defaults. "
 
-    help_text_subject_ids = "Path to file containing list of subject IDs (one per " \
-                            "line)"
+    help_text_subject_ids = "Path to file containing list of subject IDs " \
+                            "(one per line)"
+
     help_text_input_dir = "Path to a folder containing input data. It could, " \
-                          "for example, " \
-                          "be a Freesurfer SUBJECTS_DIR, if the chosen feature is " \
-                          "from Freesurfer output."
-    help_text_feature = "Type of feature to be used for analysis. Default: '{}'. " \
-                        "Choices: {}".format(cfg.default_feature_single_edge[0],
-                                             cfg.base_feature_list)
+                          "for example, be a Freesurfer SUBJECTS_DIR, if the " \
+                          "chosen feature is from Freesurfer output."
+
+    help_text_feature = "Type of feature to be used for analysis.\n\n" \
+                        "Default: ``{}`` \n\nChoices: {}" \
+                        "".format(cfg.default_feature_single_edge[0],
+                                  ', '.join(cfg.base_feature_list))
+
     help_text_multi_edge = "Option to compute multiple edges between ROIs based on " \
-                           "different features. " \
-                           "Default False. If True, two valid features must be " \
-                           "specified. " \
-                           "Use --multi_edge_range to specify edge ranges for each " \
-                           "feature to be processed."
+                           "different features. Default False. If True, two valid " \
+                           "features must be specified. Use --multi_edge_range to " \
+                           "specify edge ranges for each feature to be processed."
+
     help_text_summary_stat = "Summary statistic [one or more] to compute on all " \
-                             "the weights from multiple edges." \
-                             "This must be a string representing a method (like " \
-                             "'median', 'prod' or 'max'),  " \
-                             "that is available as a member of numpy or scipy.stats."
+                             "the weights from multiple edges.This must be a " \
+                             "string representing a method (like 'median', " \
+                             "'prod' or 'max'),  that is available as a member of " \
+                             "numpy or scipy.stats."
+
     help_text_weight = "List of methods used to estimate the weight of the edge " \
                        "between the pair of nodes.\n\nDefault : {}.\n\n" \
                        "Available options:" \
@@ -615,26 +618,23 @@ def get_parser():
                                  ', '.join(cfg.weights_on_original_features))
 
     help_text_num_bins = "Number of bins used to construct the histogram within " \
-                         "each ROI or group. Default : {}".format(
-            cfg.default_num_bins)
+                         "each ROI or group. " \
+                         "Default : {}".format(cfg.default_num_bins)
+
     help_text_edge_range = "The range of edges (two finite values) within which to " \
-                           "bin the given values e.g. --edge_range 0.0 5.0 ." \
-                           "Setting this is *crucial* to ensure " \
-                           "correspondence across multiple invocations of graynet, " \
-                           "for different subjects, in terms of range across all " \
-                           "bins as well as individual bin edges. " \
-                           "Default : {}, " \
-                           "to automatically compute from the given values." \
+                           "bin the given values e.g. ``--edge_range 0.0 5.0`` " \
+                           ".Setting this is *crucial* to ensure correspondence " \
+                           "across multiple invocations of graynet, for different " \
+                           "subjects, in terms of range across all bins as well as " \
+                           "individual bin edges.\n\n" \
+                           "Default : {}, to automatically compute from the given values." \
                            "".format(cfg.default_edge_range)
 
-    help_text_multi_edge_range = "Set of edge ranges (for each of the features) " \
-                                 "within which to bin the given values - see " \
-                                 "above. " \
-                                 "e.g. -f freesurfer_thickness freesurfer_curv " \
-                                 "--edge_range 0.0 5.0 -0.3 +0.3 " \
-                                 "will set the a range of [0.0, 5.0] for thickness " \
-                                 "and [-0.3, 0.3] for curvature." \
-                                 "Default : {}.".format(cfg.edge_range_predefined)
+    help_text_multi_edge_range = """Set of edge ranges (for each of the features) 
+    within which to bin the given values - see above. For example, \n\n
+    ``-f freesurfer_thickness freesurfer_curv --edge_range 0.0 5.0 -0.3 +0.3``\n\n 
+    will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curv.\n\n 
+    Default : {}.""".format(cfg.edge_range_predefined)
 
     help_text_roi_stats = "Option to compute summary statistics within each ROI of " \
                           "the chosen parcellation. These statistics (such as the " \
@@ -647,27 +647,26 @@ def get_parser():
                           "#statistical-functions . When this option is chosen, " \
                           "network computation is not allowed. You need to compute " \
                           "networks and ROI stats separately."
-    help_text_atlas = "Name or path to atlas to containing the parcellation of ROIs." \
-                      "\nFor cortical features, you can also specify the absolute " \
-                      "path for the Freesurfer parcellation of that atlas. " \
-                      "This directory must have the standard Freesurfer structure, " \
-                      "with the following key files that must exist: " \
-                      "``label/?h.aparc.annot`` and ``surf/?h.orig``.\n\n" \
-                      "*Cortical* atlases supported: ``fsaverage`` and " \
-                      "``glasser2016``. In addition, you can also specify an " \
-                      "absolute path to the Freesurfer processing of any " \
-                      "arbitrary atlas. Read these instructions before trying: " \
-                      "https://raamana.github.io/graynet/cortical.html#using-a-different-atlas" \
-                      "\n\n\n*Volumetric* atlases supported for CAT12 features: " \
-                      "``cat_aal``, ``cat_lpba40``, and ``cat_ibsr``." \
-                      "In addition, you can also directly specify an absolute path " \
-                      "to a single 3D volume. Make sure name this file properly as it" \
-                      "would be used to encode all the processing i.e. make it " \
-                      "clean as well as fully reflective of the properties of the " \
-                      "parcellation inside." \
-                      "\n\n" \
-                      "Default: ``{}``" \
-                      "".format(cfg.default_atlas)
+
+    help_text_atlas = "Name or path to atlas to containing the parcellation of " \
+                      "ROIs.\nFor cortical features, you can also specify the " \
+                      "absolute path for the Freesurfer parcellation of that " \
+                      "atlas. This directory must have the standard Freesurfer " \
+                      "structure, with the following key files that must exist: " \
+                      "``label/?h.aparc.annot`` and " \
+                      "``surf/?h.orig``.\n\n*Cortical* atlases supported: " \
+                      "``fsaverage`` and ``glasser2016``. In addition, you can " \
+                      "also specify an absolute path to the Freesurfer processing " \
+                      "of any arbitrary atlas. Read these instructions before " \
+                      "trying: https://raamana.github.io/graynet/cortical.html" \
+                      "#using-a-different-atlas\n\n\n*Volumetric* atlases " \
+                      "supported for CAT12 features: ``cat_aal``, ``cat_lpba40``, " \
+                      "and ``cat_ibsr``.In addition, you can also directly specify " \
+                      "an absolute path to a single 3D volume. Make sure name this " \
+                      "file properly as itwould be used to encode all the " \
+                      "processing i.e. make it clean as well as fully reflective " \
+                      "of the properties of the parcellation inside.\n\nDefault: " \
+                      "``{}``".format(cfg.default_atlas)
 
     help_text_parc_size = "Size of individual patch for the atlas parcellation, " \
                           "in terms of minimum number of vertices per patch. " \
@@ -679,15 +678,13 @@ def get_parser():
                           "\nDefault : {}".format(cfg.default_node_size)
 
     help_text_smoothing = "Smoothing parameter for feature. " \
-                          "Default: FWHM of {} " \
-                          "for Freesurfer thickness" \
+                          "Default: FWHM of {} for Freesurfer thickness." \
                           "".format(cfg.default_smoothing_param)
 
     help_text_num_procs = "Number of CPUs to use in parallel to speed up " \
                           "processing. " \
                           "Default : {}, capping at available number of CPUs in " \
-                          "the processing node.".format(
-            cfg.default_num_procs)
+                          "the processing node.".format(cfg.default_num_procs)
 
     help_text_overwrite_results = "Flag to request overwriting of existing " \
                                   "results, in case of reruns/failed jobs. " \
@@ -716,11 +713,11 @@ def get_parser():
                         default=None, required=False,
                         help="Where to save the extracted features. ")
 
-    method_selector = parser.add_argument_group(title='Type of computation',
-                                                description='Choose one among '
-                                                            'single edge, '
-                                                            'multiedge or simply '
-                                                            'ROI stats.')
+    method_selector = parser.add_argument_group(
+            title='Type of computation',
+            description='Choose one among single edge, multiedge or simply ROI ' \
+                        'stats.')
+
     # method_selector = parser.add_argument_group(required=True)
     method_selector.add_argument("-w", "--weight_method", action="store",
                                  dest="weight_methods",
