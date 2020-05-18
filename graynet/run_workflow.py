@@ -9,7 +9,7 @@ import traceback
 import warnings
 from functools import partial
 from multiprocessing import Manager, Pool
-from os.path import exists as pexists, join as pjoin
+from pathlib import Path
 from sys import version_info
 
 import hiwenet
