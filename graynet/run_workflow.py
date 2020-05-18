@@ -606,8 +606,14 @@ def get_parser():
                              "'median', 'prod' or 'max'),  " \
                              "that is available as a member of numpy or scipy.stats."
     help_text_weight = "List of methods used to estimate the weight of the edge " \
-                       "between the pair of nodes."  # .format(
-    # cfg.default_weight_method)
+                       "between the pair of nodes.\n\nDefault : {}.\n\n" \
+                       "Available options:" \
+                       "\n\n **histogram**-based: {}" \
+                       "\n\n weights on **original** features : {}" \
+                       "".format(cfg.default_weight_method[0],
+                                 ', '.join(cfg.histogram_weights),
+                                 ', '.join(cfg.weights_on_original_features))
+
     help_text_num_bins = "Number of bins used to construct the histogram within " \
                          "each ROI or group. Default : {}".format(
             cfg.default_num_bins)
