@@ -69,6 +69,7 @@ num_roi_wholebrain = num_roi_atlas[atlas]
 num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
 
 weight_methods = ['manhattan', ]
+weight_methods_orig_feat_subset = ['exp_diff_means_norm_std', ]
 
 cur_dir = this_file.parent
 example_dir = base_dir / 'freesurfer'
