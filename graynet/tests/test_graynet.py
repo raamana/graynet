@@ -127,62 +127,58 @@ def test_multi_edge_summary_stat_CLI():
     run_cli()
 
 
-@hyp_settings(max_examples=num_base_features, deadline=None)
-@given(strategies.sampled_from(base_feature_list))
-def test_run_no_IO(base_feature):
-    for atlas in feature_to_atlas_list[base_feature]:
-        try:
+def test_run_no_IO():
+
+    for base_feature in base_feature_list:
+        for atlas in feature_to_atlas_list[base_feature]:
+            try:
+                sud_id_list = feature_to_subject_id_list[base_feature]
+                edge_weights_all = graynet.extract(
+                        sud_id_list, feature_to_in_dir[base_feature],
+                        base_feature=base_feature, weight_method_list=weight_methods,
+                        atlas=atlas, smoothing_param=fwhm, out_dir=out_dir,
+                        return_results=True, num_procs=1)
+                num_combinations = len(list(edge_weights_all))
+
+                if num_combinations != len(sud_id_list) * len(weight_methods):
+                    raise ValueError('invalid results : # subjects')
+
+                num_roi_wholebrain = num_roi_atlas[atlas]
+                num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
+
+                for wm in weight_methods:
+                    for sub in sud_id_list:
+                        if edge_weights_all[(wm, sub)].size != num_links:
+                            raise ValueError('invalid results : # links')
+            except:
+                traceback.print_exc()
+                raise
+
+
+def test_run_API_on_original_features():
+
+    for base_feature in base_feature_list:
+        for atlas in feature_to_atlas_list[base_feature]:
             sud_id_list = feature_to_subject_id_list[base_feature]
-            edge_weights_all = graynet.extract(sud_id_list,
-                                               feature_to_in_dir[base_feature],
-                                               base_feature=base_feature,
-                                               weight_method_list=weight_methods,
-                                               atlas=atlas,
-                                               smoothing_param=fwhm,
-                                               out_dir=out_dir,
-                                               return_results=True,
-                                               num_procs=1)
+            edge_weights_all = extract(
+                    sud_id_list, feature_to_in_dir[base_feature],
+                    base_feature=base_feature,
+                    weight_method_list=weight_methods_orig_feat_subset, atlas=atlas,
+                    smoothing_param=fwhm, out_dir=out_dir, return_results=True,
+                    num_procs=1)
+
             num_combinations = len(list(edge_weights_all))
 
-            if num_combinations != len(sud_id_list) * len(weight_methods):
+            if num_combinations != len(sud_id_list) * len(weight_methods_orig_feat_subset):
                 raise ValueError('invalid results : # subjects')
 
             num_roi_wholebrain = num_roi_atlas[atlas]
             num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
 
-            for wm in weight_methods:
+            for wm in weight_methods_orig_feat_subset:
                 for sub in sud_id_list:
                     if edge_weights_all[(wm, sub)].size != num_links:
                         raise ValueError('invalid results : # links')
-        except:
-            traceback.print_exc()
-            raise
-
-
-@hyp_settings(max_examples=num_base_features, deadline=None)
-@given(strategies.sampled_from(base_feature_list))
-def test_run_API_on_original_features(base_feature):
-    for atlas in feature_to_atlas_list[base_feature]:
-        sud_id_list = feature_to_subject_id_list[base_feature]
-        edge_weights_all = extract(
-                sud_id_list, feature_to_in_dir[base_feature],
-                base_feature=base_feature,
-                weight_method_list=cfg.weights_on_original_features, atlas=atlas,
-                smoothing_param=fwhm, out_dir=out_dir, return_results=True,
-                num_procs=1)
-
-        num_combinations = len(list(edge_weights_all))
-
-        if num_combinations != len(sud_id_list) * len(cfg.weights_on_original_features):
-            raise ValueError('invalid results : # subjects')
-
-        num_roi_wholebrain = num_roi_atlas[atlas]
-        num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
-
-        for wm in cfg.weights_on_original_features:
-            for sub in sud_id_list:
-                if edge_weights_all[(wm, sub)].size != num_links:
-                    raise ValueError('invalid results : # links')
 
 
 @hyp_settings(max_examples=num_base_features, deadline=None)
