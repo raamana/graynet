@@ -20,7 +20,7 @@ from graynet import config_graynet as cfg, freesurfer
 
 
 def check_features(base_feature_list):
-    "Validates the choice of features"
+    """Validates the choice of features"""
 
     if base_feature_list in [None, '']:
         raise ValueError('feature list can not be empty.')
@@ -51,8 +51,8 @@ def is_image_3D(input_obj):
     if len(input_obj.shape) == 3 and all(np.array(input_obj.shape) > 1):
         return True
     elif not len(input_obj.shape) == 4 \
-        and all(np.array(input_obj.shape[:3]) > 1) \
-            and input_obj.shape[3]==1:
+            and all(np.array(input_obj.shape[:3]) > 1) \
+            and input_obj.shape[3] == 1:
         return True
     else:
         return False
@@ -73,14 +73,15 @@ def check_atlas(atlas_spec):
             atlas_spec = atlas_spec.lower()
             if atlas_spec not in cfg.atlas_list:
                 raise ValueError(
-                    'Invalid choice of atlas {}.'
-                    ' Accepted : {}'.format(atlas_spec, cfg.atlas_list))
+                        'Invalid choice of atlas {}.'
+                        ' Accepted : {}'.format(atlas_spec, cfg.atlas_list))
             atlas_name = atlas_spec
         elif os.path.isdir(atlas_spec):  # cortical atlas in Freesurfer org
             if not check_atlas_annot_exist(atlas_spec):
                 raise ValueError(
-                    'Given atlas folder does not contain Freesurfer label annot files. '
-                    'Needed : given_atlas_dir/label/?h.aparc.annot')
+                        'Given atlas folder does not contain Freesurfer label '
+                        'annot files. '
+                        'Needed : given_atlas_dir/label/?h.aparc.annot')
             atlas_name = filename_without_ext(atlas_spec)
         elif pexists(atlas_spec):  # may be a volumetric atlas?
             atlas_name = filename_without_ext(atlas_spec)
@@ -117,17 +118,17 @@ def is_image(input_obj):
 
     """
 
-    if isinstance(input_obj, np.ndarray) and len(input_obj.shape)>=3:
+    if isinstance(input_obj, np.ndarray) and len(input_obj.shape) >= 3:
         return True
-    elif input_obj.__class__  in nibabel.all_image_classes \
-            and len(input_obj.shape)>=3:
+    elif input_obj.__class__ in nibabel.all_image_classes \
+            and len(input_obj.shape) >= 3:
         return True
     else:
         return False
 
 
 def unique_order(seq):
-    "Removes duplicates while preserving order"
+    """Removes duplicates while preserving order"""
 
     uniq = list()
     for element in seq:
@@ -138,7 +139,7 @@ def unique_order(seq):
 
 
 def make_output_path_graph(out_dir, subject, str_prefixes):
-    "Constructs path to save a multigraph to disk."
+    """Constructs path to save a multigraph to disk."""
 
     if out_dir is not None:
         # get outpath returned from hiwenet, based on dist name and all other params
@@ -159,7 +160,7 @@ def make_output_path_graph(out_dir, subject, str_prefixes):
 
 
 def save_graph(graph, out_path, identifier=''):
-    "Saves the given graph to disk."
+    """Saves the given graph to disk."""
 
     if out_path is not None:
         try:
@@ -173,7 +174,7 @@ def save_graph(graph, out_path, identifier=''):
 
 
 def check_num_procs(num_procs=cfg.default_num_procs):
-    "Ensures num_procs is finite and <= available cpu count."
+    """Ensures num_procs is finite and <= available cpu count."""
 
     num_procs = int(num_procs)
     avail_cpu_count = cpu_count()
@@ -189,7 +190,7 @@ def check_num_procs(num_procs=cfg.default_num_procs):
 
 
 def check_stat_methods(stat_list=None):
-    "Validates the choice and returns a callable to compute summaries."
+    """Validates the choice and returns a callable to compute summaries."""
 
     from scipy import stats as sp_stats
     from functools import partial
@@ -232,7 +233,8 @@ def check_stat_methods(stat_list=None):
             if isinstance(func, partial):
                 method_name = func.func.__name__
             else:
-                raise ValueError('name of callable {} could not be obtained'.format(func))
+                raise ValueError(
+                        'name of callable {} could not be obtained'.format(func))
         method_name = method_name.replace(' ', '_')
         names_callable.append(method_name)
 
@@ -240,11 +242,12 @@ def check_stat_methods(stat_list=None):
     num_digits_stat_size = len(str(num_stats))
     max_wtname_width = max(map(len, names_callable))
 
-    return stat_callable_list, names_callable, num_stats, max_wtname_width, num_digits_stat_size
+    return stat_callable_list, names_callable, num_stats, max_wtname_width, \
+           num_digits_stat_size
 
 
 def warn_nan(array):
-    "Raises a warning when non-finite or NaN values are found."
+    """Raises a warning when non-finite or NaN values are found."""
 
     num_nonfinite = np.count_nonzero(np.logical_not(np.isfinite(array)))
     if num_nonfinite > 0:
@@ -254,12 +257,13 @@ def warn_nan(array):
 
 
 def check_subjects(subjects_info):
-    "Ensure subjects are provided and their data exist."
+    """Ensure subjects are provided and their data exist."""
 
     from pathlib import Path
     if isinstance(subjects_info, (Path, str)):
         if not pexists(subjects_info):
-            raise IOError('path to subject list does not exist: {}'.format(subjects_info))
+            raise IOError(
+                    'path to subject list does not exist: {}'.format(subjects_info))
         subjects_list = np.genfromtxt(subjects_info, dtype=str)
     elif isinstance(subjects_info, collections.Iterable):
         if len(subjects_info) < 1:
@@ -268,7 +272,8 @@ def check_subjects(subjects_info):
     else:
         raise ValueError('Invalid value provided for subject list. \n '
                          'Must be a list of paths, or '
-                         'path to a file containing one path per line for each subject.')
+                         'path to a file containing one path per line for each '
+                         'subject.')
 
     subject_id_list = np.atleast_1d(subjects_list)
     num_subjects = subject_id_list.size
@@ -282,14 +287,15 @@ def check_subjects(subjects_info):
 
 
 def check_weights(weight_method_list):
-    "Ensures weights are implemented and atleast one choice is given."
+    """Ensures weights are implemented and atleast one choice is given."""
 
     if isinstance(weight_method_list, str):
         weight_method_list = [weight_method_list, ]
 
     if isinstance(weight_method_list, collections.Iterable):
         if len(weight_method_list) < 1:
-            raise ValueError('Empty weight list. Atleast one weight must be provided.')
+            raise ValueError(
+                    'Empty weight list. Atleast one weight must be provided.')
     else:
         raise ValueError('Weights list must be an iterable. Given: {}'
                          ''.format(type(weight_method_list)))
@@ -308,7 +314,7 @@ def check_weights(weight_method_list):
 
 
 def check_edge_range(edge_range_spec):
-    "Validates the edge rage specified"
+    """Validates the edge rage specified"""
 
     if edge_range_spec is None:
         edge_range = edge_range_spec
@@ -322,7 +328,9 @@ def check_edge_range(edge_range_spec):
         # CLI args are strings unless converted to numeric
         edge_range = np.float64(edge_range_spec)
         if not np.all(np.isfinite(edge_range)):
-            raise ValueError('Infinite or NaN values in edge range : {}'.format(edge_range_spec))
+            raise ValueError(
+                    'Infinite or NaN values in edge range : {}'.format(
+                        edge_range_spec))
 
         # converting it to tuple to make it immutable
         edge_range = tuple(edge_range)
@@ -334,7 +342,7 @@ def check_edge_range(edge_range_spec):
 
 
 def check_num_bins(num_bins):
-    "Validates the number of bins chosen"
+    """Validates the number of bins chosen"""
 
     if isinstance(num_bins, str):
         # possible when called from CLI
@@ -352,7 +360,7 @@ def check_num_bins(num_bins):
 
 
 def check_weight_params(num_bins, edge_range_spec):
-    "Ensures parameters are valid and type casts them."
+    """Ensures parameters are valid and type casts them."""
 
     num_bins = check_num_bins(num_bins)
 
@@ -363,7 +371,10 @@ def check_weight_params(num_bins, edge_range_spec):
 
 def check_edge_range_dict(edge_range_dict, base_feature_list,
                           predefined_ranges=cfg.edge_range_predefined):
-    "Ensures ranges were specified for each feature, and they are valid or automatic(None)"
+    """
+    Ensures ranges were specified for each feature, and
+    they are valid or; automatic(None)
+    """
 
     print('Setting given edge range ...')
     for feature in base_feature_list:
@@ -373,7 +384,8 @@ def check_edge_range_dict(edge_range_dict, base_feature_list,
             sys.stdout.write(': {} ----> \n'.format(edge_range_dict[feature]))
         elif feature in predefined_ranges:
             sys.stdout.write(
-                'edge range not given! Using predefined: {}'.format(predefined_ranges[feature]))
+                    'edge range not given! Using predefined: {}'.format(
+                            predefined_ranges[feature]))
             edge_range_dict[feature] = predefined_ranges[feature]
         else:
             # covers the case of edge_range_dict being None
@@ -412,12 +424,13 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param,
 
 def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size,
                          weight_method):
-    "Constructs a string to uniquely identify a given experiment."
+    """Constructs a string to uniquely identify a given experiment."""
 
     import re
     all_words = re.split('_|; |, |\*|\n| ', ' '.join(base_feature_list))
     feat_repr = '_'.join(unique_order(all_words))
-    expt_id = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param, node_size,
+    expt_id = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param,
+                                          node_size,
                                           weight_method)
 
     return expt_id
@@ -448,7 +461,7 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
 
 
 def calc_roi_statistics(data, rois, uniq_rois, given_callable=np.median):
-    "Returns the requested ROI statistics."
+    """Returns the requested ROI statistics."""
 
     roi_stats = np.array([given_callable(data[rois == roi]) for roi in uniq_rois])
 
@@ -456,7 +469,7 @@ def calc_roi_statistics(data, rois, uniq_rois, given_callable=np.median):
 
 
 def get_triu_handle_inf_nan(weights_matrix):
-    "Issue a warning when NaNs or Inf are found."
+    """Issue a warning when NaNs or Inf are found."""
 
     if weights_matrix is None:
         raise ValueError('Computation failed.')
@@ -469,7 +482,7 @@ def get_triu_handle_inf_nan(weights_matrix):
 
 
 def mask_background_roi(data, labels, ignore_label):
-    "Returns everything but specified label"
+    """Returns everything but specified label"""
 
     if data.size != labels.size or data.shape != labels.shape:
         raise ValueError('Subject features and membership (group labels) differ'
@@ -491,7 +504,10 @@ def mask_background_roi(data, labels, ignore_label):
 
 
 def roi_info(roi_labels, freesurfer_annot=True):
-    "Unique ROIs in a given atlas parcellation, count and size. Excludes the background"
+    """
+    Unique ROIs in a given atlas parcellation, count and size.
+    Excludes the background
+    """
 
     uniq_rois_temp, roi_size_temp = np.unique(roi_labels, return_counts=True)
 
@@ -510,7 +526,7 @@ def roi_info(roi_labels, freesurfer_annot=True):
 
 
 def check_atlas_annot_exist(atlas_dir, hemi_list=None):
-    " Checks for the presence of atlas annotations "
+    """ Checks for the presence of atlas annotations """
 
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
@@ -525,19 +541,22 @@ def check_atlas_annot_exist(atlas_dir, hemi_list=None):
 
 
 def stamp_experiment(base_feature, method_name, atlas, smoothing_param, node_size):
-    "Constructs a string to uniquely identify a given feature extraction method."
+    """Constructs a string to uniquely identify a given feature extraction method."""
 
-    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
+    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature,
+    # atlas, smoothing_param, node_size)
     expt_id = '{}_{}_{}_smoothing{}_size{}'.format(method_name, base_feature, atlas,
                                                    smoothing_param, node_size)
 
     return expt_id
 
 
-def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size, weight_method):
-    "Constructs a string to uniquely identify a given feature extraction method."
+def stamp_expt_weight(base_feature, atlas, smoothing_param, node_size,
+                      weight_method):
+    """Constructs a string to uniquely identify a given feature extraction method."""
 
-    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature, atlas, smoothing_param, node_size)
+    # expt_id = 'feature_{}_atlas_{}_smoothing_{}_size_{}'.format(base_feature,
+    # atlas, smoothing_param, node_size)
     expt_id = '{}_{}_smoothing{}_size{}_edgeweight_{}' \
               ''.format(base_feature, atlas, smoothing_param, node_size,
                         weight_method)
@@ -550,7 +569,7 @@ def import_features(input_dir,
                     base_feature,
                     fwhm=cfg.default_smoothing_param,
                     atlas=cfg.default_atlas):
-    "Wrapper to support input data of multiple types and multiple packages."
+    """Wrapper to support input data of multiple types and multiple packages."""
 
     if isinstance(subject_id_list, str):
         subject_id_list = [subject_id_list, ]
@@ -564,19 +583,23 @@ def import_features(input_dir,
         features = fsl_import(input_dir, subject_id_list, base_feature,
                               fwhm=fwhm, atlas=atlas)
     elif base_feature in cfg.features_spm_cat:
-        features = spm_cat_import(input_dir, subject_id_list, base_feature, atlas=atlas)
+        features = spm_cat_import(input_dir, subject_id_list, base_feature,
+                                  atlas=atlas)
     else:
-        raise NotImplementedError('Invalid or choice not implemented!\n'
-                                  'Choose one of \n {}'.format(cfg.base_feature_list))
+        raise NotImplementedError(
+                'Invalid or choice not implemented!\n'
+                'Choose one of \n {}'.format(cfg.base_feature_list))
 
     return features
 
 
-def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_suffix=None):
-    "Saves the ROI medians to disk."
+def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject,
+                       str_suffix=None):
+    """Saves the ROI medians to disk."""
 
     if out_dir is not None:
-        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # get outpath returned from hiwenet, based on dist name and all other
+        # parameters
         # choose out_dir name  based on dist name and all other parameters
         out_subject_dir = out_dir.joinpath(subject)
         if not out_subject_dir.exists():
@@ -597,17 +620,19 @@ def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject, str_
             # np.savetxt(out_weights_path, roi_values, fmt='%.5f')
             print('\nSaved roi stats to \n{}'.format(out_weights_path))
         except:
-            print('\nUnable to save extracted features to {}'.format(out_weights_path))
+            print('\nUnable to save extracted features to {}'
+                  ''.format(out_weights_path))
             traceback.print_exc()
 
     return
 
 
 def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
-    "Saves the features to disk."
+    """Saves the features to disk."""
 
     if out_dir is not None:
-        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # get outpath returned from hiwenet, based on dist name and all other
+        # parameters
         # choose out_dir name  based on dist name and all other parameters
         out_subject_dir = out_dir.joinpath(subject)
         if not out_subject_dir.exists():
@@ -632,10 +657,11 @@ def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
 
 
 def save(weight_vec, out_dir, subject, str_suffix=None):
-    "Saves the features to disk."
+    """Saves the features to disk."""
 
     if out_dir is not None:
-        # get outpath returned from hiwenet, based on dist name and all other parameters
+        # get outpath returned from hiwenet, based on dist name and all other
+        # parameters
         # choose out_dir name  based on dist name and all other parameters
         out_subject_dir = out_dir.joinpath(subject)
         if not out_subject_dir.exists():
@@ -664,7 +690,7 @@ def spm_cat_import(input_dir,
                    atlas=cfg.default_vbm_atlas):
     """Imports the voxelwise features for a given list of subjecct IDs."""
 
-    features= dict()
+    features = dict()
     for sid in subject_id_list:
         try:
             print('Reading {} for {} ... '.format(base_feature, sid), end='')
@@ -686,6 +712,7 @@ def get_CAT_data(input_dir, sid, base_feature):
 
     return img
 
+
 def get_SPM_CAT_img_path(input_dir, sid, base_feature):
     """Constructs the path for a given subject ID and feature"""
 
@@ -698,9 +725,9 @@ def fsl_import(input_dir,
                base_feature,
                fwhm=cfg.default_smoothing_param,
                atlas=cfg.default_atlas):
-    "To be implemented."
+    """To be implemented."""
 
     if base_feature not in cfg.features_fsl:
         raise NotImplementedError
 
-    return
+    return None

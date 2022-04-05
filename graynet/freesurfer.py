@@ -20,7 +20,7 @@ def import_features(fs_dir,
                     base_feature='freesurfer_thickness',
                     fwhm=10,
                     atlas='fsaverage'):
-    "Reads the features after ensuring subjects are provided and their data exist."
+    """Reads features after ensuring subjects are provided and their data exist."""
 
     if isinstance(subject_list, Iterable):
         if len(subject_list) < 1:
@@ -50,7 +50,7 @@ def import_features(fs_dir,
 
 
 def get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
-    "Reads the specified features from both hemispheres for a given subject."
+    """Reads the specified features from both hemispheres for a given subject."""
 
     feat_name = base_feature.lower()
     if feat_name in cfg.features_freesurfer:
@@ -70,7 +70,7 @@ def get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
 
 
 def __all_data_exists(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
-    "Ensures all data exists for a given subject"
+    """Ensures all data exists for a given subject"""
 
     if base_feature.lower() in _base_feature_list:
         data_exists = True
@@ -89,13 +89,13 @@ def __all_data_exists(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverag
 
 def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10,
                         atlas='fsaverage', feature='thickness'):
-    "Returning the path to surface features. Using a smoothed version"
+    """Returning the path to surface features. Using a smoothed version"""
 
     return fsd / sid / 'surf' / '{}.{}.fwhm{}.{}.mgh'.format(hemi, feature, fwhm, atlas)
 
 
 def __read_morph_feature(thk_path):
-    "Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"
+    """Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"""
 
     vec = nibabel.load(thk_path).get_fdata() #typically of shape: (163842, 1, 1)
 

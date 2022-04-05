@@ -63,7 +63,7 @@ def extract(subject_id_list,
     base_feature : str
         Specific type of feature to read for each subject from the input directory.
 
-    weight_method : string(s), optional
+    weight_method_list : string(s), optional
         Type of distance (or metric) to compute between the pair of histograms.
 
         It must be one of the following methods:
@@ -225,7 +225,7 @@ def extract(subject_id_list,
         raise NotImplementedError('Chosen feature {} is not recognized as '
                                   'either cortical or volumetric! Choose one'
                                   'from the following options: {}'
-                                  ''.format(cfg.base_feature_list))
+                                  ''.format(base_feature, cfg.base_feature_list))
 
     chunk_size = int(np.ceil(num_subjects / num_procs))
     with Manager():
@@ -252,29 +252,7 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
                                  num_bins, edge_range, out_dir, return_results,
                                  pretty_print_options, subject=None):
     # purposefully leaving subject parameter last to enable partial function creation
-    """
-    Extracts give set of weights for one subject.
-
-    Parameters
-    ----------
-    subject
-    input_dir
-    base_feature
-    roi_labels
-    weight_method_list
-    atlas_spec
-    smoothing_param
-    node_size
-    num_bins
-    edge_range
-    out_dir
-    return_results
-    pretty_print_options
-
-    Returns
-    -------
-
-    """
+    """Extracts give set of weights for one subject."""
 
     if subject is None:
         return
@@ -388,14 +366,16 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         Specific type of feature to read for each subject from the input directory.
 
     chosen_roi_stats : list of str or callable
-        If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
-        Default: 'median'. Supported summary statistics include 'median', 'mode', 'mean', 'std', 'gmean', 'hmean', 'variation',
-        'entropy', 'skew' and 'kurtosis'.
+        If requested, graynet will compute chosen summary statistics (such as median)
+        within each ROI of the chosen parcellation (and network weight computation is skipped).
+        Default: 'median'. Supported summary statistics include 'median', 'mode',
+        'mean', 'std', 'gmean', 'hmean', 'variation', 'entropy', 'skew' and 'kurtosis'
 
         Other appropriate summary statistics listed under scipy.stats could used
         by passing in a callable with their parameters encapsulated:
         https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions
-        For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing ``third_kstat`` as in the argument:
+        For example, if you would like to compute 3rd k-statistic, you could
+        construct a callable and passing ``third_kstat`` as in the argument:
 
         .. code-block:: python
 
@@ -421,8 +401,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         Default: assumed as fwhm=10mm for the default feature choice 'thickness'
 
     node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-        Not implemented.
+        Parameter to indicate the size of the ROIs, subparcels or patches,
+        depending on type of atlas or feature. NOT implemented yet.
 
     out_dir : str, optional
         Path to output directory to store results.
@@ -431,8 +411,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
     return_results : bool
         Flag to indicating whether to keep the results to be returned to caller method.
-        Helps to save memory (as it doesn't retain results all subjects and weight combinations),
-        when running from command line interface (or HPC). Default: False
+        Helps to save memory (as it doesn't retain results all subjects and weight
+        combinations), when running from command line interface (or HPC).
+        Default: False
         If this is False, out_dir must be specified to save the results to disk.
 
     Returns
@@ -525,7 +506,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
 
 def cli_run():
-    "command line interface!"
+    """command line interface!"""
 
     subject_ids_path, input_dir, base_feature_list, \
     weight_method, do_multi_edge, summary_stats, multi_edge_range, \
@@ -535,9 +516,9 @@ def cli_run():
     # save options to out folder for future ref
     try:
         user_opt = [subject_ids_path, input_dir, base_feature_list, weight_method,
-                    do_multi_edge, summary_stats, multi_edge_range, num_bins, edge_range,
-                    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs,
-                    overwrite_results]
+                    do_multi_edge, summary_stats, multi_edge_range, num_bins,
+                    edge_range, atlas, out_dir, node_size, smoothing_param,
+                    roi_stats, num_procs, overwrite_results]
         with open(out_dir.joinpath('user_options.pkl'), 'wb') as of:
             pickle.dump(user_opt, of)
     except:
@@ -582,7 +563,7 @@ def cli_run():
 
 
 def get_parser():
-    "Method to specify arguments and defaults. "
+    """Method to specify arguments and defaults. """
 
     help_text_subject_ids = "Path to file containing list of subject IDs " \
                             "(one per line)"

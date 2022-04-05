@@ -39,7 +39,8 @@ def extract_multiedge(subject_id_list,
                       overwrite_results=False,
                       num_procs=cfg.default_num_procs):
     """
-    Extracts weighted networks (matrix of pair-wise ROI distances) based on multiple gray matter features based on Freesurfer processing.
+    Extracts weighted networks (matrix of pair-wise ROI distances)
+    based on multiple gray matter features based on Freesurfer processing.
 
     Parameters
     ----------
@@ -56,7 +57,7 @@ def extract_multiedge(subject_id_list,
 
         This multi-edge network can be turned into a single network based on averaging weights from different individual networks.
 
-    weight_method : string(s), optional
+    weight_method_list : string(s), optional
         Type of distance (or metric) to compute between the pair of histograms.
 
         It must be one of the following methods:
@@ -122,7 +123,8 @@ def extract_multiedge(subject_id_list,
         *Default* choice: 'manhattan'.
 
     summary_stats : list of str
-        A string, or list of strings, each representing a method (like 'median', 'prod' or 'max'),
+        A string, or list of strings, each representing a method
+            (like 'median', 'prod' or 'max'),
         to compute a summay statistic from the array of multiple weights computed.
 
         This must be available as a member of numpy or scipy.stats.
@@ -131,7 +133,8 @@ def extract_multiedge(subject_id_list,
         Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
 
     edge_range_dict : tuple or list
-        The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 5``.
+        The range of edges (two finite values) within which to build the histogram
+            e.g. ``--edge_range 0 5``.
         This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.
 
         Default :
@@ -141,7 +144,7 @@ def extract_multiedge(subject_id_list,
 
     atlas : str
         Name of the atlas whose parcellation to be used.
-        Choices for cortical parcellation: ['fsaverage', 'glasser2016'], which are primary cortical.
+        Choices for parcellation: ['fsaverage', 'glasser2016'], which are primary cortical.
         Volumetric whole-brain atlases will be added soon.
 
     smoothing_param : scalar
@@ -150,8 +153,9 @@ def extract_multiedge(subject_id_list,
         Default: assumed as fwhm=10mm for the default feature choice 'thickness'
 
     node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-        This feature is not implemented yet, just a placeholder and to enable default computation.
+        Parameter to indicate the size of the ROIs, subparcels or patches,
+        depending on type of atlas or feature. This feature is not implemented
+        yet, just a placeholder and to enable default computation.
 
     out_dir : str, optional
         Path to output directory to store results.
@@ -159,14 +163,18 @@ def extract_multiedge(subject_id_list,
         If this is None, return_results must be true.
 
     return_results : bool
-        Flag to indicate whether to return the results to be returned.
-        This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
-        the number of subjects or weight methods are large, as it doesn't retain results for all combinations,
-        when running from commmand line interface (or HPC). Default: False
-        If this is False, out_dir must be specified to save the results to disk.
+        Flag to indicate whether to return the results to be returned. This flag
+        helps to reduce the memory requirements, when the number of nodes in a
+        parcellation or the number of subjects or weight methods are large,
+        as it doesn't retain results for all combinations, when running from
+        commmand line interface (or HPC). Default: False If this is False,
+        out_dir must be specified to save the results to disk.
 
     overwrite_results : bool
-        Flag to request overwriting of existing results, in case of reruns/failed jobs. By default, if the expected output file exists and is of non-zero size, its computation is skipped (assuming the file is complete, usable and not corrupted).
+        Flag to request overwriting of existing results, in case of reruns/failed
+        jobs. By default, if the expected output file exists and is of non-zero
+        size, its computation is skipped (assuming the file is complete,
+        usable and not corrupted).
 
     num_procs : int
         Number of parallel processes to use to speed up computation.
@@ -174,10 +182,11 @@ def extract_multiedge(subject_id_list,
     Returns
     -------
     edge_weights_all : dict, None
-        If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
-        The value of each edge_weights_all[(weight method, subject_ID)] is
-        a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
-        If return_results is False, this will be None, which is the default.
+        If return_results is True, this will be a dictionary keyed in by a tuple:
+        (weight method, subject_ID) The value of each edge_weights_all[(weight
+        method, subject_ID)] is a numpy array of length p = k*(k-1)/2, with k =
+        number of nodes in the atlas parcellation. If return_results is False,
+        this will be None, which is the default.
     """
 
     # volumetric version is not fully tested yet!
@@ -221,17 +230,19 @@ def extract_multiedge(subject_id_list,
         if not out_dir.exists():
             out_dir.mkdir(exist_ok=True, parents=True)
 
-    partial_func_extract = partial(per_subject_multi_edge, input_dir, base_feature_list,
-                                   roi_labels, centroids,
-                                   weight_method_list, summary_stats, summary_stat_names,
-                                   atlas, atlas_name, smoothing_param, node_size,
-                                   num_bins, edge_range_dict,
-                                   out_dir, return_results, overwrite_results, pretty_print_options)
+    partial_func_extract = partial(per_subject_multi_edge, input_dir,
+                                   base_feature_list, roi_labels, centroids,
+                                   weight_method_list, summary_stats,
+                                   summary_stat_names, atlas, atlas_name,
+                                   smoothing_param, node_size, num_bins,
+                                   edge_range_dict, out_dir, return_results,
+                                   overwrite_results, pretty_print_options)
     if num_procs > 1:
         chunk_size = int(np.ceil(num_subjects / num_procs))
         with Manager():
             with Pool(processes=num_procs) as pool:
-                edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list,
+                edge_weights_list_dicts = pool.map(partial_func_extract,
+                                                   subject_id_list,
                                                    chunk_size)
     else:
         # reverting to sequential processing
@@ -241,7 +252,8 @@ def extract_multiedge(subject_id_list,
     if return_results:
         edge_weights_all = dict()
         for combo in edge_weights_list_dicts:
-            # each element from output of parallel loop is a dict keyed in by {subject, weight)
+            # each element from output of parallel loop is a dict
+            #   keyed in by {subject, weight)
             edge_weights_all.update(combo)
     else:
         edge_weights_all = None
@@ -305,8 +317,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                 except:
                     traceback.print_exc()
                     warnings.warn('Unable to read {} features'
-                                  ' for {}\n Skipping it.'.format(base_feature, subject),
-                                  UserWarning)
+                                  ' for {}\n Skipping it.'
+                                  ''.format(base_feature, subject), UserWarning)
                     return
 
                 data, rois = mask_background_roi(features[subject], roi_labels,
@@ -318,7 +330,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                                                    weight_method)
                 sys.stdout.write('\nProcessing id {:{id_width}} --'
                                  ' weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
-                                 ' :'.format(subject, weight_method, ww + 1, num_weights,
+                                 ' :'.format(subject, weight_method, ww + 1,
+                                             num_weights,
                                              nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width,
                                              wtname_width=max_wtname_width))
 
@@ -344,9 +357,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                           'Abandoning the remaining processing ')
                     sys.exit(1)
                 except:
-                    print('Unable to extract {} weights for {} for {}'.format(weight_method,
-                                                                              base_feature,
-                                                                              subject))
+                    print('Unable to extract {} weights for {} for {}'
+                          ''.format(weight_method, base_feature, subject))
                     traceback.print_exc()
 
                 print('Done.')
@@ -371,10 +383,12 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
             # creating single graph with a summary edge weight (like median)
             out_path_summary = make_output_path_graph(out_dir, subject,
                                                       [expt_id_multi, stat_name, 'multigraph'])
-            if not overwrite_results and isfile(out_path_summary) and getsize(out_path_summary) > 0:
-                print(
-                    'Summary {} of multigraph exists already at\n\t{}\n skipping its computation!'.format(
-                        stat_name, out_path_summary))
+            if (not overwrite_results) and \
+                    isfile(out_path_summary) and \
+                    (getsize(out_path_summary) > 0):
+                print('Summary {} of multigraph exists already at\n\t{}\n'
+                      ' skipping its computation!'
+                      ''.format(stat_name, out_path_summary))
             else:
                 if multigraph is None:
                     multigraph = nx.read_graphml(out_path_multigraph)
@@ -382,29 +396,33 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                 try:
                     summary_multigraph = summarize_multigraph(multigraph, stat_func)
                     add_nodal_positions(summary_multigraph, centroids)
-                    save_graph(summary_multigraph, out_path_summary, '{} summary'.format(stat_name))
+                    save_graph(summary_multigraph, out_path_summary,
+                               '{} summary'.format(stat_name))
                 except:
-                    print('Summary {} could not be computed - skipping!'.format(stat_name))
+                    print('Summary {} could not be computed - skipping!'
+                          ''.format(stat_name))
                     traceback.print_exc()
 
     return edge_weights_all
 
 
 def summarize_multigraph(multigraph, func_summary):
-    "Creating single graph with a summary edge weight (like median)"
+    """Creating single graph with a summary edge weight (like median)"""
 
     summary_multigraph = nx.Graph()
     for u, v in multigraph.edges():
         # looping through parallel edges and obtaining their weights.
-        all_weights = np.array([edge_item['weight'] for idx, edge_item in multigraph[u][v].items()])
-        summary_weight = float(func_summary(all_weights))  # float needed due to graphml limitation
+        all_weights = np.array([edge_item['weight']
+                                for idx, edge_item in multigraph[u][v].items()])
+        # float() needed due to graphml limitation
+        summary_weight = float(func_summary(all_weights))
         summary_multigraph.add_edge(u, v, weight=summary_weight)
 
     return summary_multigraph
 
 
 def add_nodal_positions(graph, centroids):
-    "Adds the x, y, z attributes to each node in graph."
+    """Adds the x, y, z attributes to each node in graph."""
 
     # adding position info to nodes (for visualization later)
     for roi in centroids:
@@ -418,11 +436,11 @@ def add_nodal_positions(graph, centroids):
 def save_summary_graph(graph, out_dir, subject,
                        str_suffix=None,
                        summary_descr='summary'):
-    "Saves the features to disk."
+    """Saves the features to disk."""
 
     if out_dir is not None:
-        # get outpath returned from hiwenet, based on dist name and all other parameters
-        # choose out_dir name  based on dist name and all other parameters
+        # get outpath returned from hiwenet based on dist name and all other params
+        # choose out_dir name based on dist name and all other parameters
         out_subject_dir = out_dir.joinpath(subject)
         if not out_subject_dir.exists():
             out_subject_dir.mkdir(exist_ok=True, parents=True)
@@ -440,7 +458,8 @@ def save_summary_graph(graph, out_dir, subject,
             nx.write_graphml(graph, out_weights_path, encoding='utf-8')
             print('\nSaved the summary multi-graph to \n{}'.format(out_weights_path))
         except:
-            print('\nUnable to save summary multi-graph to \n{}'.format(out_weights_path))
+            print('\nUnable to save summary multi-graph to \n{}'
+                  ''.format(out_weights_path))
             traceback.print_exc()
 
     return

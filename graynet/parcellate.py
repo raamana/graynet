@@ -18,7 +18,7 @@ from graynet.utils import check_atlas, check_atlas_annot_exist, roi_info
 
 
 def get_atlas_path(atlas_name=None):
-    "Validates the atlas name and returns its location"
+    """Validates the atlas name and returns its location"""
 
     if atlas_name in [None, 'None', '']:
         atlas_name = 'fsaverage'
@@ -54,7 +54,7 @@ def get_atlas_path(atlas_name=None):
 
 
 def get_atlas_annot(atlas_name=None):
-    "High level wrapper to get all the info just by using a name."
+    """High level wrapper to get all the info just by using a name."""
 
     atlas_path, atlas_name = get_atlas_path(atlas_name)
     annot = read_atlas_annot(atlas_path)
@@ -91,9 +91,8 @@ def freesurfer_roi_labels(atlas_name, node_size=None):
 
 
 def __combine_annotations(annot, atlas_name):
-    "Combines named labels from two hemispheres, ignoring non-cortex"
+    """Combines named labels from two hemispheres, ignoring non-cortex"""
 
-    ignore_list = list()
     max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])),
                       len(cfg.null_roi_name))
     str_dtype = np.dtype('U{}'.format(max_len))
@@ -129,7 +128,7 @@ def __combine_annotations(annot, atlas_name):
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):
-    " Returns atlas annotations "
+    """ Returns atlas annotations """
 
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
@@ -150,7 +149,8 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
 
 
 def read_freesurfer_atlas(atlas_spec, hemi_list=None):
-    " Script to read the pre-computed parcellations for fsaverage and HCP-MMP-1.0 "
+    """ Script to read the pre-computed parcellations for fsaverage and
+    HCP-MMP-1.0 """
 
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
@@ -180,7 +180,7 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
 
 
 def roi_labels_centroids(atlas_name, node_size=None):
-    "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
+    """Returns a list of ROI centroids, for use in visualizations (nodes on a network)"""
 
     atlas_dir, atlas_name = get_atlas_path(atlas_name)
     coords, faces, annot = read_freesurfer_atlas(atlas_dir)
@@ -196,32 +196,32 @@ def roi_labels_centroids(atlas_name, node_size=None):
 
 
 def subdivide_cortex(atlas_dir, hemi_list=None):
-    "Subdivides the given cortical parcellation (each label into smaller patches)"
+    """Subdivides the given cortical parcellation (each label into smaller patches)"""
 
     raise NotImplementedError('This function has not been implemented yet.')
 
-    # noinspection PyUnreachableCode
-    if hemi_list is None:
-        hemi_list = ['lh', 'rh']
-
-    coords, faces, annot = read_freesurfer_atlas(atlas_dir)
-
-    labels_to_remove = ['corpuscallosum', 'unknown']
-    null_label = 0
-
-    def ismember(A, B):
-        B_unique_sorted, B_idx = np.unique(B, return_index=True)
-        B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)
-
-    cortex_label = dict()
-    for hemi in hemi_list:
-        cortex_label_path = atlas_dir / 'label' / '{}.cortex.label'.format(hemi)
-        cortex_label[hemi] = nib.freesurfer.io.read_label(cortex_label_path)
-
-        # # cortex_label[hemi] is an index into annot[hemi]['labels']
-
-        mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label,
-                                  assume_unique=True)
+    # # noinspection PyUnreachableCode
+    # if hemi_list is None:
+    #     hemi_list = ['lh', 'rh']
+    #
+    # coords, faces, annot = read_freesurfer_atlas(atlas_dir)
+    #
+    # labels_to_remove = ['corpuscallosum', 'unknown']
+    # null_label = 0
+    #
+    # def ismember(A, B):
+    #     B_unique_sorted, B_idx = np.unique(B, return_index=True)
+    #     B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)
+    #
+    # cortex_label = dict()
+    # for hemi in hemi_list:
+    #     cortex_label_path = atlas_dir / 'label' / '{}.cortex.label'.format(hemi)
+    #     cortex_label[hemi] = nib.freesurfer.io.read_label(cortex_label_path)
+    #
+    #     # # cortex_label[hemi] is an index into annot[hemi]['labels']
+    #
+    #     mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label,
+    #                               assume_unique=True)
 
 
 def load_subdivision_patchwise(atlas_name, min_vtx_per_patch=100):
