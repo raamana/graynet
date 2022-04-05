@@ -15,10 +15,10 @@
 # Overview
 
 Individualized single-subject networks from T1-weighted magnetic resonance imaging (MRI) features such as:
-  - Cortical thickness.
-  - Gray matter density.
-  - Subcortical morphometric features.
-  - Gyrification and curvature. 
+  - vertex-wise features such as cortical thickness, gyrification and curavature
+  - volumetric features such as gray matter density
+  - Subcortical morphometric features
+  - or any other similar feature distributed over a domain (cortex, or whole brain) to enable compuatation of inter-regional edge weights
 
 Applicable for whenever network-level features are useful, among which common use cases are: 
  - Biomarker development.
