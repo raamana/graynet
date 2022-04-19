@@ -16,7 +16,7 @@
 
 Individualized single-subject networks from T1-weighted magnetic resonance imaging (MRI) features such as:
   - vertex-wise features such as cortical thickness, gyrification and curavature
-  - volumetric features such as gray matter density
+  - volumetric features such as gray matter density (T1w images) or metabolic uptake (PET) or another voxel-wise feature
   - Subcortical morphometric features
   - or any other similar feature distributed over a domain (cortex, or whole brain) to enable compuatation of inter-regional edge weights
 
