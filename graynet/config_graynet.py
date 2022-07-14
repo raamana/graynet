@@ -35,7 +35,8 @@ histogram_weights = (
     'histogram_intersection', 'histogram_intersection_1',
     'jensen_shannon', 'kullback_leibler', 'manhattan', 'minowski',
     'noelle_1', 'noelle_2', 'noelle_3', 'noelle_4', 'noelle_5',
-    'relative_bin_deviation', 'relative_deviation')
+    'relative_bin_deviation', 'relative_deviation',
+    'sorensen_dist')
 
 implemented_weights = histogram_weights + weights_on_original_features
 

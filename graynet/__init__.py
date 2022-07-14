@@ -15,7 +15,7 @@ if version_info.major > 2:
     from graynet.vis_network import draw3Dnx
 else:
     raise NotImplementedError(
-        'graynet supports Python 3 or higher only. Please upgrade.')
+            'graynet supports Python 3 or higher only. Please upgrade.')
 
 del get_versions
 del version_info
