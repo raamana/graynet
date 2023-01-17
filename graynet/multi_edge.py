@@ -13,15 +13,22 @@ import networkx as nx
 import numpy as np
 
 if version_info.major > 2:
-    from graynet.utils import stamp_expt_multiedge, check_params_multiedge, make_output_path_graph, \
-        save_graph, check_subjects, check_stat_methods, check_num_bins, check_weights, \
-        check_num_procs, check_atlas, check_edge_range_dict, mask_background_roi, warn_nan, \
-        stamp_expt_weight, import_features, save_per_subject_graph
+    from graynet.utils import (stamp_expt_multiedge, check_params_multiedge,
+                               make_output_path_graph,
+                               save_graph, check_subjects, check_stat_methods,
+                               check_num_bins,
+                               check_weights,
+                               check_num_procs, check_atlas, check_edge_range_dict,
+                               mask_background_roi,
+                               warn_nan,
+                               stamp_expt_weight, import_features,
+                               save_per_subject_graph)
     from graynet import parcellate
     from graynet import config_graynet as cfg
 else:
     raise NotImplementedError(
-        'graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
+            'graynet supports only Python 3 or higher. '
+            'Upgrade to Python 3+ is highly recommended.')
 
 
 def extract_multiedge(subject_id_list,
@@ -48,14 +55,16 @@ def extract_multiedge(subject_id_list,
          must be path to a file containing subject IDs, or a list of subject IDs
     input_dir : str
         Path to the input directory where features can be read.
-        For example, this can be Freesurfer's SUBJECTS_DIR, where output processing is stored.
+        This can be Freesurfer's SUBJECTS_DIR, where output processing is stored.
         Or another directory with a structure that graynet can parse.
     base_feature_list : list
         Set of features that drive the different edges between the pair of ROIs.
 
         For example, if you choose thickness and pial_curv, each pair of ROIs will have two edges.
 
-        This multi-edge network can be turned into a single network based on averaging weights from different individual networks.
+        This multi-edge network can be turned into a single network based on
+        averaging weights from different individual networks,
+        or computing another summary statistic of your interest.
 
     weight_method_list : string(s), optional
         Type of distance (or metric) to compute between the pair of histograms.
@@ -130,12 +139,15 @@ def extract_multiedge(subject_id_list,
         This must be available as a member of numpy or scipy.stats.
 
     num_bins : int
-        Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
+        Number of histogram bins to use when computing pair-wise weights.
+        Default : 25
 
     edge_range_dict : tuple or list
         The range of edges (two finite values) within which to build the histogram
             e.g. ``--edge_range 0 5``.
-        This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.
+        This can be helpful (and important) to ensure correspondence across multiple
+        invocations of graynet (e.g. for different subjects),
+        in terms of range across all bins as well as individual bin edges.
 
         Default :
 
@@ -299,13 +311,6 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
             multigraph = nx.MultiGraph()
 
             for base_feature in base_feature_list:
-                # # TODO refactor
-                # unigraph, weight_vec = compute_unigraph(input_dir, subject, base_feature, weight_method, roi_labels,
-                #                                         atlas, smoothing_param, node_size, centroids,
-                #                                         num_bins, edge_range_dict,
-                #                                         out_dir, overwrite_results, pretty_print_options)
-                # if return_results:
-                #     edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
 
                 try:
                     features = import_features(input_dir,

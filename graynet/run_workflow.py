@@ -129,11 +129,14 @@ def extract(subject_id_list,
         *Default* choice: 'manhattan'.
 
     num_bins : int
-        Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
+        Number of histogram bins to use when computing pair-wise weights. Default: 25
 
     edge_range : tuple or list
-        The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 5``.
-        This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.
+        The range of edges (two finite values) within which to build the histogram
+        e.g., ``--edge_range 0 5``.
+        This can be helpful (and important) to ensure correspondence across
+        multiple invocations of graynet (e.g. for different subjects),
+        in terms of range across all bins as well as individual bin edges.
 
         Default :
 
@@ -151,8 +154,9 @@ def extract(subject_id_list,
         Default: assumed as fwhm=10mm for the default feature choice 'thickness'
 
     node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-        This feature is not implemented yet, just a placeholder and to enable default computation.
+        Parameter to indicate the size of the ROIs, subparcels or patches,
+        depending on type of atlas or feature. This feature is not implemented
+        yet, and this arg is just a placeholder and to enable default computation.
 
     out_dir : str, optional
         Path to output directory to store results.
@@ -161,9 +165,11 @@ def extract(subject_id_list,
 
     return_results : bool
         Flag to indicate whether to return the results to be returned.
-        This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
-        the number of subjects or weight methods are large, as it doesn't retain results for all combinations,
-        when running from commmand line interface (or HPC). Default: False
+        This flag helps to reduce the memory requirements, when the number of nodes
+        in a parcellation or the number of subjects or weight methods are large,
+        as it doesn't retain results for all combinations, when running from
+        commmand line interface (or HPC).
+        Default: False
         If this is False, out_dir must be specified to save the results to disk.
 
     num_procs : int
@@ -172,9 +178,11 @@ def extract(subject_id_list,
     Returns
     -------
     edge_weights_all : dict, None
-        If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+        If return_results is True, this will be a dictionary keyed in
+        by a tuple: (weight method, subject_ID)
         The value of each edge_weights_all[(weight method, subject_ID)] is
-        a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
+        a numpy array of length p = k*(k-1)/2,
+        with k = number of nodes in the atlas parcellation.
         If return_results is False, this will be None, which is the default.
     """
 
@@ -346,7 +354,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                         out_dir=None, return_results=False):
     """
     Computes the chosen summary statistics within each ROI.
-    These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.
+    These summary stats (such as median) can help serve as a baseline for
+    network-level values produced by graynet.
 
     Options for summary statistics include 'median', 'entropy', 'kurtosis' and
     any other appropriate summary statistics listed under scipy.stats:
