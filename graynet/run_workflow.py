@@ -7,7 +7,7 @@ import sys
 import traceback
 import warnings
 from functools import partial
-from multiprocessing import Manager, Pool
+from multiprocessing import Manager as MultiProcManager, Pool
 from pathlib import Path
 from sys import version_info
 
@@ -18,7 +18,7 @@ import numpy as np
 from graynet.utils import (calc_roi_statistics, check_atlas, check_num_procs,
                            check_params_single_edge, check_stat_methods,
                            check_subjects, check_weight_params, check_weights,
-                           import_features, mask_background_roi,
+                           import_features, mask_background_roi, save,
                            save_per_subject_graph, save_summary_stats,
                            stamp_experiment, stamp_expt_weight, warn_nan)
 
@@ -236,22 +236,32 @@ def extract(subject_id_list,
                                   ''.format(base_feature, cfg.base_feature_list))
 
     chunk_size = int(np.ceil(num_subjects / num_procs))
-    with Manager():
-        with Pool(processes=num_procs) as pool:
-            edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list,
-                                               chunk_size)
+    if (num_procs > 1) and (num_subjects > 10) and (chunk_size > 5):
+        with MultiProcManager():
+            with Pool(processes=num_procs) as pool:
+                edge_wt_list_of_dicts = pool.map(partial_func_extract,
+                                                 subject_id_list, chunk_size)
 
-    if return_results:
+        # each element from output of parallel loop is a dict, keys (subj_id, weight)
         edge_weights_all = dict()
-        for combo in edge_weights_list_dicts:
-            # each element from output of parallel loop is a dict keyed in
-            #   by {subject, weight)
-            edge_weights_all.update(combo)
+        for combo in edge_wt_list_of_dicts:
+            if combo is not None:
+                edge_weights_all.update(combo)
     else:
-        edge_weights_all = None
+        if num_procs > 1:
+            print('info: not parallel processing due to too few subjects')
+        edge_weights_all = dict()
+        for subj in subject_id_list:
+            ret_value = partial_func_extract(subj)
+            if ret_value is not None:
+                edge_weights_all.update(ret_value)
 
     print('\ngraynet computation done.')
-    return edge_weights_all
+
+    if return_results:
+        return edge_weights_all
+    else:
+        return None
 
 
 def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,

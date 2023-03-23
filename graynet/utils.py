@@ -676,9 +676,9 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
 
         try:
             np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
-            print('\nSaved the features to \n{}'.format(out_weights_path))
+            print('\nSaved the weights to \n{}'.format(out_weights_path))
         except:
-            print('\nUnable to save features to {}'.format(out_weights_path))
+            print('\nUnable to save to {}'.format(out_weights_path))
             traceback.print_exc()
 
     return
@@ -708,7 +708,7 @@ def get_CAT_data(input_dir, sid, base_feature):
     """Returns the values in a specified image!"""
 
     img_path = get_SPM_CAT_img_path(input_dir, sid, base_feature)
-    img = nibabel.load(img_path).get_data()
+    img = nibabel.load(img_path).get_fdata()
 
     return img
 
