@@ -16,8 +16,8 @@ Applicable for whenever network-level features are useful, among which common us
  - and any other applications wherein single-subject networks and ROI-stats are helpful.
 
 
-Quick illustration (cortical version)
----------------------------------------
+Quick illustration
+-------------------
 
 .. image:: vis/graynet_flyer.jpg
    :width: 800px

@@ -1,7 +1,6 @@
 __all__ = ['draw3Dnx']
 
 import traceback
-import plotly
 import networkx as nx
 import numpy as np
 from plotly.graph_objs import ( Line, Scatter3d, XAxis, YAxis, ZAxis,

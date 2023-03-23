@@ -3,18 +3,20 @@ Module with handling the parcellation of different cortical atlases.
 
 """
 
-__all__ = ['read_freesurfer_atlas', 'freesurfer_roi_labels']
-
 import os
 import os.path
-from os.path import join as pjoin, isdir, realpath, dirname, basename
-import numpy as np
+from os.path import isdir
+from pathlib import Path
+
 import nibabel as nib
-from graynet.utils import roi_info, check_atlas, check_atlas_annot_exist
+import numpy as np
+
 from graynet import config_graynet as cfg
+from graynet.utils import check_atlas, check_atlas_annot_exist, roi_info
+
 
 def get_atlas_path(atlas_name=None):
-    "Validates the atlas name and returns its location"
+    """Validates the atlas name and returns its location"""
 
     if atlas_name in [None, 'None', '']:
         atlas_name = 'fsaverage'
@@ -23,34 +25,34 @@ def get_atlas_path(atlas_name=None):
 
     if atlas_name  in cfg.atlas_list:
 
+        this_dir = Path(__file__).resolve().parent
         if atlas_name in ['glasser2016']:
-            this_dir = dirname(realpath(__file__))
-            atlas_path = pjoin(this_dir, 'atlases',
-                               'glasser2016', 'fsaverage_annot_figshare3498446')
+            atlas_path = this_dir / 'atlases' / 'glasser2016' / \
+                         'fsaverage_annot_figshare3498446'
         elif atlas_name in ['fsaverage', 'yeo2011_fsaverage5', 'yeo2011_fsaverage6',
                             'yeo2011_fsaverage_highres']:
-            this_dir = dirname(realpath(__file__))
-            atlas_path = pjoin(this_dir, 'atlases', atlas_name)
+            atlas_path = this_dir / 'atlases' /  atlas_name
         elif atlas_name in ['cat_aal', 'cat_lpba40', 'cat_ibsr']:
-            this_dir = dirname(realpath(__file__))
             # TODO inconsistency: this returns a path to a FILE,
             #   whereas cortical atlases are referred to by their FS folders
-            atlas_path = pjoin(this_dir, 'atlases', atlas_name, 'atlas.nii')
+            atlas_path = this_dir / 'atlases' /  atlas_name / 'atlas.nii'
         else:
-            raise NotImplementedError('Requested atlas is not implemented or unreadable.')
+            raise NotImplementedError(
+                'Atlas {} is not implemented / unreadable.'.format(atlas_name))
 
     # cortical atlas in Freesurfer org
     elif os.path.isdir(atlas_name) and check_atlas_annot_exist(atlas_name):
-        atlas_path = dirname(realpath(atlas_name))
-        atlas_name = basename(atlas_name)
+        dir_path_atlas = Path(atlas_name).resolve()
+        atlas_path = dir_path_atlas.parent
+        atlas_name = dir_path_atlas.name
     else:
         raise NotImplementedError('Invalid choice for atlas!')
 
-    return realpath(atlas_path), atlas_name
+    return atlas_path.resolve(), atlas_name
 
 
 def get_atlas_annot(atlas_name=None):
-    "High level wrapper to get all the info just by using a name."
+    """High level wrapper to get all the info just by using a name."""
 
     atlas_path, atlas_name = get_atlas_path(atlas_name)
     annot = read_atlas_annot(atlas_path)
@@ -58,7 +60,7 @@ def get_atlas_annot(atlas_name=None):
     return annot, atlas_path
 
 
-def freesurfer_roi_labels(atlas_name, node_size):
+def freesurfer_roi_labels(atlas_name, node_size=None):
     """
     Returns just the vertex-wise indices for grouping the vertices into ROIs.
         Order:  left followed by right.
@@ -87,9 +89,8 @@ def freesurfer_roi_labels(atlas_name, node_size):
 
 
 def __combine_annotations(annot, atlas_name):
-    "Combines named labels from two hemispheres, ignoring non-cortex"
+    """Combines named labels from two hemispheres, ignoring non-cortex"""
 
-    ignore_list = list()
     max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])),
                       len(cfg.null_roi_name))
     str_dtype = np.dtype('U{}'.format(max_len))
@@ -125,7 +126,7 @@ def __combine_annotations(annot, atlas_name):
 
 
 def read_atlas_annot(atlas_dir, hemi_list=None):
-    " Returns atlas annotations "
+    """ Returns atlas annotations """
 
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
@@ -133,7 +134,7 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
     annot = dict()
     for hemi in hemi_list:
         annot[hemi] = dict()
-        annot_path = pjoin(atlas_dir, 'label', '{}.aparc.annot'.format(hemi))
+        annot_path = atlas_dir / 'label' / '{}.aparc.annot'.format(hemi)
         annot[hemi]['labels'], annot[hemi]['ctab'], \
             annot[hemi]['names'] = nib.freesurfer.io.read_annot(annot_path, orig_ids=True)
 
@@ -146,13 +147,14 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
 
 
 def read_freesurfer_atlas(atlas_spec, hemi_list=None):
-    " Script to read the pre-computed parcellations for fsaverage and HCP-MMP-1.0 "
+    """ Script to read the pre-computed parcellations for fsaverage and
+    HCP-MMP-1.0 """
 
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
 
     if isdir(atlas_spec):
-        atlas_dir = realpath(atlas_spec)
+        atlas_dir = Path(atlas_spec).resolve()
     else:
         atlas_dir, atlas_name = get_atlas_path(atlas_spec)
 
@@ -175,8 +177,8 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     return coords, faces, annot
 
 
-def roi_labels_centroids(atlas_name, node_size):
-    "Returns a list of ROI centroids, for use in visualizations (nodes on a network)"
+def roi_labels_centroids(atlas_name, node_size=None):
+    """Returns a list of ROI centroids, for use in visualizations (nodes on a network)"""
 
     atlas_dir, atlas_name = get_atlas_path(atlas_name)
     coords, faces, annot = read_freesurfer_atlas(atlas_dir)
@@ -192,32 +194,32 @@ def roi_labels_centroids(atlas_name, node_size):
 
 
 def subdivide_cortex(atlas_dir, hemi_list=None):
-    "Subdivides the given cortical parcellation (each label into smaller patches)"
+    """Subdivides the given cortical parcellation (each label into smaller patches)"""
 
     raise NotImplementedError('This function has not been implemented yet.')
 
-    # noinspection PyUnreachableCode
-    if hemi_list is None:
-        hemi_list = ['lh', 'rh']
-
-    coords, faces, annot = read_freesurfer_atlas(atlas_dir)
-
-    labels_to_remove = ['corpuscallosum', 'unknown']
-    null_label = 0
-
-    def ismember(A, B):
-        B_unique_sorted, B_idx = np.unique(B, return_index=True)
-        B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)
-
-    cortex_label = dict()
-    for hemi in hemi_list:
-        cortex_label_path = pjoin(atlas_dir, 'label', '{}.cortex.label'.format(hemi))
-        cortex_label[hemi] = nib.freesurfer.io.read_label(cortex_label_path)
-
-        # # cortex_label[hemi] is an index into annot[hemi]['labels']
-
-        mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label,
-                                  assume_unique=True)
+    # # noinspection PyUnreachableCode
+    # if hemi_list is None:
+    #     hemi_list = ['lh', 'rh']
+    #
+    # coords, faces, annot = read_freesurfer_atlas(atlas_dir)
+    #
+    # labels_to_remove = ['corpuscallosum', 'unknown']
+    # null_label = 0
+    #
+    # def ismember(A, B):
+    #     B_unique_sorted, B_idx = np.unique(B, return_index=True)
+    #     B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)
+    #
+    # cortex_label = dict()
+    # for hemi in hemi_list:
+    #     cortex_label_path = atlas_dir / 'label' / '{}.cortex.label'.format(hemi)
+    #     cortex_label[hemi] = nib.freesurfer.io.read_label(cortex_label_path)
+    #
+    #     # # cortex_label[hemi] is an index into annot[hemi]['labels']
+    #
+    #     mask_for_cortex = np.in1d(annot[hemi]['labels'], cortex_label,
+    #                               assume_unique=True)
 
 
 def load_subdivision_patchwise(atlas_name, min_vtx_per_patch=100):
@@ -237,13 +239,12 @@ def load_subdivision_patchwise(atlas_name, min_vtx_per_patch=100):
         raise ValueError('Invalid min_vtx_per_patch. Choose one of {}'
                          ''.format(cfg.allowed_mvpp))
 
-    this_dir = dirname(realpath(__file__))
-    parc_dir = pjoin(this_dir, 'resources', 'CorticalSubdivisionIntoPatches',
-                     atlas_name)
+    this_dir = Path(__file__).resolve().parent
+    parc_dir = this_dir / 'resources' / 'CorticalSubdivisionIntoPatches' / atlas_name
 
     file_name = lambda mvp: 'CortexSubdivision_Kmeans_' \
                            'MinVertexCountPerPartition{}.npy' \
                            ''.format(mvp)
-    parc = np.load(pjoin(parc_dir, file_name(min_vtx_per_patch)))
+    parc = np.load((parc_dir / file_name(min_vtx_per_patch)))
 
     return parc

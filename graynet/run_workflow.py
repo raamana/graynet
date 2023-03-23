@@ -1,28 +1,26 @@
+__all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
+
+import argparse
+import logging
+import pickle
+import sys
+import traceback
+import warnings
+from functools import partial
+from multiprocessing import Manager as MultiProcManager, Pool
+from pathlib import Path
+from sys import version_info
+
+import hiwenet
+import networkx as nx
+import numpy as np
+
 from graynet.utils import (calc_roi_statistics, check_atlas, check_num_procs,
                            check_params_single_edge, check_stat_methods,
                            check_subjects, check_weight_params, check_weights,
                            import_features, mask_background_roi, save,
                            save_per_subject_graph, save_summary_stats,
                            stamp_experiment, stamp_expt_weight, warn_nan)
-
-__all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
-
-import os
-import sys
-import argparse
-import warnings
-import traceback
-import logging
-from os.path import join as pjoin, exists as pexists
-from multiprocessing import Manager, Pool
-from functools import partial
-import pickle
-
-import hiwenet
-import numpy as np
-import networkx as nx
-
-from sys import version_info
 
 if version_info.major > 2:
     from graynet import utils
@@ -31,8 +29,8 @@ if version_info.major > 2:
     from graynet import config_graynet as cfg
     from graynet import __version__
 else:
-    raise NotImplementedError(
-        'graynet supports only Python 2.7 or 3+. Upgrade to Python 3+ is recommended.')
+    raise NotImplementedError('graynet supports only Python 3. '
+                              'Upgrade to Python 3.6 or higher is required.')
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -65,7 +63,7 @@ def extract(subject_id_list,
     base_feature : str
         Specific type of feature to read for each subject from the input directory.
 
-    weight_method : string(s), optional
+    weight_method_list : string(s), optional
         Type of distance (or metric) to compute between the pair of histograms.
 
         It must be one of the following methods:
@@ -131,11 +129,14 @@ def extract(subject_id_list,
         *Default* choice: 'manhattan'.
 
     num_bins : int
-        Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25
+        Number of histogram bins to use when computing pair-wise weights. Default: 25
 
     edge_range : tuple or list
-        The range of edges (two finite values) within which to build the histogram e.g. ``--edge_range 0 5``.
-        This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.
+        The range of edges (two finite values) within which to build the histogram
+        e.g., ``--edge_range 0 5``.
+        This can be helpful (and important) to ensure correspondence across
+        multiple invocations of graynet (e.g. for different subjects),
+        in terms of range across all bins as well as individual bin edges.
 
         Default :
 
@@ -153,19 +154,22 @@ def extract(subject_id_list,
         Default: assumed as fwhm=10mm for the default feature choice 'thickness'
 
     node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-        This feature is not implemented yet, just a placeholder and to enable default computation.
+        Parameter to indicate the size of the ROIs, subparcels or patches,
+        depending on type of atlas or feature. This feature is not implemented
+        yet, and this arg is just a placeholder and to enable default computation.
 
-    out_dir : str, optional
+    out_dir : Path or str, optional
         Path to output directory to store results.
         Default: None, results are returned, but not saved to disk.
         If this is None, return_results must be true.
 
     return_results : bool
         Flag to indicate whether to return the results to be returned.
-        This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
-        the number of subjects or weight methods are large, as it doesn't retain results for all combinations,
-        when running from commmand line interface (or HPC). Default: False
+        This flag helps to reduce the memory requirements, when the number of nodes
+        in a parcellation or the number of subjects or weight methods are large,
+        as it doesn't retain results for all combinations, when running from
+        commmand line interface (or HPC).
+        Default: False
         If this is False, out_dir must be specified to save the results to disk.
 
     num_procs : int
@@ -174,9 +178,11 @@ def extract(subject_id_list,
     Returns
     -------
     edge_weights_all : dict, None
-        If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+        If return_results is True, this will be a dictionary keyed in
+        by a tuple: (weight method, subject_ID)
         The value of each edge_weights_all[(weight method, subject_ID)] is
-        a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
+        a numpy array of length p = k*(k-1)/2,
+        with k = number of nodes in the atlas parcellation.
         If return_results is False, this will be None, which is the default.
     """
 
@@ -204,8 +210,8 @@ def extract(subject_id_list,
         if out_dir is None:
             raise ValueError('When return_results=False, out_dir must be specified '
                              'to be able to save the results.')
-        if not pexists(out_dir):
-            os.mkdir(out_dir)
+        if not out_dir.exists():
+            out_dir.mkdir(exist_ok=True, parents=True)
 
     if base_feature in cfg.features_cortical:
         uniq_rois, centroids, roi_labels = roi_labels_centroids(atlas, node_size)
@@ -227,25 +233,35 @@ def extract(subject_id_list,
         raise NotImplementedError('Chosen feature {} is not recognized as '
                                   'either cortical or volumetric! Choose one'
                                   'from the following options: {}'
-                                  ''.format(cfg.base_feature_list))
+                                  ''.format(base_feature, cfg.base_feature_list))
 
     chunk_size = int(np.ceil(num_subjects / num_procs))
-    with Manager():
-        with Pool(processes=num_procs) as pool:
-            edge_weights_list_dicts = pool.map(partial_func_extract, subject_id_list,
-                                               chunk_size)
+    if (num_procs > 1) and (num_subjects > 10) and (chunk_size > 5):
+        with MultiProcManager():
+            with Pool(processes=num_procs) as pool:
+                edge_wt_list_of_dicts = pool.map(partial_func_extract,
+                                                 subject_id_list, chunk_size)
 
-    if return_results:
+        # each element from output of parallel loop is a dict, keys (subj_id, weight)
         edge_weights_all = dict()
-        for combo in edge_weights_list_dicts:
-            # each element from output of parallel loop is a dict keyed in
-            #   by {subject, weight)
-            edge_weights_all.update(combo)
+        for combo in edge_wt_list_of_dicts:
+            if combo is not None:
+                edge_weights_all.update(combo)
     else:
-        edge_weights_all = None
+        if num_procs > 1:
+            print('info: not parallel processing due to too few subjects')
+        edge_weights_all = dict()
+        for subj in subject_id_list:
+            ret_value = partial_func_extract(subj)
+            if ret_value is not None:
+                edge_weights_all.update(ret_value)
 
     print('\ngraynet computation done.')
-    return edge_weights_all
+
+    if return_results:
+        return edge_weights_all
+    else:
+        return None
 
 
 def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
@@ -254,32 +270,12 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
                                  num_bins, edge_range, out_dir, return_results,
                                  pretty_print_options, subject=None):
     # purposefully leaving subject parameter last to enable partial function creation
-    """
-    Extracts give set of weights for one subject.
-
-    Parameters
-    ----------
-    subject
-    input_dir
-    base_feature
-    roi_labels
-    weight_method_list
-    atlas_spec
-    smoothing_param
-    node_size
-    num_bins
-    edge_range
-    out_dir
-    return_results
-    pretty_print_options
-
-    Returns
-    -------
-
-    """
+    """Extracts give set of weights for one subject."""
 
     if subject is None:
         return
+
+    print('')
 
     try:
         features = import_features(input_dir,
@@ -307,11 +303,11 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
         expt_id = stamp_expt_weight(base_feature, atlas_name, smoothing_param,
                                     node_size, weight_method)
         sys.stdout.write(
-            '\nProcessing id {:{id_width}} -- weight {:{wtname_width}} '
-            '({:{nd_wm}}/{:{nd_wm}})'
-            ' :'.format(subject, weight_method, ww + 1, num_weights,
-                        nd_id=nd_id, nd_wm=nd_wm,
-                        id_width=max_id_width, wtname_width=max_wtname_width))
+            '\nProcessing {sid:{id_width}} -- weight {wm:{wtname_width}} '
+            '({wc:{nd_wm}}/{nw:{nd_wm}}) :\n'
+            ''.format(sid=subject, wm=weight_method, wc=ww + 1, nw=num_weights,
+                      nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width,
+                      wtname_width=max_wtname_width))
 
         # actual computation of pair-wise features
         try:
@@ -323,9 +319,9 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
                                     return_networkx_graph=True)
 
             # retrieving edge weights
-            weight_vec = np.array(list(nx.get_edge_attributes(graph, 'weight').values()))
+            weight_vec = np.array(list(
+                    nx.get_edge_attributes(graph, 'weight').values()))
             warn_nan(weight_vec)
-            # weight_vec = get_triu_handle_inf_nan(edge_weights)
 
             # adding position info to nodes (for visualization later)
             for roi in centroids:
@@ -355,7 +351,6 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
             print('Unable to extract {} features for {}'.format(weight_method, subject))
             traceback.print_exc()
 
-        sys.stdout.write('Done.')
 
     return edge_weights_all
 
@@ -369,7 +364,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                         out_dir=None, return_results=False):
     """
     Computes the chosen summary statistics within each ROI.
-    These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.
+    These summary stats (such as median) can help serve as a baseline for
+    network-level values produced by graynet.
 
     Options for summary statistics include 'median', 'entropy', 'kurtosis' and
     any other appropriate summary statistics listed under scipy.stats:
@@ -389,14 +385,16 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         Specific type of feature to read for each subject from the input directory.
 
     chosen_roi_stats : list of str or callable
-        If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
-        Default: 'median'. Supported summary statistics include 'median', 'mode', 'mean', 'std', 'gmean', 'hmean', 'variation',
-        'entropy', 'skew' and 'kurtosis'.
+        If requested, graynet will compute chosen summary statistics (such as median)
+        within each ROI of the chosen parcellation (and network weight computation is skipped).
+        Default: 'median'. Supported summary statistics include 'median', 'mode',
+        'mean', 'std', 'gmean', 'hmean', 'variation', 'entropy', 'skew' and 'kurtosis'
 
         Other appropriate summary statistics listed under scipy.stats could used
         by passing in a callable with their parameters encapsulated:
         https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions
-        For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing ``third_kstat`` as in the argument:
+        For example, if you would like to compute 3rd k-statistic, you could
+        construct a callable and passing ``third_kstat`` as in the argument:
 
         .. code-block:: python
 
@@ -422,8 +420,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         Default: assumed as fwhm=10mm for the default feature choice 'thickness'
 
     node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-        Not implemented.
+        Parameter to indicate the size of the ROIs, subparcels or patches,
+        depending on type of atlas or feature. NOT implemented yet.
 
     out_dir : str, optional
         Path to output directory to store results.
@@ -432,8 +430,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
     return_results : bool
         Flag to indicating whether to keep the results to be returned to caller method.
-        Helps to save memory (as it doesn't retain results all subjects and weight combinations),
-        when running from command line interface (or HPC). Default: False
+        Helps to save memory (as it doesn't retain results all subjects and weight
+        combinations), when running from command line interface (or HPC).
+        Default: False
         If this is False, out_dir must be specified to save the results to disk.
 
     Returns
@@ -473,8 +472,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         if out_dir is None:
             raise ValueError('When return_results=False, out_dir must be specified '
                              'to be able to save the results.')
-        if not pexists(out_dir):
-            os.mkdir(out_dir)
+        if not out_dir.exists():
+            out_dir.mkdir(exist_ok=True, parents=True)
 
     for sub_idx, subject in enumerate(subject_id_list):
 
@@ -526,7 +525,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
 
 def cli_run():
-    "command line interface!"
+    """command line interface!"""
 
     subject_ids_path, input_dir, base_feature_list, \
     weight_method, do_multi_edge, summary_stats, multi_edge_range, \
@@ -536,10 +535,10 @@ def cli_run():
     # save options to out folder for future ref
     try:
         user_opt = [subject_ids_path, input_dir, base_feature_list, weight_method,
-                    do_multi_edge, summary_stats, multi_edge_range, num_bins, edge_range,
-                    atlas, out_dir, node_size, smoothing_param, roi_stats, num_procs,
-                    overwrite_results]
-        with open(pjoin(out_dir, 'user_options.pkl'), 'wb') as of:
+                    do_multi_edge, summary_stats, multi_edge_range, num_bins,
+                    edge_range, atlas, out_dir, node_size, smoothing_param,
+                    roi_stats, num_procs, overwrite_results]
+        with open(out_dir.joinpath('user_options.pkl'), 'wb') as of:
             pickle.dump(user_opt, of)
     except:
         # ignore
@@ -583,7 +582,7 @@ def cli_run():
 
 
 def get_parser():
-    "Method to specify arguments and defaults. "
+    """Method to specify arguments and defaults. """
 
     help_text_subject_ids = "Path to file containing list of subject IDs " \
                             "(one per line)"
@@ -697,7 +696,7 @@ def get_parser():
 
     parser.add_argument("-s", "--subject_ids_path", action="store",
                         dest="subject_ids_path",
-                        required=True,
+                        required=False, default=None,
                         help=help_text_subject_ids)
 
     parser.add_argument("-i", "--input_dir", action="store", dest="input_dir",
@@ -822,20 +821,50 @@ def parse_args():
         print(exc)
         raise ValueError('Unable to parse command-line arguments.')
 
-    subject_ids_path = os.path.abspath(params.subject_ids_path)
-    if not os.path.exists(subject_ids_path):
-        raise IOError("Given subject IDs file doesn't exist.")
+    feature_list = utils.check_features(params.features)
 
-    input_dir = os.path.abspath(params.input_dir)
-    if not os.path.exists(input_dir):
-        raise IOError("Given input directory doesn't exist.")
+    input_dir = Path(params.input_dir).resolve()
+    if not input_dir.exists():
+        raise IOError("Given input directory doesn't exist!")
 
     out_dir = params.out_dir
     if out_dir is not None:
-        if not pexists(out_dir):
-            os.mkdir(out_dir)
+        out_dir = Path(out_dir).resolve()
+    else:
+        out_dir = input_dir / "graynet"
 
-    feature_list = utils.check_features(params.features)
+    if not out_dir.exists():
+        out_dir.mkdir(exist_ok=True, parents=True)
+
+    # allowing auto population of subject IDs for freesurfer directory
+    sub_id_list_path = params.subject_ids_path
+    if sub_id_list_path is None:
+        # this is allowed only when all features are freesurfer-related only
+        for feat in feature_list:
+            if feat not in cfg.features_freesurfer:
+                raise ValueError("Path to subject ID list must be specified "
+                                 "when non-Freesurfer features are being processed!")
+
+        # get all IDs in Freesurfer $SUBJECTS_DIR that are folders with surf subdir
+        id_list = [sub_id for sub_id in input_dir.iterdir()
+                   if (sub_id.is_dir() and sub_id.joinpath('surf').is_dir() )]
+
+        if len(id_list) < 1:
+            raise ValueError('Freesurfer folder does not have any '
+                             'usable subjects: \n{}'.format(input_dir))
+
+        # write to a file in out folder
+        try:
+            sub_id_list_path = input_dir / 'id_list_freesurfer_graynet.txt'
+            with open(sub_id_list_path, 'w') as idlf:
+                idlf.writelines('\n'.join(id_list))
+        except:
+            raise IOError('Unable to write auto generated id list (n={}) to disk'
+                          ' to\n  {}'.format(len(id_list), sub_id_list_path))
+    else:
+        sub_id_list_path = Path(params.subject_ids_path).resolve()
+        if not sub_id_list_path.exists():
+            raise IOError("Given subject IDs file doesn't exist.")
 
     do_multi_edge = bool(params.do_multi_edge)
     summary_stat = params.summary_stat
@@ -900,7 +929,7 @@ def parse_args():
     # TODO should we check atlas compatibility with data for two subjects randomly?
     #  load data for subjects, check atlas parcellation is compatible in size with data
 
-    return subject_ids_path, input_dir, \
+    return sub_id_list_path, input_dir, \
            feature_list, weight_method_list, \
            do_multi_edge, summary_stat, multi_edge_range_out, \
            params.num_bins, params.edge_range, \
