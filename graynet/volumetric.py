@@ -100,9 +100,9 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
                                     return_networkx_graph=True)
 
             # retrieving edge weights
-            weight_vec = np.array(list(nx.get_edge_attributes(graph, 'weight').values()))
+            weight_vec = np.array(list(
+                    nx.get_edge_attributes(graph, 'weight').values()))
             warn_nan(weight_vec)
-            # weight_vec = get_triu_handle_inf_nan(edge_weights)
 
             # adding position info to nodes (for visualization later)
             for roi in centroids:

@@ -169,7 +169,7 @@ def extract_multiedge(subject_id_list,
         depending on type of atlas or feature. This feature is not implemented
         yet, just a placeholder and to enable default computation.
 
-    out_dir : str, optional
+    out_dir : Path or str, optional
         Path to output directory to store results.
         Default: None, results are returned, but not saved to disk.
         If this is None, return_results must be true.

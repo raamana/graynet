@@ -158,7 +158,7 @@ def extract(subject_id_list,
         depending on type of atlas or feature. This feature is not implemented
         yet, and this arg is just a placeholder and to enable default computation.
 
-    out_dir : str, optional
+    out_dir : Path or str, optional
         Path to output directory to store results.
         Default: None, results are returned, but not saved to disk.
         If this is None, return_results must be true.
@@ -309,9 +309,9 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
                                     return_networkx_graph=True)
 
             # retrieving edge weights
-            weight_vec = np.array(list(nx.get_edge_attributes(graph, 'weight').values()))
+            weight_vec = np.array(list(
+                    nx.get_edge_attributes(graph, 'weight').values()))
             warn_nan(weight_vec)
-            # weight_vec = get_triu_handle_inf_nan(edge_weights)
 
             # adding position info to nodes (for visualization later)
             for roi in centroids:
@@ -840,8 +840,8 @@ def parse_args():
                    if (sub_id.is_dir() and sub_id.joinpath('surf').is_dir() )]
 
         if len(id_list) < 1:
-            raise ValueError('Given Freesurfer folder does not any subjects:\n{}'
-                             ''.format(input_dir))
+            raise ValueError('Freesurfer folder does not have any '
+                             'usable subjects: \n{}'.format(input_dir))
 
         # write to a file in out folder
         try:

@@ -1,12 +1,11 @@
-import os
-import sys
-import stat
-from os.path import join as pjoin, exists as pexists, realpath
-import numpy as np
 import pickle
+from os.path import exists as pexists, join as pjoin
+
 import networkx as nx
+import numpy as np
 from neuropredict import run_workflow
 from pyradigm import MLDataset
+
 from graynet import parcellate
 
 """#---------------------------------#---------------------------------#---------------------------------

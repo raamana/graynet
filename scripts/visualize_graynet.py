@@ -1,17 +1,13 @@
-import nilearn
 import os
-import sys
-import stat
-from os.path import join as pjoin, exists as pexists, realpath
-import numpy as np
-from matplotlib import pyplot as plt
 import pickle
 import traceback
+from os.path import exists as pexists, join as pjoin
+
+import numpy as np
+from matplotlib import pyplot as plt
 
 from graynet import parcellate
 from graynet.utils import roi_info
-
-from nilearn.plotting import plot_connectome
 
 #---------------------------------
 # CHANGE THESE FOR YOUR PROCESSING

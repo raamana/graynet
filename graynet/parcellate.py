@@ -3,8 +3,6 @@ Module with handling the parcellation of different cortical atlases.
 
 """
 
-__all__ = ['read_freesurfer_atlas', 'freesurfer_roi_labels']
-
 import os
 import os.path
 from os.path import isdir

@@ -42,7 +42,7 @@ def check_features(base_feature_list):
 
 
 def is_image_3D(input_obj):
-    """Checks to ensures number of dimensions are only 3 (or 4th one singleton)
+    """Checks to ensure number of dimensions are only 3 (or 4th one singleton)
 
     and none of the fist 3 dimensions or empty or singleton!
 
