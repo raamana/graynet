@@ -1,17 +1,16 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>graynet.parcellate &#8212; graynet 0.5 documentation</title>
-    <link rel="stylesheet" href="../../_static/pd.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>graynet.parcellate &#8212; graynet 0.5+2.gd353520.dirty documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pd.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -20,11 +19,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.5 documentation</h1>
+        <h1>graynet 0.5+2.gd353520.dirty documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="../../index.html">graynet 0.5+2.gd353520.dirty documentation</a> &#187;
             </li>
                 <li class="nav-item nav-item-1"><a href="../index.html"
                         accesskey="U">Module code</a> &#187;</li>
@@ -43,18 +42,20 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;read_freesurfer_atlas&#39;</span><span class="p">,</span> <span class="s1">&#39;freesurfer_roi_labels&#39;</span><span class="p">]</span>
-
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">realpath</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">basename</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">nibabel</span> <span class="k">as</span> <span class="nn">nib</span>
-<span class="kn">from</span> <span class="nn">graynet.utils</span> <span class="k">import</span> <span class="n">roi_info</span><span class="p">,</span> <span class="n">check_atlas</span><span class="p">,</span> <span class="n">check_atlas_annot_exist</span>
-<span class="kn">from</span> <span class="nn">graynet</span> <span class="k">import</span> <span class="n">config_graynet</span> <span class="k">as</span> <span class="n">cfg</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="k">def</span> <span class="nf">get_atlas_path</span><span class="p">(</span><span class="n">atlas_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="s2">&quot;Validates the atlas name and returns its location&quot;</span>
+<span class="kn">import</span> <span class="nn">nibabel</span> <span class="k">as</span> <span class="nn">nib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">graynet</span> <span class="kn">import</span> <span class="n">config_graynet</span> <span class="k">as</span> <span class="n">cfg</span>
+<span class="kn">from</span> <span class="nn">graynet.utils</span> <span class="kn">import</span> <span class="n">check_atlas</span><span class="p">,</span> <span class="n">check_atlas_annot_exist</span><span class="p">,</span> <span class="n">roi_info</span>
+
+
+<div class="viewcode-block" id="get_atlas_path"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.get_atlas_path">[docs]</a><span class="k">def</span> <span class="nf">get_atlas_path</span><span class="p">(</span><span class="n">atlas_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validates the atlas name and returns its location&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">atlas_name</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]:</span>
         <span class="n">atlas_name</span> <span class="o">=</span> <span class="s1">&#39;fsaverage&#39;</span>
@@ -63,43 +64,43 @@
 
     <span class="k">if</span> <span class="n">atlas_name</span>  <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">atlas_list</span><span class="p">:</span>
 
+        <span class="n">this_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
         <span class="k">if</span> <span class="n">atlas_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;glasser2016&#39;</span><span class="p">]:</span>
-            <span class="n">this_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-            <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">this_dir</span><span class="p">,</span> <span class="s1">&#39;atlases&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;glasser2016&#39;</span><span class="p">,</span> <span class="s1">&#39;fsaverage_annot_figshare3498446&#39;</span><span class="p">)</span>
+            <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">this_dir</span> <span class="o">/</span> <span class="s1">&#39;atlases&#39;</span> <span class="o">/</span> <span class="s1">&#39;glasser2016&#39;</span> <span class="o">/</span> \
+                         <span class="s1">&#39;fsaverage_annot_figshare3498446&#39;</span>
         <span class="k">elif</span> <span class="n">atlas_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;fsaverage&#39;</span><span class="p">,</span> <span class="s1">&#39;yeo2011_fsaverage5&#39;</span><span class="p">,</span> <span class="s1">&#39;yeo2011_fsaverage6&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;yeo2011_fsaverage_highres&#39;</span><span class="p">]:</span>
-            <span class="n">this_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-            <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">this_dir</span><span class="p">,</span> <span class="s1">&#39;atlases&#39;</span><span class="p">,</span> <span class="n">atlas_name</span><span class="p">)</span>
+            <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">this_dir</span> <span class="o">/</span> <span class="s1">&#39;atlases&#39;</span> <span class="o">/</span>  <span class="n">atlas_name</span>
         <span class="k">elif</span> <span class="n">atlas_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cat_aal&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_lpba40&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_ibsr&#39;</span><span class="p">]:</span>
-            <span class="n">this_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
             <span class="c1"># TODO inconsistency: this returns a path to a FILE,</span>
             <span class="c1">#   whereas cortical atlases are referred to by their FS folders</span>
-            <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">this_dir</span><span class="p">,</span> <span class="s1">&#39;atlases&#39;</span><span class="p">,</span> <span class="n">atlas_name</span><span class="p">,</span> <span class="s1">&#39;atlas.nii&#39;</span><span class="p">)</span>
+            <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">this_dir</span> <span class="o">/</span> <span class="s1">&#39;atlases&#39;</span> <span class="o">/</span>  <span class="n">atlas_name</span> <span class="o">/</span> <span class="s1">&#39;atlas.nii&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Requested atlas is not implemented or unreadable.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s1">&#39;Atlas </span><span class="si">{}</span><span class="s1"> is not implemented / unreadable.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">))</span>
 
     <span class="c1"># cortical atlas in Freesurfer org</span>
     <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check_atlas_annot_exist</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">):</span>
-        <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">))</span>
-        <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
+        <span class="n">dir_path_atlas</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">atlas_path</span> <span class="o">=</span> <span class="n">dir_path_atlas</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">dir_path_atlas</span><span class="o">.</span><span class="n">name</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Invalid choice for atlas!&#39;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">realpath</span><span class="p">(</span><span class="n">atlas_path</span><span class="p">),</span> <span class="n">atlas_name</span>
+    <span class="k">return</span> <span class="n">atlas_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="n">atlas_name</span></div>
 
 
-<span class="k">def</span> <span class="nf">get_atlas_annot</span><span class="p">(</span><span class="n">atlas_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="s2">&quot;High level wrapper to get all the info just by using a name.&quot;</span>
+<div class="viewcode-block" id="get_atlas_annot"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.get_atlas_annot">[docs]</a><span class="k">def</span> <span class="nf">get_atlas_annot</span><span class="p">(</span><span class="n">atlas_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;High level wrapper to get all the info just by using a name.&quot;&quot;&quot;</span>
 
     <span class="n">atlas_path</span><span class="p">,</span> <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">get_atlas_path</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
     <span class="n">annot</span> <span class="o">=</span> <span class="n">read_atlas_annot</span><span class="p">(</span><span class="n">atlas_path</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">annot</span><span class="p">,</span> <span class="n">atlas_path</span>
+    <span class="k">return</span> <span class="n">annot</span><span class="p">,</span> <span class="n">atlas_path</span></div>
 
 
-<div class="viewcode-block" id="freesurfer_roi_labels"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.freesurfer_roi_labels">[docs]</a><span class="k">def</span> <span class="nf">freesurfer_roi_labels</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="freesurfer_roi_labels"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.freesurfer_roi_labels">[docs]</a><span class="k">def</span> <span class="nf">freesurfer_roi_labels</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns just the vertex-wise indices for grouping the vertices into ROIs.</span>
 <span class="sd">        Order:  left followed by right.</span>
 
@@ -127,9 +128,8 @@
 
 
 <span class="k">def</span> <span class="nf">__combine_annotations</span><span class="p">(</span><span class="n">annot</span><span class="p">,</span> <span class="n">atlas_name</span><span class="p">):</span>
-    <span class="s2">&quot;Combines named labels from two hemispheres, ignoring non-cortex&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combines named labels from two hemispheres, ignoring non-cortex&quot;&quot;&quot;</span>
 
-    <span class="n">ignore_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="n">max_len</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">annot</span><span class="p">[</span><span class="s1">&#39;lh&#39;</span><span class="p">][</span><span class="s1">&#39;names&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">annot</span><span class="p">[</span><span class="s1">&#39;rh&#39;</span><span class="p">][</span><span class="s1">&#39;names&#39;</span><span class="p">])),</span>
                       <span class="nb">len</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">null_roi_name</span><span class="p">))</span>
     <span class="n">str_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;U</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_len</span><span class="p">))</span>
@@ -164,8 +164,8 @@
     <span class="k">return</span> <span class="n">wb_named_labels</span>
 
 
-<span class="k">def</span> <span class="nf">read_atlas_annot</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">,</span> <span class="n">hemi_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="s2">&quot; Returns atlas annotations &quot;</span>
+<div class="viewcode-block" id="read_atlas_annot"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.read_atlas_annot">[docs]</a><span class="k">def</span> <span class="nf">read_atlas_annot</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">,</span> <span class="n">hemi_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Returns atlas annotations &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">hemi_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">hemi_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="s1">&#39;rh&#39;</span><span class="p">]</span>
@@ -173,7 +173,7 @@
     <span class="n">annot</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="n">hemi_list</span><span class="p">:</span>
         <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">annot_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.aparc.annot&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hemi</span><span class="p">))</span>
+        <span class="n">annot_path</span> <span class="o">=</span> <span class="n">atlas_dir</span> <span class="o">/</span> <span class="s1">&#39;label&#39;</span> <span class="o">/</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.aparc.annot&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hemi</span><span class="p">)</span>
         <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span> <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;ctab&#39;</span><span class="p">],</span> \
             <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nib</span><span class="o">.</span><span class="n">freesurfer</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_annot</span><span class="p">(</span><span class="n">annot_path</span><span class="p">,</span> <span class="n">orig_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -182,17 +182,18 @@
             <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;names&#39;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="p">[</span><span class="n">bytestr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">bytestr</span> <span class="ow">in</span> <span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;names&#39;</span><span class="p">]]</span>
 
-    <span class="k">return</span> <span class="n">annot</span>
+    <span class="k">return</span> <span class="n">annot</span></div>
 
 
 <div class="viewcode-block" id="read_freesurfer_atlas"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.read_freesurfer_atlas">[docs]</a><span class="k">def</span> <span class="nf">read_freesurfer_atlas</span><span class="p">(</span><span class="n">atlas_spec</span><span class="p">,</span> <span class="n">hemi_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="s2">&quot; Script to read the pre-computed parcellations for fsaverage and HCP-MMP-1.0 &quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Script to read the pre-computed parcellations for fsaverage and</span>
+<span class="sd">    HCP-MMP-1.0 &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">hemi_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">hemi_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="s1">&#39;rh&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">atlas_spec</span><span class="p">):</span>
-        <span class="n">atlas_dir</span> <span class="o">=</span> <span class="n">realpath</span><span class="p">(</span><span class="n">atlas_spec</span><span class="p">)</span>
+        <span class="n">atlas_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">atlas_spec</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">atlas_dir</span><span class="p">,</span> <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">get_atlas_path</span><span class="p">(</span><span class="n">atlas_spec</span><span class="p">)</span>
 
@@ -215,8 +216,8 @@
     <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">annot</span></div>
 
 
-<span class="k">def</span> <span class="nf">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="p">):</span>
-    <span class="s2">&quot;Returns a list of ROI centroids, for use in visualizations (nodes on a network)&quot;</span>
+<div class="viewcode-block" id="roi_labels_centroids"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.roi_labels_centroids">[docs]</a><span class="k">def</span> <span class="nf">roi_labels_centroids</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a list of ROI centroids, for use in visualizations (nodes on a network)&quot;&quot;&quot;</span>
 
     <span class="n">atlas_dir</span><span class="p">,</span> <span class="n">atlas_name</span> <span class="o">=</span> <span class="n">get_atlas_path</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">)</span>
     <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">annot</span> <span class="o">=</span> <span class="n">read_freesurfer_atlas</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">)</span>
@@ -228,40 +229,40 @@
         <span class="n">this_roi_vertices</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;whole&#39;</span><span class="p">][</span><span class="n">vertex_labels</span> <span class="o">==</span> <span class="n">roi</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">centroids</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">this_roi_vertices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">vertex_labels</span>
+    <span class="k">return</span> <span class="n">uniq_rois</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">vertex_labels</span></div>
 
 
-<span class="k">def</span> <span class="nf">subdivide_cortex</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">,</span> <span class="n">hemi_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="s2">&quot;Subdivides the given cortical parcellation (each label into smaller patches)&quot;</span>
+<div class="viewcode-block" id="subdivide_cortex"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.subdivide_cortex">[docs]</a><span class="k">def</span> <span class="nf">subdivide_cortex</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">,</span> <span class="n">hemi_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Subdivides the given cortical parcellation (each label into smaller patches)&quot;&quot;&quot;</span>
 
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;This function has not been implemented yet.&#39;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;This function has not been implemented yet.&#39;</span><span class="p">)</span></div>
 
-    <span class="c1"># noinspection PyUnreachableCode</span>
-    <span class="k">if</span> <span class="n">hemi_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">hemi_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="s1">&#39;rh&#39;</span><span class="p">]</span>
+    <span class="c1"># # noinspection PyUnreachableCode</span>
+    <span class="c1"># if hemi_list is None:</span>
+    <span class="c1">#     hemi_list = [&#39;lh&#39;, &#39;rh&#39;]</span>
+    <span class="c1">#</span>
+    <span class="c1"># coords, faces, annot = read_freesurfer_atlas(atlas_dir)</span>
+    <span class="c1">#</span>
+    <span class="c1"># labels_to_remove = [&#39;corpuscallosum&#39;, &#39;unknown&#39;]</span>
+    <span class="c1"># null_label = 0</span>
+    <span class="c1">#</span>
+    <span class="c1"># def ismember(A, B):</span>
+    <span class="c1">#     B_unique_sorted, B_idx = np.unique(B, return_index=True)</span>
+    <span class="c1">#     B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)</span>
+    <span class="c1">#</span>
+    <span class="c1"># cortex_label = dict()</span>
+    <span class="c1"># for hemi in hemi_list:</span>
+    <span class="c1">#     cortex_label_path = atlas_dir / &#39;label&#39; / &#39;{}.cortex.label&#39;.format(hemi)</span>
+    <span class="c1">#     cortex_label[hemi] = nib.freesurfer.io.read_label(cortex_label_path)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     # # cortex_label[hemi] is an index into annot[hemi][&#39;labels&#39;]</span>
+    <span class="c1">#</span>
+    <span class="c1">#     mask_for_cortex = np.in1d(annot[hemi][&#39;labels&#39;], cortex_label,</span>
+    <span class="c1">#                               assume_unique=True)</span>
 
-    <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">annot</span> <span class="o">=</span> <span class="n">read_freesurfer_atlas</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">)</span>
 
-    <span class="n">labels_to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;corpuscallosum&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">]</span>
-    <span class="n">null_label</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">ismember</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
-        <span class="n">B_unique_sorted</span><span class="p">,</span> <span class="n">B_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">B_in_A_bool</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">B_unique_sorted</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">assume_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">cortex_label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="n">hemi_list</span><span class="p">:</span>
-        <span class="n">cortex_label_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">atlas_dir</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.cortex.label&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hemi</span><span class="p">))</span>
-        <span class="n">cortex_label</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span> <span class="o">=</span> <span class="n">nib</span><span class="o">.</span><span class="n">freesurfer</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_label</span><span class="p">(</span><span class="n">cortex_label_path</span><span class="p">)</span>
-
-        <span class="c1"># # cortex_label[hemi] is an index into annot[hemi][&#39;labels&#39;]</span>
-
-        <span class="n">mask_for_cortex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">annot</span><span class="p">[</span><span class="n">hemi</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span> <span class="n">cortex_label</span><span class="p">,</span>
-                                  <span class="n">assume_unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">load_subdivision_patchwise</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">min_vtx_per_patch</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="load_subdivision_patchwise"><a class="viewcode-back" href="../../graynet.html#graynet.parcellate.load_subdivision_patchwise">[docs]</a><span class="k">def</span> <span class="nf">load_subdivision_patchwise</span><span class="p">(</span><span class="n">atlas_name</span><span class="p">,</span> <span class="n">min_vtx_per_patch</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a precomputed subdivision of the cortex</span>
 <span class="sd">    Originally generated in Matlab based on k-means clustering (Raamana PhD thesis);</span>
 <span class="sd">     adaptive subdivision ensuring a specified minimum number of vertices per patch</span>
@@ -277,18 +278,18 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid min_vtx_per_patch. Choose one of </span><span class="si">{}</span><span class="s1">&#39;</span>
                          <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">allowed_mvpp</span><span class="p">))</span>
 
-    <span class="n">this_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-    <span class="n">parc_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">this_dir</span><span class="p">,</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;CorticalSubdivisionIntoPatches&#39;</span><span class="p">,</span>
-                     <span class="n">atlas_name</span><span class="p">)</span>
+    <span class="n">this_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">parc_dir</span> <span class="o">=</span> <span class="n">this_dir</span> <span class="o">/</span> <span class="s1">&#39;resources&#39;</span> <span class="o">/</span> <span class="s1">&#39;CorticalSubdivisionIntoPatches&#39;</span> <span class="o">/</span> <span class="n">atlas_name</span>
 
     <span class="n">file_name</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">mvp</span><span class="p">:</span> <span class="s1">&#39;CortexSubdivision_Kmeans_&#39;</span> \
                            <span class="s1">&#39;MinVertexCountPerPartition</span><span class="si">{}</span><span class="s1">.npy&#39;</span> \
                            <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mvp</span><span class="p">)</span>
-    <span class="n">parc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">parc_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">(</span><span class="n">min_vtx_per_patch</span><span class="p">)))</span>
+    <span class="n">parc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">((</span><span class="n">parc_dir</span> <span class="o">/</span> <span class="n">file_name</span><span class="p">(</span><span class="n">min_vtx_per_patch</span><span class="p">)))</span>
 
-    <span class="k">return</span> <span class="n">parc</span>
+    <span class="k">return</span> <span class="n">parc</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -298,19 +299,19 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

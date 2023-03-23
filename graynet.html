@@ -1,17 +1,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>graynet package &#8212; graynet 0.5 documentation</title>
-    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>graynet package &#8212; graynet 0.5.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pd.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -20,11 +20,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.5 documentation</h1>
+        <h1>graynet 0.5.4 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5.4 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -35,262 +35,101 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-<div class="section" id="graynet-package">
-<h1>graynet package<a class="headerlink" href="#graynet-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-graynet.freesurfer">
-<span id="graynet-freesurfer-module"></span><h2>graynet.freesurfer module<a class="headerlink" href="#module-graynet.freesurfer" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="graynet.freesurfer.import_features">
-<code class="sig-prename descclassname">graynet.freesurfer.</code><code class="sig-name descname">import_features</code><span class="sig-paren">(</span><em class="sig-param">fs_dir</em>, <em class="sig-param">subject_list</em>, <em class="sig-param">base_feature='freesurfer_thickness'</em>, <em class="sig-param">fwhm=10</em>, <em class="sig-param">atlas='fsaverage'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/freesurfer.html#import_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.freesurfer.import_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Ensure subjects are provided and their data exist.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="graynet.freesurfer.get_data">
-<code class="sig-prename descclassname">graynet.freesurfer.</code><code class="sig-name descname">get_data</code><span class="sig-paren">(</span><em class="sig-param">fs_dir</em>, <em class="sig-param">subject_id</em>, <em class="sig-param">base_feature</em>, <em class="sig-param">fwhm=10</em>, <em class="sig-param">atlas='fsaverage'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/freesurfer.html#get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.freesurfer.get_data" title="Permalink to this definition">¶</a></dt>
+<section id="graynet-package">
+<h1>graynet package<a class="headerlink" href="#graynet-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-graynet.freesurfer">
+<span id="graynet-freesurfer-module"></span><h2>graynet.freesurfer module<a class="headerlink" href="#module-graynet.freesurfer" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.freesurfer.get_data">
+<span class="sig-prename descclassname"><span class="pre">graynet.freesurfer.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwhm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/freesurfer.html#get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.freesurfer.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the specified features from both hemispheres for a given subject.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-graynet.parcellate">
-<span id="graynet-parcellate-module"></span><h2>graynet.parcellate module<a class="headerlink" href="#module-graynet.parcellate" title="Permalink to this headline">¶</a></h2>
-<p>Module with handling the parcellation of different cortical atlases.</p>
-<dl class="function">
-<dt id="graynet.parcellate.read_freesurfer_atlas">
-<code class="sig-prename descclassname">graynet.parcellate.</code><code class="sig-name descname">read_freesurfer_atlas</code><span class="sig-paren">(</span><em class="sig-param">atlas_spec</em>, <em class="sig-param">hemi_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#read_freesurfer_atlas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.parcellate.read_freesurfer_atlas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Script to read the pre-computed parcellations for fsaverage and HCP-MMP-1.0</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.freesurfer.import_features">
+<span class="sig-prename descclassname"><span class="pre">graynet.freesurfer.</span></span><span class="sig-name descname"><span class="pre">import_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'freesurfer_thickness'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwhm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/freesurfer.html#import_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.freesurfer.import_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads features after ensuring subjects are provided and their data exist.</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="graynet.parcellate.freesurfer_roi_labels">
-<code class="sig-prename descclassname">graynet.parcellate.</code><code class="sig-name descname">freesurfer_roi_labels</code><span class="sig-paren">(</span><em class="sig-param">atlas_name</em>, <em class="sig-param">node_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#freesurfer_roi_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.parcellate.freesurfer_roi_labels" title="Permalink to this definition">¶</a></dt>
+</section>
+<section id="module-graynet.parcellate">
+<span id="graynet-parcellate-module"></span><h2>graynet.parcellate module<a class="headerlink" href="#module-graynet.parcellate" title="Permalink to this heading">¶</a></h2>
+<p>Module with handling the parcellation of different cortical atlases.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.freesurfer_roi_labels">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">freesurfer_roi_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#freesurfer_roi_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.freesurfer_roi_labels" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns just the vertex-wise indices for grouping the vertices into ROIs.</dt><dd><p>Order:  left followed by right.</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-graynet.run_workflow">
-<span id="graynet-run-workflow-module"></span><h2>graynet.run_workflow module<a class="headerlink" href="#module-graynet.run_workflow" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="graynet.run_workflow.extract">
-<code class="sig-prename descclassname">graynet.run_workflow.</code><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">subject_id_list</em>, <em class="sig-param">input_dir</em>, <em class="sig-param">base_feature=('freesurfer_thickness'</em>, <em class="sig-param">)</em>, <em class="sig-param">weight_method_list=('manhattan'</em>, <em class="sig-param">)</em>, <em class="sig-param">num_bins=25</em>, <em class="sig-param">edge_range=None</em>, <em class="sig-param">atlas='fsaverage'</em>, <em class="sig-param">smoothing_param=10</em>, <em class="sig-param">node_size=None</em>, <em class="sig-param">out_dir=None</em>, <em class="sig-param">return_results=False</em>, <em class="sig-param">num_procs=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.run_workflow.extract" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</dd>
-<dt><strong>input_dir</strong><span class="classifier">str</span></dt><dd><p>Path to the input directory where features can be read.
-For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
-Or another directory with a structure that graynet can parse.</p>
-</dd>
-<dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
-</dd>
-<dt><strong>weight_method</strong><span class="classifier">string(s), optional</span></dt><dd><p>Type of distance (or metric) to compute between the pair of histograms.</p>
-<p>It must be one of the following methods:</p>
-<ul class="simple">
-<li><p>‘chebyshev’</p></li>
-<li><p>‘chebyshev_neg’</p></li>
-<li><p>‘chi_square’</p></li>
-<li><p>‘correlate’</p></li>
-<li><p>‘correlate_1’</p></li>
-<li><p>‘cosine’</p></li>
-<li><p>‘cosine_1’</p></li>
-<li><p>‘cosine_2’</p></li>
-<li><p>‘cosine_alt’</p></li>
-<li><p>‘euclidean’</p></li>
-<li><p>‘fidelity_based’</p></li>
-<li><p>‘histogram_intersection’</p></li>
-<li><p>‘histogram_intersection_1’</p></li>
-<li><p>‘jensen_shannon’</p></li>
-<li><p>‘kullback_leibler’</p></li>
-<li><p>‘manhattan’</p></li>
-<li><p>‘minowski’</p></li>
-<li><p>‘noelle_1’</p></li>
-<li><p>‘noelle_2’</p></li>
-<li><p>‘noelle_3’</p></li>
-<li><p>‘noelle_4’</p></li>
-<li><p>‘noelle_5’</p></li>
-<li><p>‘relative_bin_deviation’</p></li>
-<li><p>‘relative_deviation’</p></li>
-</ul>
-<p>Note only the following are <em>metrics</em>:</p>
-<ul class="simple">
-<li><p>‘manhattan’</p></li>
-<li><p>‘minowski’</p></li>
-<li><p>‘euclidean’</p></li>
-<li><p>‘noelle_2’</p></li>
-<li><p>‘noelle_4’</p></li>
-<li><p>‘noelle_5’</p></li>
-</ul>
-<p>The following are <em>semi- or quasi-metrics</em>:</p>
-<ul class="simple">
-<li><p>‘kullback_leibler’</p></li>
-<li><p>‘jensen_shannon’</p></li>
-<li><p>‘chi_square’</p></li>
-<li><p>‘chebyshev’</p></li>
-<li><p>‘cosine_1’</p></li>
-<li><p>‘chebyshev_neg’</p></li>
-<li><p>‘correlate_1’</p></li>
-<li><p>‘histogram_intersection_1’</p></li>
-<li><p>‘relative_deviation’</p></li>
-<li><p>‘relative_bin_deviation’</p></li>
-<li><p>‘noelle_1’</p></li>
-<li><p>‘noelle_3’</p></li>
-</ul>
-<p>The following are  classified to be similarity functions:</p>
-<ul class="simple">
-<li><p>‘histogram_intersection’</p></li>
-<li><p>‘correlate’</p></li>
-<li><p>‘cosine’</p></li>
-<li><p>‘cosine_2’</p></li>
-<li><p>‘cosine_alt’</p></li>
-<li><p>‘fidelity_based’</p></li>
-</ul>
-<p><em>Default</em> choice: ‘manhattan’.</p>
-</dd>
-<dt><strong>num_bins</strong><span class="classifier">int</span></dt><dd><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
-</dd>
-<dt><strong>edge_range</strong><span class="classifier">tuple or list</span></dt><dd><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
-This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.</p>
-<p>Default :</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>( 0.0, 5.0) for <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code> and</p></li>
-<li><p>(-0.3, 0.3) for <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code>.</p></li>
-</ul>
-</div></blockquote>
-</dd>
-<dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.
-Choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’], which are primary cortical.
-Volumetric whole-brain atlases will be added soon.</p>
-</dd>
-<dt><strong>smoothing_param</strong><span class="classifier">scalar</span></dt><dd><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
-or another relevant for the chosen base_feature.
-Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</dd>
-<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-This feature is not implemented yet, just a placeholder and to enable default computation.</p>
-</dd>
-<dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
-Default: None, results are returned, but not saved to disk.
-If this is None, return_results must be true.</p>
-</dd>
-<dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicate whether to return the results to be returned.
-This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
-the number of subjects or weight methods are large, as it doesn’t retain results for all combinations,
-when running from commmand line interface (or HPC). Default: False
-If this is False, out_dir must be specified to save the results to disk.</p>
-</dd>
-<dt><strong>num_procs</strong><span class="classifier">int</span></dt><dd><p>Number of parallel processes to use to speed up computation.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>edge_weights_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
-The value of each edge_weights_all[(weight method, subject_ID)] is
-a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
-If return_results is False, this will be None, which is the default.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.get_atlas_annot">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">get_atlas_annot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#get_atlas_annot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.get_atlas_annot" title="Permalink to this definition">¶</a></dt>
+<dd><p>High level wrapper to get all the info just by using a name.</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="graynet.run_workflow.roiwise_stats_indiv">
-<code class="sig-prename descclassname">graynet.run_workflow.</code><code class="sig-name descname">roiwise_stats_indiv</code><span class="sig-paren">(</span><em class="sig-param">subject_id_list</em>, <em class="sig-param">input_dir</em>, <em class="sig-param">base_feature=('freesurfer_thickness'</em>, <em class="sig-param">)</em>, <em class="sig-param">chosen_roi_stats='median'</em>, <em class="sig-param">atlas='fsaverage'</em>, <em class="sig-param">smoothing_param=10</em>, <em class="sig-param">node_size=None</em>, <em class="sig-param">out_dir=None</em>, <em class="sig-param">return_results=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#roiwise_stats_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.run_workflow.roiwise_stats_indiv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the chosen summary statistics within each ROI.
-These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.</p>
-<p>Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and
-any other appropriate summary statistics listed under scipy.stats:
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a></p>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
-</dd>
-<dt><strong>input_dir</strong><span class="classifier">str</span></dt><dd><p>Path to the input directory where features can be read.
-For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
-Or another directory with a structure that graynet can parse.</p>
-</dd>
-<dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
-</dd>
-<dt><strong>chosen_roi_stats</strong><span class="classifier">list of str or callable</span></dt><dd><p>If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
-Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’,
-‘entropy’, ‘skew’ and ‘kurtosis’.</p>
-<p>Other appropriate summary statistics listed under scipy.stats could used
-by passing in a callable with their parameters encapsulated:
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a>
-For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span>
-    <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
-.. code-block:: python</p>
-<blockquote>
-<div><p>trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
-third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</p>
-</div></blockquote>
-<p>Notes: ‘hmean’ requires all values be positive.</p>
-</dd>
-<dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.
-Available choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’].
-Volumetric whole-brain atlases will be added soon.</p>
-</dd>
-<dt><strong>smoothing_param</strong><span class="classifier">scalar</span></dt><dd><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
-or another relevant for the chosen base_feature.
-Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
-</dd>
-<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-Not implemented.</p>
-</dd>
-<dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
-Default: None, results are returned, but not saved to disk.
-If this is None, return_results must be true.</p>
-</dd>
-<dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicating whether to keep the results to be returned to caller method.
-Helps to save memory (as it doesn’t retain results all subjects and weight combinations),
-when running from command line interface (or HPC). Default: False
-If this is False, out_dir must be specified to save the results to disk.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>roi_stats_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by subject_ID
-The value of each key roi_summary_all[subject] is
-a numpy array of length k, with k = number of nodes in the atlas parcellation.
-If return_results is False, this will be None, which is the default.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.get_atlas_path">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">get_atlas_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#get_atlas_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.get_atlas_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the atlas name and returns its location</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="graynet.run_workflow.cli_run">
-<code class="sig-prename descclassname">graynet.run_workflow.</code><code class="sig-name descname">cli_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#cli_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.run_workflow.cli_run" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.load_subdivision_patchwise">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">load_subdivision_patchwise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vtx_per_patch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#load_subdivision_patchwise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.load_subdivision_patchwise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a precomputed subdivision of the cortex
+Originally generated in Matlab based on k-means clustering (Raamana PhD thesis);</p>
+<blockquote>
+<div><p>adaptive subdivision ensuring a specified minimum number of vertices per patch</p>
+</div></blockquote>
+<p>more details –&gt; graynet/scripts/export_precomputed_ctx_parc_in_numpy_format.py</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.read_atlas_annot">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">read_atlas_annot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemi_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#read_atlas_annot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.read_atlas_annot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns atlas annotations</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.read_freesurfer_atlas">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">read_freesurfer_atlas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemi_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#read_freesurfer_atlas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.read_freesurfer_atlas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Script to read the pre-computed parcellations for fsaverage and
+HCP-MMP-1.0</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.roi_labels_centroids">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">roi_labels_centroids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#roi_labels_centroids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.roi_labels_centroids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of ROI centroids, for use in visualizations (nodes on a network)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.parcellate.subdivide_cortex">
+<span class="sig-prename descclassname"><span class="pre">graynet.parcellate.</span></span><span class="sig-name descname"><span class="pre">subdivide_cortex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemi_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#subdivide_cortex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.parcellate.subdivide_cortex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subdivides the given cortical parcellation (each label into smaller patches)</p>
+</dd></dl>
+
+</section>
+<section id="module-graynet.run_workflow">
+<span id="graynet-run-workflow-module"></span><h2>graynet.run_workflow module<a class="headerlink" href="#module-graynet.run_workflow" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.run_workflow.cli_run">
+<span class="sig-prename descclassname"><span class="pre">graynet.run_workflow.</span></span><span class="sig-name descname"><span class="pre">cli_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#cli_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.run_workflow.cli_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>command line interface!</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-graynet">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-graynet" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="graynet.extract">
-<code class="sig-prename descclassname">graynet.</code><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">subject_id_list</em>, <em class="sig-param">input_dir</em>, <em class="sig-param">base_feature=('freesurfer_thickness'</em>, <em class="sig-param">)</em>, <em class="sig-param">weight_method_list=('manhattan'</em>, <em class="sig-param">)</em>, <em class="sig-param">num_bins=25</em>, <em class="sig-param">edge_range=None</em>, <em class="sig-param">atlas='fsaverage'</em>, <em class="sig-param">smoothing_param=10</em>, <em class="sig-param">node_size=None</em>, <em class="sig-param">out_dir=None</em>, <em class="sig-param">return_results=False</em>, <em class="sig-param">num_procs=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.run_workflow.extract">
+<span class="sig-prename descclassname"><span class="pre">graynet.run_workflow.</span></span><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('freesurfer_thickness',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('manhattan',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_procs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.run_workflow.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
 </dd>
@@ -300,7 +139,7 @@ Or another directory with a structure that graynet can parse.</p>
 </dd>
 <dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
 </dd>
-<dt><strong>weight_method</strong><span class="classifier">string(s), optional</span></dt><dd><p>Type of distance (or metric) to compute between the pair of histograms.</p>
+<dt><strong>weight_method_list</strong><span class="classifier">string(s), optional</span></dt><dd><p>Type of distance (or metric) to compute between the pair of histograms.</p>
 <p>It must be one of the following methods:</p>
 <ul class="simple">
 <li><p>‘chebyshev’</p></li>
@@ -363,10 +202,13 @@ Or another directory with a structure that graynet can parse.</p>
 </ul>
 <p><em>Default</em> choice: ‘manhattan’.</p>
 </dd>
-<dt><strong>num_bins</strong><span class="classifier">int</span></dt><dd><p>Number of histogram bins to use when computing pair-wise weights based on histogram distance. Default : 25</p>
+<dt><strong>num_bins</strong><span class="classifier">int</span></dt><dd><p>Number of histogram bins to use when computing pair-wise weights. Default: 25</p>
 </dd>
-<dt><strong>edge_range</strong><span class="classifier">tuple or list</span></dt><dd><p>The range of edges (two finite values) within which to build the histogram e.g. <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
-This can be helpful (and important) to ensure correspondence across multiple invocations of graynet (e.g. for different subjects), in terms of range across all bins as well as individual bin edges.</p>
+<dt><strong>edge_range</strong><span class="classifier">tuple or list</span></dt><dd><p>The range of edges (two finite values) within which to build the histogram
+e.g., <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
+This can be helpful (and important) to ensure correspondence across
+multiple invocations of graynet (e.g. for different subjects),
+in terms of range across all bins as well as individual bin edges.</p>
 <p>Default :</p>
 <blockquote>
 <div><ul class="simple">
@@ -383,28 +225,33 @@ Volumetric whole-brain atlases will be added soon.</p>
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
 </dd>
-<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-This feature is not implemented yet, just a placeholder and to enable default computation.</p>
+<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches,
+depending on type of atlas or feature. This feature is not implemented
+yet, and this arg is just a placeholder and to enable default computation.</p>
 </dd>
-<dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
+<dt><strong>out_dir</strong><span class="classifier">Path or str, optional</span></dt><dd><p>Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
 </dd>
 <dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicate whether to return the results to be returned.
-This flag helps to reduce the memory requirements, when the number of nodes in a parcellation or
-the number of subjects or weight methods are large, as it doesn’t retain results for all combinations,
-when running from commmand line interface (or HPC). Default: False
+This flag helps to reduce the memory requirements, when the number of nodes
+in a parcellation or the number of subjects or weight methods are large,
+as it doesn’t retain results for all combinations, when running from
+commmand line interface (or HPC).
+Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
 </dd>
 <dt><strong>num_procs</strong><span class="classifier">int</span></dt><dd><p>Number of parallel processes to use to speed up computation.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>edge_weights_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by a tuple: (weight method, subject_ID)
+<dt><strong>edge_weights_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in
+by a tuple: (weight method, subject_ID)
 The value of each edge_weights_all[(weight method, subject_ID)] is
-a numpy array of length p = k*(k-1)/2, with k = number of nodes in the atlas parcellation.
+a numpy array of length p = k*(k-1)/2,
+with k = number of nodes in the atlas parcellation.
 If return_results is False, this will be None, which is the default.</p>
 </dd>
 </dl>
@@ -412,16 +259,17 @@ If return_results is False, this will be None, which is the default.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="graynet.roiwise_stats_indiv">
-<code class="sig-prename descclassname">graynet.</code><code class="sig-name descname">roiwise_stats_indiv</code><span class="sig-paren">(</span><em class="sig-param">subject_id_list</em>, <em class="sig-param">input_dir</em>, <em class="sig-param">base_feature=('freesurfer_thickness'</em>, <em class="sig-param">)</em>, <em class="sig-param">chosen_roi_stats='median'</em>, <em class="sig-param">atlas='fsaverage'</em>, <em class="sig-param">smoothing_param=10</em>, <em class="sig-param">node_size=None</em>, <em class="sig-param">out_dir=None</em>, <em class="sig-param">return_results=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#roiwise_stats_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.roiwise_stats_indiv" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.run_workflow.roiwise_stats_indiv">
+<span class="sig-prename descclassname"><span class="pre">graynet.run_workflow.</span></span><span class="sig-name descname"><span class="pre">roiwise_stats_indiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('freesurfer_thickness',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen_roi_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#roiwise_stats_indiv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.run_workflow.roiwise_stats_indiv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the chosen summary statistics within each ROI.
-These summary stats (such as median) can serve as a baseline for network-level values produced by graynet.</p>
+These summary stats (such as median) can help serve as a baseline for
+network-level values produced by graynet.</p>
 <p>Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and
 any other appropriate summary statistics listed under scipy.stats:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a></p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
 </dd>
@@ -431,16 +279,18 @@ Or another directory with a structure that graynet can parse.</p>
 </dd>
 <dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
 </dd>
-<dt><strong>chosen_roi_stats</strong><span class="classifier">list of str or callable</span></dt><dd><p>If requested, graynet will compute chosen summary statistics (such as median) within each ROI of the chosen parcellation (and network weight computation is skipped).
-Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’, ‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’,
-‘entropy’, ‘skew’ and ‘kurtosis’.</p>
+<dt><strong>chosen_roi_stats</strong><span class="classifier">list of str or callable</span></dt><dd><p>If requested, graynet will compute chosen summary statistics (such as median)
+within each ROI of the chosen parcellation (and network weight computation is skipped).
+Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’,
+‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’, ‘entropy’, ‘skew’ and ‘kurtosis’</p>
 <p>Other appropriate summary statistics listed under scipy.stats could used
 by passing in a callable with their parameters encapsulated:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a>
-For example, if you would like to compute 3rd k-statistic, you could construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
+For example, if you would like to compute 3rd k-statistic, you could
+construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
 <span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span>
-    <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
@@ -459,21 +309,22 @@ Volumetric whole-brain atlases will be added soon.</p>
 or another relevant for the chosen base_feature.
 Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
 </dd>
-<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches, depending on type of atlas or feature.
-Not implemented.</p>
+<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches,
+depending on type of atlas or feature. NOT implemented yet.</p>
 </dd>
 <dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
 Default: None, results are returned, but not saved to disk.
 If this is None, return_results must be true.</p>
 </dd>
 <dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicating whether to keep the results to be returned to caller method.
-Helps to save memory (as it doesn’t retain results all subjects and weight combinations),
-when running from command line interface (or HPC). Default: False
+Helps to save memory (as it doesn’t retain results all subjects and weight
+combinations), when running from command line interface (or HPC).
+Default: False
 If this is False, out_dir must be specified to save the results to disk.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>roi_stats_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by subject_ID
 The value of each key roi_summary_all[subject] is
@@ -485,45 +336,290 @@ If return_results is False, this will be None, which is the default.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="graynet.draw3Dnx">
-<code class="sig-prename descclassname">graynet.</code><code class="sig-name descname">draw3Dnx</code><span class="sig-paren">(</span><em class="sig-param">graph=None</em>, <em class="sig-param">out_path=None</em>, <em class="sig-param">perc_threshold=None</em>, <em class="sig-param">positions_array=None</em>, <em class="sig-param">positions_dict=None</em>, <em class="sig-param">plot_title=''</em>, <em class="sig-param">plot_description=''</em>, <em class="sig-param">colorscale='Set3'</em>, <em class="sig-param">notebook_mode=True</em>, <em class="sig-param">auto_open=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/vis_network.html#draw3Dnx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.draw3Dnx" title="Permalink to this definition">¶</a></dt>
+</section>
+<section id="module-graynet">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-graynet" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.cli_run">
+<span class="sig-prename descclassname"><span class="pre">graynet.</span></span><span class="sig-name descname"><span class="pre">cli_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#cli_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.cli_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>command line interface!</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.draw3Dnx">
+<span class="sig-prename descclassname"><span class="pre">graynet.</span></span><span class="sig-name descname"><span class="pre">draw3Dnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perc_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Set3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notebook_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_open</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/vis_network.html#draw3Dnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.draw3Dnx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws a given graph in 3D</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="graynet.read_freesurfer_atlas">
-<code class="sig-prename descclassname">graynet.</code><code class="sig-name descname">read_freesurfer_atlas</code><span class="sig-paren">(</span><em class="sig-param">atlas_spec</em>, <em class="sig-param">hemi_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#read_freesurfer_atlas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.read_freesurfer_atlas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Script to read the pre-computed parcellations for fsaverage and HCP-MMP-1.0</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.extract">
+<span class="sig-prename descclassname"><span class="pre">graynet.</span></span><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('freesurfer_thickness',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('manhattan',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_procs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong><span class="classifier">str</span></dt><dd><p>Path to the input directory where features can be read.
+For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
+Or another directory with a structure that graynet can parse.</p>
+</dd>
+<dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>weight_method_list</strong><span class="classifier">string(s), optional</span></dt><dd><p>Type of distance (or metric) to compute between the pair of histograms.</p>
+<p>It must be one of the following methods:</p>
+<ul class="simple">
+<li><p>‘chebyshev’</p></li>
+<li><p>‘chebyshev_neg’</p></li>
+<li><p>‘chi_square’</p></li>
+<li><p>‘correlate’</p></li>
+<li><p>‘correlate_1’</p></li>
+<li><p>‘cosine’</p></li>
+<li><p>‘cosine_1’</p></li>
+<li><p>‘cosine_2’</p></li>
+<li><p>‘cosine_alt’</p></li>
+<li><p>‘euclidean’</p></li>
+<li><p>‘fidelity_based’</p></li>
+<li><p>‘histogram_intersection’</p></li>
+<li><p>‘histogram_intersection_1’</p></li>
+<li><p>‘jensen_shannon’</p></li>
+<li><p>‘kullback_leibler’</p></li>
+<li><p>‘manhattan’</p></li>
+<li><p>‘minowski’</p></li>
+<li><p>‘noelle_1’</p></li>
+<li><p>‘noelle_2’</p></li>
+<li><p>‘noelle_3’</p></li>
+<li><p>‘noelle_4’</p></li>
+<li><p>‘noelle_5’</p></li>
+<li><p>‘relative_bin_deviation’</p></li>
+<li><p>‘relative_deviation’</p></li>
+</ul>
+<p>Note only the following are <em>metrics</em>:</p>
+<ul class="simple">
+<li><p>‘manhattan’</p></li>
+<li><p>‘minowski’</p></li>
+<li><p>‘euclidean’</p></li>
+<li><p>‘noelle_2’</p></li>
+<li><p>‘noelle_4’</p></li>
+<li><p>‘noelle_5’</p></li>
+</ul>
+<p>The following are <em>semi- or quasi-metrics</em>:</p>
+<ul class="simple">
+<li><p>‘kullback_leibler’</p></li>
+<li><p>‘jensen_shannon’</p></li>
+<li><p>‘chi_square’</p></li>
+<li><p>‘chebyshev’</p></li>
+<li><p>‘cosine_1’</p></li>
+<li><p>‘chebyshev_neg’</p></li>
+<li><p>‘correlate_1’</p></li>
+<li><p>‘histogram_intersection_1’</p></li>
+<li><p>‘relative_deviation’</p></li>
+<li><p>‘relative_bin_deviation’</p></li>
+<li><p>‘noelle_1’</p></li>
+<li><p>‘noelle_3’</p></li>
+</ul>
+<p>The following are  classified to be similarity functions:</p>
+<ul class="simple">
+<li><p>‘histogram_intersection’</p></li>
+<li><p>‘correlate’</p></li>
+<li><p>‘cosine’</p></li>
+<li><p>‘cosine_2’</p></li>
+<li><p>‘cosine_alt’</p></li>
+<li><p>‘fidelity_based’</p></li>
+</ul>
+<p><em>Default</em> choice: ‘manhattan’.</p>
+</dd>
+<dt><strong>num_bins</strong><span class="classifier">int</span></dt><dd><p>Number of histogram bins to use when computing pair-wise weights. Default: 25</p>
+</dd>
+<dt><strong>edge_range</strong><span class="classifier">tuple or list</span></dt><dd><p>The range of edges (two finite values) within which to build the histogram
+e.g., <code class="docutils literal notranslate"><span class="pre">--edge_range</span> <span class="pre">0</span> <span class="pre">5</span></code>.
+This can be helpful (and important) to ensure correspondence across
+multiple invocations of graynet (e.g. for different subjects),
+in terms of range across all bins as well as individual bin edges.</p>
+<p>Default :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>( 0.0, 5.0) for <code class="docutils literal notranslate"><span class="pre">freesurfer_thickness</span></code> and</p></li>
+<li><p>(-0.3, 0.3) for <code class="docutils literal notranslate"><span class="pre">freesurfer_curv</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.
+Choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’], which are primary cortical.
+Volumetric whole-brain atlases will be added soon.</p>
+</dd>
+<dt><strong>smoothing_param</strong><span class="classifier">scalar</span></dt><dd><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+or another relevant for the chosen base_feature.
+Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
+</dd>
+<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches,
+depending on type of atlas or feature. This feature is not implemented
+yet, and this arg is just a placeholder and to enable default computation.</p>
+</dd>
+<dt><strong>out_dir</strong><span class="classifier">Path or str, optional</span></dt><dd><p>Path to output directory to store results.
+Default: None, results are returned, but not saved to disk.
+If this is None, return_results must be true.</p>
+</dd>
+<dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicate whether to return the results to be returned.
+This flag helps to reduce the memory requirements, when the number of nodes
+in a parcellation or the number of subjects or weight methods are large,
+as it doesn’t retain results for all combinations, when running from
+commmand line interface (or HPC).
+Default: False
+If this is False, out_dir must be specified to save the results to disk.</p>
+</dd>
+<dt><strong>num_procs</strong><span class="classifier">int</span></dt><dd><p>Number of parallel processes to use to speed up computation.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>edge_weights_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in
+by a tuple: (weight method, subject_ID)
+The value of each edge_weights_all[(weight method, subject_ID)] is
+a numpy array of length p = k*(k-1)/2,
+with k = number of nodes in the atlas parcellation.
+If return_results is False, this will be None, which is the default.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="graynet.cli_run">
-<code class="sig-prename descclassname">graynet.</code><code class="sig-name descname">cli_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#cli_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graynet.cli_run" title="Permalink to this definition">¶</a></dt>
-<dd><p>command line interface!</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.read_freesurfer_atlas">
+<span class="sig-prename descclassname"><span class="pre">graynet.</span></span><span class="sig-name descname"><span class="pre">read_freesurfer_atlas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atlas_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemi_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/parcellate.html#read_freesurfer_atlas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.read_freesurfer_atlas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Script to read the pre-computed parcellations for fsaverage and
+HCP-MMP-1.0</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.roiwise_stats_indiv">
+<span class="sig-prename descclassname"><span class="pre">graynet.</span></span><span class="sig-name descname"><span class="pre">roiwise_stats_indiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('freesurfer_thickness',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen_roi_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/run_workflow.html#roiwise_stats_indiv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.roiwise_stats_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the chosen summary statistics within each ROI.
+These summary stats (such as median) can help serve as a baseline for
+network-level values produced by graynet.</p>
+<p>Options for summary statistics include ‘median’, ‘entropy’, ‘kurtosis’ and
+any other appropriate summary statistics listed under scipy.stats:
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a></p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>subject_id_list</strong><span class="classifier">str or list</span></dt><dd><p>must be path to a file containing subject IDs, or a list of subject IDs</p>
+</dd>
+<dt><strong>input_dir</strong><span class="classifier">str</span></dt><dd><p>Path to the input directory where features can be read.
+For example, this can be Freesurfer’s SUBJECTS_DIR, where output processing is stored.
+Or another directory with a structure that graynet can parse.</p>
+</dd>
+<dt><strong>base_feature</strong><span class="classifier">str</span></dt><dd><p>Specific type of feature to read for each subject from the input directory.</p>
+</dd>
+<dt><strong>chosen_roi_stats</strong><span class="classifier">list of str or callable</span></dt><dd><p>If requested, graynet will compute chosen summary statistics (such as median)
+within each ROI of the chosen parcellation (and network weight computation is skipped).
+Default: ‘median’. Supported summary statistics include ‘median’, ‘mode’,
+‘mean’, ‘std’, ‘gmean’, ‘hmean’, ‘variation’, ‘entropy’, ‘skew’ and ‘kurtosis’</p>
+<p>Other appropriate summary statistics listed under scipy.stats could used
+by passing in a callable with their parameters encapsulated:
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions">https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions</a>
+For example, if you would like to compute 3rd k-statistic, you could
+construct a callable and passing <code class="docutils literal notranslate"><span class="pre">third_kstat</span></code> as in the argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">third_kstat</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstat</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">roi_medians</span> <span class="o">=</span> <span class="n">roiwise_stats_indiv</span><span class="p">(</span><span class="n">subject_id_list</span><span class="p">,</span> <span class="n">fs_dir</span><span class="p">,</span> <span class="n">base_feature</span><span class="p">,</span> <span class="n">chosen_measure</span> <span class="o">=</span> <span class="n">third_kstat</span><span class="p">,</span>
+    <span class="n">atlas</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
 </div>
-</div>
+<p>Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
+.. code-block:: python</p>
+<blockquote>
+<div><p>trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
+third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)</p>
+</div></blockquote>
+<p>Notes: ‘hmean’ requires all values be positive.</p>
+</dd>
+<dt><strong>atlas</strong><span class="classifier">str</span></dt><dd><p>Name of the atlas whose parcellation to be used.
+Available choices for cortical parcellation: [‘fsaverage’, ‘glasser2016’].
+Volumetric whole-brain atlases will be added soon.</p>
+</dd>
+<dt><strong>smoothing_param</strong><span class="classifier">scalar</span></dt><dd><p>Smoothing parameter, which could be fwhm for Freesurfer cortical features,
+or another relevant for the chosen base_feature.
+Default: assumed as fwhm=10mm for the default feature choice ‘thickness’</p>
+</dd>
+<dt><strong>node_size</strong><span class="classifier">scalar, optional</span></dt><dd><p>Parameter to indicate the size of the ROIs, subparcels or patches,
+depending on type of atlas or feature. NOT implemented yet.</p>
+</dd>
+<dt><strong>out_dir</strong><span class="classifier">str, optional</span></dt><dd><p>Path to output directory to store results.
+Default: None, results are returned, but not saved to disk.
+If this is None, return_results must be true.</p>
+</dd>
+<dt><strong>return_results</strong><span class="classifier">bool</span></dt><dd><p>Flag to indicating whether to keep the results to be returned to caller method.
+Helps to save memory (as it doesn’t retain results all subjects and weight
+combinations), when running from command line interface (or HPC).
+Default: False
+If this is False, out_dir must be specified to save the results to disk.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>roi_stats_all</strong><span class="classifier">dict, None</span></dt><dd><p>If return_results is True, this will be a dictionary keyed in by subject_ID
+The value of each key roi_summary_all[subject] is
+a numpy array of length k, with k = number of nodes in the atlas parcellation.
+If return_results is False, this will be None, which is the default.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">graynet package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-graynet.freesurfer">graynet.freesurfer module</a></li>
-<li><a class="reference internal" href="#module-graynet.parcellate">graynet.parcellate module</a></li>
-<li><a class="reference internal" href="#module-graynet.run_workflow">graynet.run_workflow module</a></li>
-<li><a class="reference internal" href="#module-graynet">Module contents</a></li>
+<li><a class="reference internal" href="#module-graynet.freesurfer">graynet.freesurfer module</a><ul>
+<li><a class="reference internal" href="#graynet.freesurfer.get_data"><code class="docutils literal notranslate"><span class="pre">get_data()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.freesurfer.import_features"><code class="docutils literal notranslate"><span class="pre">import_features()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-graynet.parcellate">graynet.parcellate module</a><ul>
+<li><a class="reference internal" href="#graynet.parcellate.freesurfer_roi_labels"><code class="docutils literal notranslate"><span class="pre">freesurfer_roi_labels()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.parcellate.get_atlas_annot"><code class="docutils literal notranslate"><span class="pre">get_atlas_annot()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.parcellate.get_atlas_path"><code class="docutils literal notranslate"><span class="pre">get_atlas_path()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.parcellate.load_subdivision_patchwise"><code class="docutils literal notranslate"><span class="pre">load_subdivision_patchwise()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.parcellate.read_atlas_annot"><code class="docutils literal notranslate"><span class="pre">read_atlas_annot()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.parcellate.read_freesurfer_atlas"><code class="docutils literal notranslate"><span class="pre">read_freesurfer_atlas()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.parcellate.roi_labels_centroids"><code class="docutils literal notranslate"><span class="pre">roi_labels_centroids()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.parcellate.subdivide_cortex"><code class="docutils literal notranslate"><span class="pre">subdivide_cortex()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-graynet.run_workflow">graynet.run_workflow module</a><ul>
+<li><a class="reference internal" href="#graynet.run_workflow.cli_run"><code class="docutils literal notranslate"><span class="pre">cli_run()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.run_workflow.extract"><code class="docutils literal notranslate"><span class="pre">extract()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.run_workflow.roiwise_stats_indiv"><code class="docutils literal notranslate"><span class="pre">roiwise_stats_indiv()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-graynet">Module contents</a><ul>
+<li><a class="reference internal" href="#graynet.cli_run"><code class="docutils literal notranslate"><span class="pre">cli_run()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.draw3Dnx"><code class="docutils literal notranslate"><span class="pre">draw3Dnx()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.extract"><code class="docutils literal notranslate"><span class="pre">extract()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.read_freesurfer_atlas"><code class="docutils literal notranslate"><span class="pre">read_freesurfer_atlas()</span></code></a></li>
+<li><a class="reference internal" href="#graynet.roiwise_stats_indiv"><code class="docutils literal notranslate"><span class="pre">roiwise_stats_indiv()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -535,19 +631,19 @@ If return_results is False, this will be None, which is the default.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

@@ -1,17 +1,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Convenience/useful scripts &#8212; graynet 0.5 documentation</title>
-    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Convenience/useful scripts &#8212; graynet 0.5.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pd.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.5 documentation</h1>
+        <h1>graynet 0.5.4 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5.4 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -37,24 +37,30 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-<div class="section" id="convenience-useful-scripts">
-<h1>Convenience/useful scripts<a class="headerlink" href="#convenience-useful-scripts" title="Permalink to this headline">¶</a></h1>
+<section id="convenience-useful-scripts">
+<h1>Convenience/useful scripts<a class="headerlink" href="#convenience-useful-scripts" title="Permalink to this heading">¶</a></h1>
 <p>To automate the the process of generating the above job files and their submission for processing on HPC clusters, I have included a <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> . Please read the instructions inside and run it.</p>
 <p>There are few other convenience scripts in the <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/">scripts</a> folder - take a look and feel free to modify for your tasks.</p>
-</div>
+<p>We encourage you to adopt <code class="docutils literal notranslate"><span class="pre">GraphML</span></code> format to store and analyze the networks extrated from graynet, however, there maybe simple use cases you prefer simpler CSVs. To convert <cite>GraphML</cite> files to CSV format (contianing just weight values, and nothing else), use the script <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/convert_graphml_to_csv.py">https://github.com/raamana/graynet/blob/master/scripts/convert_graphml_to_csv.py</a></p>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="usage_cli.html"
-                        title="previous chapter">Command line interface</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="API.html"
-                        title="next chapter">API</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="usage_cli.html"
+                          title="previous chapter">Command line interface</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="API.html"
+                          title="next chapter">API</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -66,19 +72,19 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

@@ -1,17 +1,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Command line interface &#8212; graynet 0.5 documentation</title>
-    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Command line interface &#8212; graynet 0.5.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pd.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.5 documentation</h1>
+        <h1>graynet 0.5.4 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5.4 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -37,20 +37,15 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-<div class="section" id="command-line-interface">
-<h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<section id="command-line-interface">
+<h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading">¶</a></h1>
 <p>The command line interface for graynet (preferred interface, given its target is HPC) is shown below. Check the bottom of this page for examples.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span>
-               <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span>
-               <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="o">...</span><span class="p">]]]</span>
-               <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span> <span class="n">NUM_BINS</span><span class="p">]</span>
-               <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="nb">min</span> <span class="nb">max</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="p">[</span><span class="n">SUMMARY_STAT</span> <span class="p">[</span><span class="n">SUMMARY_STAT</span> <span class="o">...</span><span class="p">]]]</span>
-               <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="p">[</span><span class="nb">min</span> <span class="nb">max</span> <span class="p">[</span><span class="nb">min</span> <span class="nb">max</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ATLAS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">NODE_SIZE</span><span class="p">]</span>
-               <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">SMOOTHING_PARAM</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">NUM_PROCS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span><span class="p">]</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span> <span class="n">NUM_BINS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="nb">min</span> <span class="nb">max</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="p">[</span><span class="n">SUMMARY_STAT</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="p">[</span><span class="nb">min</span> <span class="nb">max</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ATLAS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">NODE_SIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">SMOOTHING_PARAM</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">NUM_PROCS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="section" id="Named Arguments">
-<h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h2>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading">¶</a></h2>
 <dl class="option-list">
 <dt><kbd>-s, --subject_ids_path</kbd></dt>
 <dd><p>Path to file containing list of subject IDs (one per line)</p>
@@ -67,9 +62,9 @@
 <dd><p>Where to save the extracted features.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="Type of computation">
-<h2>Type of computation<a class="headerlink" href="#Type of computation" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="type-of-computation">
+<h2>Type of computation<a class="headerlink" href="#type-of-computation" title="Permalink to this heading">¶</a></h2>
 <p>Choose one among single edge, multiedge or simply ROI stats.</p>
 <dl class="option-list">
 <dt><kbd>-w, --weight_method</kbd></dt>
@@ -77,7 +72,7 @@
 <p>Default : manhattan.</p>
 <p>Available options:</p>
 <blockquote>
-<div><p><strong>histogram</strong>-based: chebyshev, chebyshev_neg, chi_square, correlate, correlate_1, cosine, cosine_1, cosine_2, cosine_alt, euclidean, fidelity_based, histogram_intersection, histogram_intersection_1, jensen_shannon, kullback_leibler, manhattan, minowski, noelle_1, noelle_2, noelle_3, noelle_4, noelle_5, relative_bin_deviation, relative_deviation</p>
+<div><p><strong>histogram</strong>-based: chebyshev, chebyshev_neg, chi_square, correlate, correlate_1, cosine, cosine_1, cosine_2, cosine_alt, euclidean, fidelity_based, histogram_intersection, histogram_intersection_1, jensen_shannon, kullback_leibler, manhattan, minowski, noelle_1, noelle_2, noelle_3, noelle_4, noelle_5, relative_bin_deviation, relative_deviation, sorensen_dist</p>
 <p>weights on <strong>original</strong> features : diff_medians, diff_medians_abs, diff_means, diff_means_abs, exp_diff_means_norm_std, ranksum_statistic</p>
 </div></blockquote>
 </dd>
@@ -88,9 +83,9 @@
 <dd><p>Option to compute multiple edges between ROIs based on different features. Default False. If True, two valid features must be specified. Use –multi_edge_range to specify edge ranges for each feature to be processed.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="Weight parameters">
-<h2>Weight parameters<a class="headerlink" href="#Weight parameters" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="weight-parameters">
+<h2>Weight parameters<a class="headerlink" href="#weight-parameters" title="Permalink to this heading">¶</a></h2>
 <p>Parameters relevant to histogram edge weight calculations</p>
 <dl class="option-list">
 <dt><kbd>-b, --num_bins</kbd></dt>
@@ -101,9 +96,9 @@
 <p>Default : None, to automatically compute from the given values.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="Multi-edge">
-<h2>Multi-edge<a class="headerlink" href="#Multi-edge" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="multi-edge">
+<h2>Multi-edge<a class="headerlink" href="#multi-edge" title="Permalink to this heading">¶</a></h2>
 <p>Parameters related to computation of multiple edges</p>
 <dl class="option-list">
 <dt><kbd>-t, --summary_stat</kbd></dt>
@@ -119,9 +114,9 @@
 </dl>
 </dd>
 </dl>
-</div>
-<div class="section" id="Atlas">
-<h2>Atlas<a class="headerlink" href="#Atlas" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="atlas">
+<h2>Atlas<a class="headerlink" href="#atlas" title="Permalink to this heading">¶</a></h2>
 <p>Parameters describing the atlas, its parcellation and any smoothing of features.</p>
 <dl class="option-list">
 <dt><kbd>-a, --atlas</kbd></dt>
@@ -140,9 +135,9 @@ For cortical features, you can also specify the absolute path for the Freesurfer
 <dd><p>Smoothing parameter for feature. Default: FWHM of 10 for Freesurfer thickness.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="Computing">
-<h2>Computing<a class="headerlink" href="#Computing" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="computing">
+<h2>Computing<a class="headerlink" href="#computing" title="Permalink to this heading">¶</a></h2>
 <p>Options related to computing and parallelization.</p>
 <dl class="option-list">
 <dt><kbd>-c, --num_procs</kbd></dt>
@@ -155,47 +150,54 @@ For cortical features, you can also specify the absolute path for the Freesurfer
 <dd><p>show program’s version number and exit</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="simple-example">
-<h1>Simple example<a class="headerlink" href="#simple-example" title="Permalink to this headline">¶</a></h1>
+</section>
+</section>
+<section id="simple-example">
+<h1>Simple example<a class="headerlink" href="#simple-example" title="Permalink to this heading">¶</a></h1>
 <p>A rough example of usage can be:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 <span class="c1">#$ -l mf=2G -q queue_name.q -wd /work/project</span>
-<span class="nb">cd</span> /work/project
-graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall <span class="se">\</span>
-    -w manhattan eucledian chebyshev -a GLASSER2016 -p <span class="m">10</span> -o /work/project/graynet_processing
+<span class="nb">cd</span><span class="w"> </span>/work/project
+graynet<span class="w"> </span>-s<span class="w"> </span>subject_ids.txt<span class="w"> </span>-f<span class="w"> </span>freesurfer_thickness<span class="w"> </span>-i<span class="w"> </span>/work/project/freesurfer_reconall<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>manhattan<span class="w"> </span>eucledian<span class="w"> </span>chebyshev<span class="w"> </span>-a<span class="w"> </span>GLASSER2016<span class="w"> </span>-p<span class="w"> </span><span class="m">10</span><span class="w"> </span>-o<span class="w"> </span>/work/project/graynet_processing
 </pre></div>
 </div>
 <p>Note you can specify mulitple weight metrics to save on I/O activity and walltime on HPC.</p>
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Command line interface</a><ul>
-<li><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
-<li><a class="reference internal" href="#Type of computation">Type of computation</a></li>
-<li><a class="reference internal" href="#Weight parameters">Weight parameters</a></li>
-<li><a class="reference internal" href="#Multi-edge">Multi-edge</a></li>
-<li><a class="reference internal" href="#Atlas">Atlas</a></li>
-<li><a class="reference internal" href="#Computing">Computing</a></li>
+<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#type-of-computation">Type of computation</a></li>
+<li><a class="reference internal" href="#weight-parameters">Weight parameters</a></li>
+<li><a class="reference internal" href="#multi-edge">Multi-edge</a></li>
+<li><a class="reference internal" href="#atlas">Atlas</a></li>
+<li><a class="reference internal" href="#computing">Computing</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#simple-example">Simple example</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="volumetric.html"
-                        title="previous chapter">Volumetric graynet</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="extra_scripts.html"
-                        title="next chapter">Convenience/useful scripts</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="volumetric.html"
+                          title="previous chapter">Volumetric graynet</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="extra_scripts.html"
+                          title="next chapter">Convenience/useful scripts</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -207,19 +209,19 @@ graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_r
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

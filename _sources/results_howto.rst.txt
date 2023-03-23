@@ -18,4 +18,7 @@ The graph inside the ``graphML`` file is essentially a pair-wise distance matrix
 
 These subject-wise feature vectors can be used in many applications, including in the study of brain-behaviour relationships and as a biomarker candidate (e.g. see `this study on ADNI and ABIDE <https://www.biorxiv.org/content/early/2017/07/31/170381>`_). If you are interested in evaluating their predictive utility (out of sample prediction via cross-validation), it's quite simple via `neuropredict <https://github.com/raamana/neuropredict>`_.
 
-We plan to include additional scripts and convenience methods into ``graynet`` to gather the results into readily usable data structures such as `pyradigm <https://github.com/raamana/pyradigm>`_ (or CSV files) for further analysis. Stay tuned!
+We encourage you to adopt ``graphML`` format to store and analyze the networks extracted from graynet, however, there maybe simple use cases you prefer simpler CSVs. To convert `GraphML` files to CSV format (containing just weight values, and nothing else), use the script https://github.com/raamana/graynet/blob/master/scripts/convert_graphml_to_csv.py
+
+We plan to include additional scripts and convenience methods into ``graynet`` to gather the results into readily usable data structures such as `pyradigm <https://github.com/raamana/pyradigm>`_ for further analysis. Stay tuned!
+

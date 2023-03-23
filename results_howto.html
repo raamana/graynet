@@ -1,17 +1,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>How to use graynet results &#8212; graynet 0.5 documentation</title>
-    <link rel="stylesheet" href="_static/pd.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>How to use graynet results &#8212; graynet 0.5.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pd.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -22,11 +22,11 @@
 
   </head><body>
     <div id="header">
-        <h1>graynet 0.5 documentation</h1>
+        <h1>graynet 0.5.4 documentation</h1>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
         <ul>
-            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5 documentation</a> &#187;
+            <li class="nav-item nav-item-0"><a href="index.html">graynet 0.5.4 documentation</a> &#187;
             </li>
         </ul>
     </div>
@@ -37,31 +37,37 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-<div class="section" id="how-to-use-graynet-results">
-<h1>How to use <cite>graynet</cite> results<a class="headerlink" href="#how-to-use-graynet-results" title="Permalink to this headline">¶</a></h1>
+<section id="how-to-use-graynet-results">
+<h1>How to use <cite>graynet</cite> results<a class="headerlink" href="#how-to-use-graynet-results" title="Permalink to this heading">¶</a></h1>
 <p>For each combination of the parameters chosen, such as edge metric, atlas etc, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> produces one network for each subject. The output format is in <code class="docutils literal notranslate"><span class="pre">GraphML</span></code> format, which can be easily read with <code class="docutils literal notranslate"><span class="pre">networkx</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="kn">as</span> <span class="nn">nx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">read_graphml</span><span class="p">(</span><span class="n">path_to_graphml_file</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>More info can be found <a class="reference external" href="https://networkx.github.io/documentation/stable/reference/readwrite/generated/networkx.readwrite.graphml.read_graphml.html">here</a>.</p>
 <p>The graph inside the <code class="docutils literal notranslate"><span class="pre">graphML</span></code> file is essentially a pair-wise distance matrix (measured by the metric chosen). There are many ways you can use it - easiest among them is to extract the upper triangular part of the connectivity matrix (as it is symmetric) and treat it a single-subject feature vector for that subject.</p>
 <p>These subject-wise feature vectors can be used in many applications, including in the study of brain-behaviour relationships and as a biomarker candidate (e.g. see <a class="reference external" href="https://www.biorxiv.org/content/early/2017/07/31/170381">this study on ADNI and ABIDE</a>). If you are interested in evaluating their predictive utility (out of sample prediction via cross-validation), it’s quite simple via <a class="reference external" href="https://github.com/raamana/neuropredict">neuropredict</a>.</p>
-<p>We plan to include additional scripts and convenience methods into <code class="docutils literal notranslate"><span class="pre">graynet</span></code> to gather the results into readily usable data structures such as <a class="reference external" href="https://github.com/raamana/pyradigm">pyradigm</a> (or CSV files) for further analysis. Stay tuned!</p>
-</div>
+<p>We encourage you to adopt <code class="docutils literal notranslate"><span class="pre">graphML</span></code> format to store and analyze the networks extracted from graynet, however, there maybe simple use cases you prefer simpler CSVs. To convert <cite>GraphML</cite> files to CSV format (containing just weight values, and nothing else), use the script <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/convert_graphml_to_csv.py">https://github.com/raamana/graynet/blob/master/scripts/convert_graphml_to_csv.py</a></p>
+<p>We plan to include additional scripts and convenience methods into <code class="docutils literal notranslate"><span class="pre">graynet</span></code> to gather the results into readily usable data structures such as <a class="reference external" href="https://github.com/raamana/pyradigm">pyradigm</a> for further analysis. Stay tuned!</p>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="usage_api.html"
-                        title="previous chapter">Examples using API</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="citation.html"
-                        title="next chapter">Citation</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="usage_api.html"
+                          title="previous chapter">Examples using API</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="citation.html"
+                          title="next chapter">Citation</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -73,19 +79,19 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Pradeep Reddy Raamana.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>
