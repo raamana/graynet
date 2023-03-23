@@ -3,7 +3,7 @@
 Common utilities
 
 """
-import collections
+from collections.abc import Iterable, Sequence
 import logging
 import os
 import sys
@@ -265,7 +265,7 @@ def check_subjects(subjects_info):
             raise IOError(
                     'path to subject list does not exist: {}'.format(subjects_info))
         subjects_list = np.genfromtxt(subjects_info, dtype=str)
-    elif isinstance(subjects_info, collections.Iterable):
+    elif isinstance(subjects_info, Iterable):
         if len(subjects_info) < 1:
             raise ValueError('Empty subject list.')
         subjects_list = subjects_info
@@ -292,7 +292,7 @@ def check_weights(weight_method_list):
     if isinstance(weight_method_list, str):
         weight_method_list = [weight_method_list, ]
 
-    if isinstance(weight_method_list, collections.Iterable):
+    if isinstance(weight_method_list, Iterable):
         if len(weight_method_list) < 1:
             raise ValueError(
                     'Empty weight list. Atleast one weight must be provided.')
@@ -318,7 +318,7 @@ def check_edge_range(edge_range_spec):
 
     if edge_range_spec is None:
         edge_range = edge_range_spec
-    elif isinstance(edge_range_spec, (collections.Sequence, np.ndarray)):
+    elif isinstance(edge_range_spec, (Sequence, np.ndarray)):
         if len(edge_range_spec) != 2:
             raise ValueError('edge_range must be a tuple of two values: (min, max)')
         if edge_range_spec[0] >= edge_range_spec[1]:
