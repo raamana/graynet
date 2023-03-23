@@ -73,7 +73,7 @@ weight_methods_orig_feat_subset = ['exp_diff_means_norm_std', ]
 
 cur_dir = this_file.parent
 example_dir = base_dir / 'freesurfer'
-sub_list = example_dir / 'subject_list.txt'
+sub_list = example_dir / 'list_subjects.txt'
 out_dir = example_dir / 'test_outputs'
 if not out_dir.exists():
     out_dir.mkdir(exist_ok=True, parents=True)
