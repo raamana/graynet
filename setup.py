@@ -26,7 +26,8 @@ Docs: https://raamana.github.io/graynet/
       author_email='raamana@gmail.com',
       url='https://github.com/raamana/graynet',
       packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
-      install_requires=['numpy', 'pyradigm', 'nibabel', 'networkx', 'medpy'],
+      install_requires=['numpy', 'hiwenet', 'pyradigm', 'nibabel', 'networkx',
+                        'medpy', 'scipy'],
       classifiers=[
               'Intended Audience :: Science/Research',
               'Programming Language :: Python',
