@@ -1,14 +1,10 @@
 import os
 import shlex
 import sys
-from os.path import join as pjoin, exists as pexists, abspath, dirname, realpath
+from os.path import abspath, dirname, exists as pexists, join as pjoin, realpath
 from sys import version_info
-import numpy as np
-import scipy.stats
 
 sys.dont_write_bytecode = True
-
-from pytest import raises, warns, set_trace
 
 if __name__ == '__main__' and __package__ is None:
     parent_dir = dirname(dirname(abspath(__file__)))
@@ -17,10 +13,7 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(pkg_dir)
 
 if version_info.major > 2:
-    from graynet import config_graynet as cfg
     from graynet.run_workflow import cli_run as CLI
-    from graynet import run_workflow as graynet
-    from graynet import multi_edge
 else:
     raise NotImplementedError('graynet requires Python 3+.')
 
@@ -45,15 +38,17 @@ if not pexists(out_dir):
 
 
 def test_CLI_weight():
-    " ensures the CLI works. "
+    """ensures the CLI works. """
 
     sys.argv = shlex.split('graynet -i {} -s {} -f {} -w manhattan -o {} -a {} -c 1'
-                           ''.format(in_dir_vbm, sub_list, base_feature, out_dir, atlas))
+                           ''.format(in_dir_vbm, sub_list, base_feature, out_dir,
+                                     atlas))
 
     CLI()
 
+
 def test_CLI_diff_atlases_by_path():
-    " ensures the CLI works. "
+    """testing for different atlases"""
 
     for atlas_name in ('aal', 'lpba40', 'ibsr'):
         atlas_path = pjoin(atlas_dir, 'cat_{}'.format(atlas_name),
@@ -63,5 +58,3 @@ def test_CLI_diff_atlases_by_path():
                                ''.format(in_dir_vbm, sub_list, base_feature,
                                          out_dir, atlas_path))
         CLI()
-
-test_CLI_weight()
