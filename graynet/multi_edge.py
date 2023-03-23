@@ -459,7 +459,7 @@ def save_summary_graph(graph, out_dir, subject,
         out_weights_path = out_subject_dir / out_file_name
 
         try:
-            nx.info(graph)
+            print(graph)
             nx.write_graphml(graph, out_weights_path, encoding='utf-8')
             print('\nSaved the summary multi-graph to \n{}'.format(out_weights_path))
         except:

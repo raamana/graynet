@@ -646,7 +646,7 @@ def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
         out_weights_path = out_subject_dir.joinpath(out_file_name)
 
         try:
-            print(nx.info(graph_nx))
+            print(graph_nx)
             nx.write_graphml(graph_nx, out_weights_path, encoding='utf-8')
             print('\nSaved the graph to \n{}'.format(out_weights_path))
         except:
