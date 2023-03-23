@@ -334,7 +334,7 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
 
             # saving to disk
             try:
-                # save(weight_vec, out_dir, subject, expt_id)
+                save(weight_vec, out_dir, subject, expt_id)
                 save_per_subject_graph(graph, out_dir, subject, expt_id)
             except:
                 raise IOError('Unable to save the network or vectorized weights '
