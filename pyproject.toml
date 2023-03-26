@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "graynet"
+dynamic = ["version"]
+description = "Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density. "
+readme = "README.md"
+license = ""
+authors = [
+    { name = "Pradeep Reddy Raamana", email = "raamana@gmail.com" },
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+]
+dependencies = [
+    "hiwenet",
+    "medpy",
+    "networkx",
+    "nibabel",
+    "numpy",
+    "pyradigm",
+    "scipy",
+]
+
+[project.urls]
+Homepage = "https://github.com/raamana/graynet"
+
+[project.scripts]
+graynet = "graynet.__main__:main"
+
+[tool.hatch.build]
+include = [
+    "graynet/*.py",
+    "graynet/atlases/*",
+    "graynet/resources/*",
+]
+exclude = [
+    "graynet/tests/*",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "graynet/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/graynet",
+]
