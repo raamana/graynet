@@ -1,13 +1,11 @@
 
 from sys import version_info
 
-if version_info.major==2 and version_info.minor==7:
-    import run_workflow
-elif version_info.major > 2:
+if version_info.major > 2:
     from graynet import run_workflow
 else:
-    raise NotImplementedError('graynet supports only 2.7.13 or 3+. '
-                              'Upgrade to Python 3+ is recommended.')
+    raise NotImplementedError('Python 3 or higher is required to run graynet.'
+                              'Please upgrade.')
 
 def main():
     "Entry point."
