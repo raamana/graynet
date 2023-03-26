@@ -138,7 +138,7 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
         annot[hemi]['labels'], annot[hemi]['ctab'], \
             annot[hemi]['names'] = nib.freesurfer.io.read_annot(annot_path, orig_ids=True)
 
-        # ensuring names are plainstring
+        # ensuring names are a plain string
         if isinstance(annot[hemi]['names'][0], np.bytes_):
             annot[hemi]['names'] = \
                 [bytestr.decode('UTF-8') for bytestr in annot[hemi]['names']]
@@ -147,8 +147,7 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
 
 
 def read_freesurfer_atlas(atlas_spec, hemi_list=None):
-    """ Script to read the pre-computed parcellations for fsaverage and
-    HCP-MMP-1.0 """
+    """Script to read pre-computed parcellations for fsaverage and HCP-MMP-1.0 """
 
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
@@ -169,8 +168,6 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
 
     coords['whole'] = np.vstack((coords['lh'], coords['rh']))
     faces['whole'] = np.vstack((faces['lh'], faces['rh'] + num_vertices_left_hemi))
-
-    # labels, ctab, names = nib.freesurfer.io.read_annot(pjoin(mmp_fs,'lh.HCP-MMP1.annot'))
 
     annot = read_atlas_annot(atlas_dir, hemi_list)
 

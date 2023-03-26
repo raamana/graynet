@@ -266,11 +266,11 @@ def extract(subject_id_list,
 
 def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
                                  weight_method_list, atlas_spec, atlas_name,
-                                 smoothing_param, node_size,
-                                 num_bins, edge_range, out_dir, return_results,
-                                 pretty_print_options, subject=None):
+                                 smoothing_param, node_size, num_bins, edge_range,
+                                 out_dir, return_results, pretty_print_options,
+                                 subject=None):
     # purposefully leaving subject parameter last to enable partial function creation
-    """Extracts give set of weights for one subject."""
+    """Extracts a given set of weights for one subject."""
 
     if subject is None:
         return
@@ -343,7 +343,7 @@ def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
         except (RuntimeError, RuntimeWarning) as runexc:
             print(runexc)
         except KeyboardInterrupt:
-            print('Exiting on keyborad interrupt! \n'
+            print('Exiting on keyboard interrupt! \n'
                   'Abandoning the remaining processing for {} weights:\n'
                   '{}.'.format(num_weights - ww, weight_method_list[ww:]))
             sys.exit(1)
@@ -621,13 +621,12 @@ def get_parser():
                          "Default : {}".format(cfg.default_num_bins)
 
     help_text_edge_range = "The range of edges (two finite values) within which to " \
-                           "bin the given values e.g. ``--edge_range 0.0 5.0`` " \
-                           ".Setting this is *crucial* to ensure correspondence " \
+                           "bin the given values e.g. ``--edge_range 0.0 5.0``. " \
+                           "Setting this is *crucial* to ensure correspondence " \
                            "across multiple invocations of graynet, for different " \
                            "subjects, in terms of range across all bins as well as " \
-                           "individual bin edges.\n\n" \
-                           "Default : {}, to automatically compute from the given values." \
-                           "".format(cfg.default_edge_range)
+                           "individual bin edges.\n\nDefault : {}, " \
+                           "to automatically compute from the given values.".format(cfg.default_edge_range)
 
     help_text_multi_edge_range = """Set of edge ranges (for each of the features) 
     within which to bin the given values - see above. For example, \n\n

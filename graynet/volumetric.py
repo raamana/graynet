@@ -21,37 +21,16 @@ from graynet.utils import (import_features, is_image, is_image_3D,
                            warn_nan)
 
 
-def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
-                                   centroids, weight_method_list,
-                                   atlas_spec, atlas_name,
-                                   smoothing_param, node_size, num_bins,
-                                   edge_range, out_dir, return_results,
-                                   pretty_print_options, subject=None):
+def extract_per_subject_volumetric(input_dir, base_feature, roi_labels, centroids,
+                                   weight_method_list, atlas_spec, atlas_name,
+                                   smoothing_param, node_size, num_bins, edge_range,
+                                   out_dir, return_results, pretty_print_options,
+                                   subject=None):
     # purposefully leaving subject parameter last to enable partial function creation
-    """
-    Extracts give set of weights for one subject.
+    """Extracts a given set of weights for one subject."""
 
-    Parameters
-    ----------
-    subject
-    input_dir
-    base_feature
-    roi_labels
-    weight_method_list
-    atlas_spec
-    smoothing_param
-    node_size
-    num_bins
-    edge_range
-    out_dir
-    return_results
-    pretty_print_options
-
-    Returns
-    -------
-
-    """
-
+    # identical to extract_per_subject_cortical, except for the use of null roi index
+    #   volumetric uses cfg.null_roi_index, different from cfg.null_roi_name
     if subject is None:
         return
 
@@ -84,11 +63,11 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
         expt_id = stamp_expt_weight(base_feature, atlas_name, smoothing_param,
                                     node_size, weight_method)
         sys.stdout.write(
-            '\nProcessing id {:{id_width}} -- weight {:{wtname_width}} '
-            '({:{nd_wm}}/{:{nd_wm}})'
-            ' :'.format(subject, weight_method, ww + 1, num_weights,
-                        nd_id=nd_id, nd_wm=nd_wm,
-                        id_width=max_id_width, wtname_width=max_wtname_width))
+            '\nProcessing {sid:{id_width}} -- weight {wm:{wtname_width}} '
+            '({wc:{nd_wm}}/{nw:{nd_wm}}) :\n'
+            ''.format(sid=subject, wm=weight_method, wc=ww + 1, nw=num_weights,
+                      nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width,
+                      wtname_width=max_wtname_width))
 
         # actual computation of pair-wise features
         try:
@@ -124,12 +103,13 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels,
         except (RuntimeError, RuntimeWarning) as runexc:
             print(runexc)
         except KeyboardInterrupt:
-            print('Exiting on keyborad interrupt! \n'
+            print('Exiting on keyboard interrupt! \n'
                   'Abandoning the remaining processing for {} weights:\n'
                   '{}.'.format(num_weights - ww, weight_method_list[ww:]))
             sys.exit(1)
         except:
-            print('Unable to extract {} features for {}'.format(weight_method, subject))
+            print('Unable to extract {} features for {}'
+                  ''.format(weight_method, subject))
             traceback.print_exc()
 
         sys.stdout.write('Done.')
