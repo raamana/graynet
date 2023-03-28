@@ -1,8 +1,7 @@
-rm -rf dist build graynet.egg-info 
-python setup.py sdist bdist_wheel
+rm -rf dist
 
-twine upload dist/*
+hatch build
 
-echo "----"
-echo "deleting temp folders"
-rm -rf dist build graynet.egg-info
+hatch publish
+
+rm -rf dist

@@ -2,9 +2,6 @@ __all__ = ['run_workflow', 'extract', 'roiwise_stats_indiv', 'draw3Dnx',
            'parcellate', 'freesurfer', 'read_freesurfer_atlas', 'cli_run',
            '__version__']
 
-from ._version import get_versions
-
-__version__ = get_versions()['version']
 
 from sys import version_info
 
@@ -16,6 +13,11 @@ if version_info.major > 2:
 else:
     raise NotImplementedError('Python 3 or higher is required to run graynet.'
                               'Please upgrade.')
-
-del get_versions
 del version_info
+
+try:
+    from ._version import __version__
+except ImportError:
+    __version__ = "0+unknown"
+
+
