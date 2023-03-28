@@ -27,7 +27,7 @@ if version_info.major > 2:
     from graynet.volumetric import extract_per_subject_volumetric, volumetric_roi_info
     from graynet.parcellate import roi_labels_centroids
     from graynet import config_graynet as cfg
-    from graynet import __version__
+    from graynet._version import __version__
 else:
     raise NotImplementedError('graynet supports only Python 3. '
                               'Upgrade to Python 3.6 or higher is required.')
@@ -526,6 +526,8 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
 
 def cli_run():
     """command line interface!"""
+
+    print(f'Running graynet {__version__}\n')
 
     subject_ids_path, input_dir, base_feature_list, \
     weight_method, do_multi_edge, summary_stats, multi_edge_range, \
