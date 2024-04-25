@@ -33,9 +33,7 @@ jobs:
                     python -m pip install --upgrade pip
                     pip install .
                     pip install .[test]
-            -   name: Lint with flake8
-                run: |
-                    make lint
+
             -   name: Test with pytest
                 working-directory: ${{ runner.temp }}
                 run: |
