@@ -458,8 +458,9 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
         uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas)
         null_roi_to_be_ignored = cfg.null_roi_index
     else:
-        raise ValueError('Unrecognized type of base_feature! Must be one of {}'
-                         ''.format(cfg.base_feature_list))
+        raise ValueError('Unrecognized type of base_feature: {}\n'
+                         ' Must be one of {}'
+                         ''.format(base_feature, cfg.base_feature_list))
 
     print('\nProcessing {} features resampled to {} atlas,'
           ' smoothed at {} with node size {}'.format(base_feature, atlas,
@@ -865,7 +866,8 @@ def parse_args():
     else:
         sub_id_list_path = Path(params.subject_ids_path).resolve()
         if not sub_id_list_path.exists():
-            raise IOError("Given subject IDs file doesn't exist.")
+            raise IOError("Given subject IDs file doesn't exist:\n"
+                          "\t{}".format(sub_id_list_path))
 
     do_multi_edge = bool(params.do_multi_edge)
     summary_stat = params.summary_stat
