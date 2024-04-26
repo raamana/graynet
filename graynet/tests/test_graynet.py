@@ -50,17 +50,20 @@ def find_base_dir(test_dir):
             base_dir_in = workspace / 'example_data'
             if not base_dir_in.exists():
                 raise FileNotFoundError('example data folder not found in CI setup')
+            else:
+                sublist = base_dir_in / 'freesurfer' / 'list_subjects.txt'
+                if not sublist.exists():
+                    raise FileNotFoundError(
+                        'subject list not found at {}'.format(sublist))
+                return base_dir_in
         else:
             # trying 3 levels above
             base_dir_in = test_dir.joinpath('..', '..', '..', 'example_data').resolve()
             if not base_dir_in.exists():
                 raise FileNotFoundError('example data not found: 3 levels above test')
+    else:
+        return base_dir_in
 
-    sublist = base_dir / 'freesurfer' / 'list_subjects.txt'
-    if not sublist.exists():
-        raise FileNotFoundError('subject list not found at {}'.format(sublist))
-
-    return base_dir_in
 
 base_dir = find_base_dir(test_dir)
 
