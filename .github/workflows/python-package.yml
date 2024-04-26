@@ -37,6 +37,5 @@ jobs:
                     pip install .[test]
 
             -   name: Test with pytest
-                working-directory: ${{ runner.temp }}
                 run: |
                     pytest --pyargs graynet
