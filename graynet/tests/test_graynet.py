@@ -17,6 +17,7 @@ this_file = Path(__file__).resolve()
 if __name__ == '__main__' and __package__ is None:
     pkg_dir = this_file.parents[1]
     repo_dir = pkg_dir.parent
+    print('repo: {}\npackage: {}'.format(repo_dir, pkg_dir))
     sys.path.append(pkg_dir)
     sys.path.append(repo_dir)
 
@@ -32,7 +33,14 @@ else:
 test_dir = this_file.parent
 base_dir = test_dir.joinpath('..', '..', 'example_data').resolve()
 
-out_dir = base_dir / 'graynet'
+print('test_dir: {}\n base_dir (2 levels above):{}'.format(test_dir, base_dir))
+
+if not base_dir.exists():
+    raise FileNotFoundError('test resources i.e., example data not found.')
+
+example_dir = base_dir / 'freesurfer'
+sub_list = example_dir / 'list_subjects.txt'
+out_dir = example_dir / 'test_outputs'
 if not out_dir.exists():
     out_dir.mkdir(exist_ok=True, parents=True)
 
@@ -70,13 +78,6 @@ num_links = num_roi_wholebrain * (num_roi_wholebrain - 1) / 2
 
 weight_methods = ['manhattan', ]
 weight_methods_orig_feat_subset = ['exp_diff_means_norm_std', ]
-
-cur_dir = this_file.parent
-example_dir = base_dir / 'freesurfer'
-sub_list = example_dir / 'list_subjects.txt'
-out_dir = example_dir / 'test_outputs'
-if not out_dir.exists():
-    out_dir.mkdir(exist_ok=True, parents=True)
 
 dimensionality = 1000
 num_groups = 5
