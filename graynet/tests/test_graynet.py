@@ -31,12 +31,30 @@ else:
     raise NotImplementedError('graynet requires Python 3+.')
 
 test_dir = this_file.parent
-base_dir = test_dir.joinpath('..', '..', 'example_data').resolve()
 
-print('test_dir: {}\n base_dir (2 levels above):{}'.format(test_dir, base_dir))
+def find_base_dir(test_dir):
+    """to force printing of the base_dir"""
 
-if not base_dir.exists():
-    raise FileNotFoundError('test resources i.e., example data not found.')
+    base_dir_in = test_dir.joinpath('..', '..', 'example_data').resolve()
+
+    print('test_dir: {}\nbase_dir_in (2 levels above):{}'.format(test_dir, base_dir_in))
+
+    if not base_dir_in.exists():
+        import os
+        CI = os.environ.get('CI', None)
+        if CI:
+            workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+            base_dir_in = workspace / 'example_data'
+            if not base_dir_in.exists():
+                raise FileNotFoundError('example data folder not found in CI setup')
+        else:
+            # trying 3 levels above
+            base_dir_in = test_dir.joinpath('..', '..', '..', 'example_data').resolve()
+            if not base_dir_in.exists():
+                raise FileNotFoundError('example data not found: 3 levels above test')
+    return base_dir_in
+
+base_dir = find_base_dir(test_dir)
 
 example_dir = base_dir / 'freesurfer'
 sub_list = example_dir / 'list_subjects.txt'
@@ -108,6 +126,8 @@ def test_multi_edge():
 
 
 def test_multi_edge_CLI():
+
+    base_dir = find_base_dir(test_dir)
     sys.argv = shlex.split('graynet -s {} -i {} '
                            ' -f freesurfer_thickness freesurfer_curv'
                            ' --do_multi_edge --multi_edge_range 0.0 5.0 -0.3 +0.3 '
