@@ -37,13 +37,14 @@ def find_base_dir(test_dir):
 
     base_dir_in = test_dir.joinpath('..', '..', 'example_data').resolve()
 
-    print('test_dir: {}\nbase_dir_in (2 levels above):{}'.format(test_dir, base_dir_in))
+    print('test_dir: {}'.format(test_dir))
 
     if not base_dir_in.exists():
         import os
         CI = os.environ.get('CI', None)
         if CI:
             workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+            print('CI workspace: {}'.format(workspace))
             base_dir_in = workspace / 'example_data'
             if not base_dir_in.exists():
                 raise FileNotFoundError('example data folder not found in CI setup')
@@ -52,6 +53,11 @@ def find_base_dir(test_dir):
             base_dir_in = test_dir.joinpath('..', '..', '..', 'example_data').resolve()
             if not base_dir_in.exists():
                 raise FileNotFoundError('example data not found: 3 levels above test')
+
+    sublist = base_dir / 'freesurfer' / 'list_subjects.txt'
+    if not sublist.exists():
+        raise FileNotFoundError('subject list not found at {}'.format(sublist))
+
     return base_dir_in
 
 base_dir = find_base_dir(test_dir)
