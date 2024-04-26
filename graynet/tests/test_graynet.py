@@ -39,11 +39,13 @@ def find_base_dir(test_dir):
 
     print('test_dir: {}'.format(test_dir))
 
+    import os
+    is_CI = os.environ.get('CI', None)
+    workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+    print('CI : {}\n workspace: {}'.format(is_CI, workspace))
+
     if not base_dir_in.exists():
-        import os
-        CI = os.environ.get('CI', None)
-        if CI:
-            workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+        if is_CI:
             print('CI workspace: {}'.format(workspace))
             base_dir_in = workspace / 'example_data'
             if not base_dir_in.exists():
