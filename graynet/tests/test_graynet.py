@@ -35,34 +35,65 @@ test_dir = this_file.parent
 def find_base_dir(test_dir):
     """to force printing of the base_dir"""
 
-    base_dir_in = test_dir.joinpath('..', '..', 'example_data').resolve()
-
-    print('test_dir: {}'.format(test_dir))
-
     import os
-    is_CI = os.environ.get('CI', None)
-    workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
-    print('CI : {}\n workspace: {}'.format(is_CI, workspace))
-
-    if not base_dir_in.exists():
-        if is_CI:
-            print('CI workspace: {}'.format(workspace))
-            base_dir_in = workspace / 'example_data'
-            if not base_dir_in.exists():
-                raise FileNotFoundError('example data folder not found in CI setup')
-            else:
-                sublist = base_dir_in / 'freesurfer' / 'list_subjects.txt'
-                if not sublist.exists():
-                    raise FileNotFoundError(
-                        'subject list not found at {}'.format(sublist))
-                return base_dir_in
-        else:
-            # trying 3 levels above
-            base_dir_in = test_dir.joinpath('..', '..', '..', 'example_data').resolve()
-            if not base_dir_in.exists():
-                raise FileNotFoundError('example data not found: 3 levels above test')
-    else:
+    
+    # Try the standard path first: 2 levels up from tests/ to repo root
+    base_dir_in = test_dir.joinpath('..', '..', 'example_data').resolve()
+    
+    print('test_dir: {}'.format(test_dir))
+    
+    # Check if the standard path exists (works for local and most CI setups)
+    if base_dir_in.exists():
+        print('Found example_data at: {}'.format(base_dir_in))
         return base_dir_in
+    
+    # If standard path doesn't exist, check if we're in GitHub Actions CI
+    is_CI = os.environ.get('CI', None)
+    workspace = os.environ.get('GITHUB_WORKSPACE', None)
+    
+    if is_CI and workspace:
+        print('CI detected, using GITHUB_WORKSPACE: {}'.format(workspace))
+        base_dir_in = Path(workspace).resolve() / 'example_data'
+        if base_dir_in.exists():
+            sublist = base_dir_in / 'freesurfer' / 'list_subjects.txt'
+            if not sublist.exists():
+                raise FileNotFoundError(
+                    'subject list not found at {}'.format(sublist))
+            print('Found example_data at: {}'.format(base_dir_in))
+            return base_dir_in
+        else:
+            raise FileNotFoundError(
+                'example_data folder not found in CI setup at {}'.format(base_dir_in))
+    
+    # For local runs, try alternative paths as fallback
+    # Try 3 levels up (in case tests are nested differently)
+    base_dir_in = test_dir.joinpath('..', '..', '..', 'example_data').resolve()
+    if base_dir_in.exists():
+        print('Found example_data at: {} (3 levels up)'.format(base_dir_in))
+        return base_dir_in
+    
+    # Last resort: search upward from test directory
+    current = test_dir.parent
+    for _ in range(5):  # Try up to 5 levels up
+        candidate = current / 'example_data'
+        if candidate.exists():
+            print('Found example_data at: {}'.format(candidate))
+            return candidate.resolve()
+        if current == current.parent:  # Reached filesystem root
+            break
+        current = current.parent
+    
+    # If we get here, we couldn't find it
+    raise FileNotFoundError(
+        'example_data directory not found. Searched:\n'
+        '  - {} (2 levels up)\n'
+        '  - {} (3 levels up)\n'
+        '  - And up to 5 levels from test directory'
+        ''.format(
+            test_dir.joinpath('..', '..', 'example_data').resolve(),
+            test_dir.joinpath('..', '..', '..', 'example_data').resolve()
+        )
+    )
 
 
 base_dir = find_base_dir(test_dir)
