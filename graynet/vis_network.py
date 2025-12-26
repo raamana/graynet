@@ -47,7 +47,7 @@ def draw3Dnx(graph=None,
             raise ValueError('Position attribute {} missing. '
                              'Add it to graph or supply with one of the position inputs'.format(attr))
 
-    edge_threshold = -np.Inf
+    edge_threshold = -np.inf
     if perc_threshold is not None:
         eval_distr = np.array(list(nx.get_edge_attributes(graph, 'weight').values()))
         try:

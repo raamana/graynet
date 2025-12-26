@@ -23,8 +23,8 @@ features = import_features(in_dir_vbm, sub_list, base_feature)
 print('\nThe min max per subject (after trimming {}% outliers):'.format(
         trim_percentile))
 
-min_all =  np.Inf
-max_all = -np.Inf
+min_all =  np.inf
+max_all = -np.inf
 for sid, data in features.items():
     vec = np.array(data).flatten()
     min_sub = np.percentile(vec, trim_percentile)

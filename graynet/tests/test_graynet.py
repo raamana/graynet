@@ -305,7 +305,7 @@ def test_invalid_edge_range():
         ew = graynet.extract(subject_id_list, fs_dir, edge_range=[1, 2, 3])
 
     with raises(ValueError):
-        ew = graynet.extract(subject_id_list, fs_dir, edge_range=(1, np.NaN))
+        ew = graynet.extract(subject_id_list, fs_dir, edge_range=(1, np.nan))
 
     with raises(ValueError):
         ew = graynet.extract(subject_id_list, fs_dir, edge_range=(2, 1))
@@ -313,10 +313,10 @@ def test_invalid_edge_range():
 
 def test_invalid_nbins():
     with raises(ValueError):
-        ew = graynet.extract(subject_id_list, fs_dir, num_bins=np.NaN)
+        ew = graynet.extract(subject_id_list, fs_dir, num_bins=np.nan)
 
     with raises(ValueError):
-        ew = graynet.extract(subject_id_list, fs_dir, num_bins=np.Inf)
+        ew = graynet.extract(subject_id_list, fs_dir, num_bins=np.inf)
 
     with raises(ValueError):
         ew = graynet.extract(subject_id_list, fs_dir, num_bins=2)
