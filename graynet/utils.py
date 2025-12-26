@@ -346,7 +346,7 @@ def check_num_bins(num_bins):
 
     if isinstance(num_bins, str):
         # possible when called from CLI
-        num_bins = np.float(num_bins)
+        num_bins = float(num_bins)
 
     # rounding it to ensure it is int
     num_bins = int(num_bins)

@@ -32,8 +32,31 @@ else:
     raise NotImplementedError('graynet supports only Python 3. '
                               'Upgrade to Python 3.6 or higher is required.')
 
-np.seterr(divide='ignore', invalid='ignore')
+def _configure_numpy_error_handling():
+    """
+    Configure NumPy error handling globally.
+    
+    Handles deprecation of np.seterr() in NumPy 2.0+ by trying the
+    modern approach first, then falling back to legacy method.
+    """
+    # Try warnings filter first (works for NumPy 2.0+)
+    warnings.filterwarnings('ignore', category=RuntimeWarning,
+                          message='.*divide by zero.*')
+    warnings.filterwarnings('ignore', category=RuntimeWarning,
+                          message='.*invalid value.*')
+    warnings.filterwarnings('ignore', category=RuntimeWarning,
+                          module='numpy')
+    
+    # Also try legacy method for NumPy < 2.0 (no-op if deprecated)
+    try:
+        np.seterr(divide='ignore', invalid='ignore')
+    except (AttributeError, DeprecationWarning, TypeError):
+        # seterr() doesn't exist or is deprecated - that's fine,
+        # warnings filter above will handle it
+        pass
 
+# Configure at module level
+_configure_numpy_error_handling()
 
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
