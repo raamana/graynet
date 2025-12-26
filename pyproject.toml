@@ -7,7 +7,7 @@ name = "graynet"
 dynamic = ["version"]
 description = "Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density. "
 readme = "README.md"
-license = ""
+license = "MIT"
 authors = [
     { name = "Pradeep Reddy Raamana", email = "raamana@gmail.com" },
 ]
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development",
+    "License :: OSI Approved :: MIT License",    
 ]
 dependencies = [
     "hiwenet",
