@@ -1,970 +1,273 @@
-__all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
+__all__ = ["extract", "roiwise_stats_indiv", "cli_run"]
 
 import argparse
 from importlib.metadata import PackageNotFoundError, version
-import logging
-import pickle
-import sys
-import traceback
-import warnings
-from functools import partial
-from multiprocessing import Manager as MultiProcManager, Pool
 from pathlib import Path
 
-import hiwenet
-import networkx as nx
-import numpy as np
-
-from graynet.utils import (calc_roi_statistics, check_atlas, check_num_procs,
-                           check_params_single_edge, check_stat_methods,
-                           check_subjects, check_weight_params, check_weights,
-                           import_features, mask_background_roi, save,
-                           save_per_subject_graph, save_summary_stats,
-                           stamp_experiment, stamp_expt_weight, warn_nan, as_path)
-
-from graynet import utils
-from graynet.volumetric import extract_per_subject_volumetric, volumetric_roi_info
-from graynet.parcellate import roi_labels_centroids
 from graynet import config_graynet as cfg
+from graynet.exporters import export_csv, export_graphml
+from graynet.pipeline import run_edges, run_multiedge, run_roi_stats
+from graynet.utils import (
+    as_path,
+    check_atlas,
+    check_features,
+    check_stat_methods,
+    check_subjects,
+    check_weights,
+)
 
 try:
-    __version__ = version('graynet')
+    __version__ = version("graynet")
 except PackageNotFoundError:
-    __version__ = '0+unknown'
+    __version__ = "0+unknown"
+
+
+def extract(
+    subject_id_list,
+    input_dir,
+    base_feature=cfg.default_feature_single_edge,
+    weight_method_list=cfg.default_weight_method,
+    num_bins=cfg.default_num_bins,
+    edge_range=cfg.default_edge_range,
+    atlas=cfg.default_atlas,
+    smoothing_param=cfg.default_smoothing_param,
+    node_size=cfg.default_node_size,
+    out_dir=None,
+    return_results=False,
+    num_procs=cfg.default_num_procs,
+):
+    return run_edges(
+        subject_id_list,
+        input_dir,
+        base_feature=base_feature,
+        weight_method_list=weight_method_list,
+        num_bins=num_bins,
+        edge_range=edge_range,
+        atlas=atlas,
+        smoothing_param=smoothing_param,
+        node_size=node_size,
+        out_dir=out_dir,
+        return_results=return_results,
+        num_procs=num_procs,
+    )
+
+
+def roiwise_stats_indiv(
+    subject_id_list,
+    input_dir,
+    base_feature=cfg.default_feature_single_edge,
+    chosen_roi_stats=cfg.default_roi_statistic,
+    atlas=cfg.default_atlas,
+    smoothing_param=cfg.default_smoothing_param,
+    node_size=cfg.default_node_size,
+    out_dir=None,
+    return_results=False,
+    num_procs=cfg.default_num_procs,
+):
+    return run_roi_stats(
+        subject_id_list,
+        input_dir,
+        base_feature=base_feature,
+        chosen_roi_stats=chosen_roi_stats,
+        atlas=atlas,
+        smoothing_param=smoothing_param,
+        node_size=node_size,
+        out_dir=out_dir,
+        return_results=return_results,
+        num_procs=num_procs,
+    )
+
+
+def _add_common_args(parser: argparse.ArgumentParser, allow_multi_feature=False) -> None:
+    parser.add_argument("-i", "--input-dir", dest="input_dir", required=True)
+    parser.add_argument("-s", "--subjects", dest="subject_ids_path", required=False)
+    parser.add_argument("-a", "--atlas", dest="atlas", default=cfg.default_atlas)
+    parser.add_argument("-o", "--out-dir", dest="out_dir", default=None)
+    parser.add_argument(
+        "-f",
+        "--feature",
+        dest="features",
+        nargs="+" if allow_multi_feature else 1,
+        required=True,
+        help="Feature name(s) to process.",
+    )
+    parser.add_argument(
+        "-p",
+        "--smoothing-param",
+        dest="smoothing_param",
+        type=int,
+        default=cfg.default_smoothing_param,
+    )
+    parser.add_argument("-n", "--node-size", dest="node_size", type=int, default=cfg.default_node_size)
+    parser.add_argument("-c", "--num-procs", dest="num_procs", type=int, default=cfg.default_num_procs)
+
+
+def _resolve_subject_arg(subject_ids_path, input_dir: Path, features: tuple[str, ...]) -> tuple[str, ...]:
+    if subject_ids_path is not None:
+        subject_ids, _, _, _ = check_subjects(subject_ids_path)
+        return tuple(str(subject_id) for subject_id in subject_ids)
+
+    for feature in features:
+        if feature not in cfg.features_freesurfer:
+            raise ValueError(
+                "Path to subject ID list must be specified when non-Freesurfer features are processed."
+            )
+
+    subject_ids = tuple(
+        subdir.name for subdir in input_dir.iterdir() if subdir.is_dir() and (subdir / "surf").is_dir()
+    )
+    if not subject_ids:
+        raise ValueError(f"No usable Freesurfer subjects found under {input_dir}")
+    return subject_ids
+
 
-def _configure_numpy_error_handling():
-    """
-    Configure NumPy error handling globally.
-    
-    Handles deprecation of np.seterr() in NumPy 2.0+ by trying the
-    modern approach first, then falling back to legacy method.
-    """
-    # Try warnings filter first (works for NumPy 2.0+)
-    warnings.filterwarnings('ignore', category=RuntimeWarning,
-                          message='.*divide by zero.*')
-    warnings.filterwarnings('ignore', category=RuntimeWarning,
-                          message='.*invalid value.*')
-    warnings.filterwarnings('ignore', category=RuntimeWarning,
-                          module='numpy')
-    
-    # Also try legacy method for NumPy < 2.0 (no-op if deprecated)
-    try:
-        np.seterr(divide='ignore', invalid='ignore')
-    except (AttributeError, DeprecationWarning, TypeError):
-        # seterr() doesn't exist or is deprecated - that's fine,
-        # warnings filter above will handle it
-        pass
+def _default_out_dir(input_dir: Path, out_dir) -> Path:
+    resolved = as_path(out_dir)
+    if resolved is None:
+        resolved = input_dir / "graynet_runs"
+    resolved.mkdir(exist_ok=True, parents=True)
+    return resolved
 
-# Configure at module level
-_configure_numpy_error_handling()
 
-# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
-def extract(subject_id_list,
-            input_dir,
-            base_feature=cfg.default_feature_single_edge,
-            weight_method_list=cfg.default_weight_method,
-            num_bins=cfg.default_num_bins,
-            edge_range=cfg.default_edge_range,
-            atlas=cfg.default_atlas,
-            smoothing_param=cfg.default_smoothing_param,
-            node_size=cfg.default_node_size,
-            out_dir=None,
-            return_results=False,
-            num_procs=cfg.default_num_procs):
-    """
-    Extracts weighted networks (matrix of pair-wise ROI distances) from gray matter features based on Freesurfer processing.
-
-    Parameters
-    ----------
-    subject_id_list : str or list
-         must be path to a file containing subject IDs, or a list of subject IDs
-    input_dir : str
-        Path to the input directory where features can be read.
-        For example, this can be Freesurfer's SUBJECTS_DIR, where output processing is stored.
-        Or another directory with a structure that graynet can parse.
-    base_feature : str
-        Specific type of feature to read for each subject from the input directory.
-
-    weight_method_list : string(s), optional
-        Type of distance (or metric) to compute between the pair of histograms.
-
-        It must be one of the following methods:
-
-        - 'chebyshev'
-        - 'chebyshev_neg'
-        - 'chi_square'
-        - 'correlate'
-        - 'correlate_1'
-        - 'cosine'
-        - 'cosine_1'
-        - 'cosine_2'
-        - 'cosine_alt'
-        - 'euclidean'
-        - 'fidelity_based'
-        - 'histogram_intersection'
-        - 'histogram_intersection_1'
-        - 'jensen_shannon'
-        - 'kullback_leibler'
-        - 'manhattan'
-        - 'minowski'
-        - 'noelle_1'
-        - 'noelle_2'
-        - 'noelle_3'
-        - 'noelle_4'
-        - 'noelle_5'
-        - 'relative_bin_deviation'
-        - 'relative_deviation'
-
-        Note only the following are *metrics*:
-
-        - 'manhattan'
-        - 'minowski'
-        - 'euclidean'
-        - 'noelle_2'
-        - 'noelle_4'
-        - 'noelle_5'
-
-        The following are *semi- or quasi-metrics*:
-
-        - 'kullback_leibler'
-        - 'jensen_shannon'
-        - 'chi_square'
-        - 'chebyshev'
-        - 'cosine_1'
-        - 'chebyshev_neg'
-        - 'correlate_1'
-        - 'histogram_intersection_1'
-        - 'relative_deviation'
-        - 'relative_bin_deviation'
-        - 'noelle_1'
-        - 'noelle_3'
-
-        The following are  classified to be similarity functions:
-
-        - 'histogram_intersection'
-        - 'correlate'
-        - 'cosine'
-        - 'cosine_2'
-        - 'cosine_alt'
-        - 'fidelity_based'
-
-        *Default* choice: 'manhattan'.
-
-    num_bins : int
-        Number of histogram bins to use when computing pair-wise weights. Default: 25
-
-    edge_range : tuple or list
-        The range of edges (two finite values) within which to build the histogram
-        e.g., ``--edge_range 0 5``.
-        This can be helpful (and important) to ensure correspondence across
-        multiple invocations of graynet (e.g. for different subjects),
-        in terms of range across all bins as well as individual bin edges.
-
-        Default :
-
-            - ( 0.0, 5.0) for ``freesurfer_thickness`` and
-            - (-0.3, 0.3) for ``freesurfer_curv``.
-
-    atlas : str
-        Name of the atlas whose parcellation to be used.
-        Choices for cortical parcellation: ['fsaverage', 'glasser2016'], which are primary cortical.
-        Volumetric whole-brain atlases will be added soon.
-
-    smoothing_param : scalar
-        Smoothing parameter, which could be fwhm for Freesurfer cortical features,
-        or another relevant for the chosen base_feature.
-        Default: assumed as fwhm=10mm for the default feature choice 'thickness'
-
-    node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches,
-        depending on type of atlas or feature. This feature is not implemented
-        yet, and this arg is just a placeholder and to enable default computation.
-
-    out_dir : Path or str, optional
-        Path to output directory to store results.
-        Default: None, results are returned, but not saved to disk.
-        If this is None, return_results must be true.
-
-    return_results : bool
-        Flag to indicate whether to return the results to be returned.
-        This flag helps to reduce the memory requirements, when the number of nodes
-        in a parcellation or the number of subjects or weight methods are large,
-        as it doesn't retain results for all combinations, when running from
-        commmand line interface (or HPC).
-        Default: False
-        If this is False, out_dir must be specified to save the results to disk.
-
-    num_procs : int
-        Number of parallel processes to use to speed up computation.
-
-    Returns
-    -------
-    edge_weights_all : dict, None
-        If return_results is True, this will be a dictionary keyed in
-        by a tuple: (weight method, subject_ID)
-        The value of each edge_weights_all[(weight method, subject_ID)] is
-        a numpy array of length p = k*(k-1)/2,
-        with k = number of nodes in the atlas parcellation.
-        If return_results is False, this will be None, which is the default.
-    """
-
-    # All the checks must happen here, as this is key function in the API
-    check_params_single_edge(base_feature, input_dir, atlas, smoothing_param,
-                             node_size, out_dir, return_results)
-    atlas, atlas_name = check_atlas(atlas)
-
-    subject_id_list, num_subjects, \
-        max_id_width, nd_id = check_subjects(subject_id_list)
-
-    num_bins, edge_range = check_weight_params(num_bins, edge_range)
-    weight_method_list, num_weights, \
-        max_wtname_width, nd_wm = check_weights(weight_method_list)
-
-    num_procs = check_num_procs(num_procs)
-    pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
-
-    # roi_labels, ctx_annot = freesurfer_roi_labels(atlas)
-    # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
-
-    out_dir = as_path(out_dir)
-    print('\nProcessing {} features'.format(base_feature))
-
-    if not return_results:
-        if out_dir is None:
-            raise ValueError('When return_results=False, out_dir must be specified '
-                             'to be able to save the results.')
-        if not out_dir.exists():
-            out_dir.mkdir(exist_ok=True, parents=True)
-
-    if base_feature in cfg.features_cortical:
-        uniq_rois, centroids, roi_labels = roi_labels_centroids(atlas, node_size)
-        partial_func_extract = partial(extract_per_subject_cortical, input_dir,
-                                       base_feature, roi_labels, centroids,
-                                       weight_method_list, atlas, atlas_name,
-                                       smoothing_param, node_size, num_bins,
-                                       edge_range, out_dir, return_results,
-                                       pretty_print_options)
-    elif base_feature in cfg.features_volumetric:
-        uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas)
-        partial_func_extract = partial(extract_per_subject_volumetric,
-                                       input_dir, base_feature, roi_labels,
-                                       centroids, weight_method_list, atlas,
-                                       atlas_name, smoothing_param, node_size,
-                                       num_bins, edge_range, out_dir,
-                                       return_results, pretty_print_options)
-    else:
-        raise NotImplementedError('Chosen feature {} is not recognized as '
-                                  'either cortical or volumetric! Choose one'
-                                  'from the following options: {}'
-                                  ''.format(base_feature, cfg.base_feature_list))
-
-    chunk_size = int(np.ceil(num_subjects / num_procs))
-    if (num_procs > 1) and (num_subjects > 10) and (chunk_size > 5):
-        with MultiProcManager():
-            with Pool(processes=num_procs) as pool:
-                edge_wt_list_of_dicts = pool.map(partial_func_extract,
-                                                 subject_id_list, chunk_size)
-
-        # each element from output of parallel loop is a dict, keys (subj_id, weight)
-        edge_weights_all = dict()
-        for combo in edge_wt_list_of_dicts:
-            if combo is not None:
-                edge_weights_all.update(combo)
-    else:
-        if num_procs > 1:
-            print('info: not parallel processing due to too few subjects')
-        edge_weights_all = dict()
-        for subj in subject_id_list:
-            ret_value = partial_func_extract(subj)
-            if ret_value is not None:
-                edge_weights_all.update(ret_value)
-
-    print('\ngraynet computation done.')
-
-    if return_results:
-        return edge_weights_all
-    else:
-        return None
-
-
-def extract_per_subject_cortical(input_dir, base_feature, roi_labels, centroids,
-                                 weight_method_list, atlas_spec, atlas_name,
-                                 smoothing_param, node_size, num_bins, edge_range,
-                                 out_dir, return_results, pretty_print_options,
-                                 subject=None):
-    # purposefully leaving subject parameter last to enable partial function creation
-    """Extracts a given set of weights for one subject."""
-
-    if subject is None:
-        return
-
-    print('')
-
-    try:
-        features = import_features(input_dir,
-                                   [subject, ],
-                                   base_feature,
-                                   fwhm=smoothing_param,
-                                   atlas=atlas_spec)
-    except:
-        traceback.print_exc()
-        warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(
-                base_feature, subject), UserWarning)
-        return
-
-    data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
-
-    max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
-
-    if return_results:
-        edge_weights_all = dict()
-    else:
-        edge_weights_all = None
-
-    for ww, weight_method in enumerate(weight_method_list):
-        # unique stamp for each subject and weight
-        expt_id = stamp_expt_weight(base_feature, atlas_name, smoothing_param,
-                                    node_size, weight_method)
-        sys.stdout.write(
-            '\nProcessing {sid:{id_width}} -- weight {wm:{wtname_width}} '
-            '({wc:{nd_wm}}/{nw:{nd_wm}}) :\n'
-            ''.format(sid=subject, wm=weight_method, wc=ww + 1, nw=num_weights,
-                      nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width,
-                      wtname_width=max_wtname_width))
-
-        # actual computation of pair-wise features
-        try:
-            graph = hiwenet.extract(data,
-                                    rois,
-                                    weight_method=weight_method,
-                                    num_bins=num_bins,
-                                    edge_range=edge_range,
-                                    return_networkx_graph=True)
-
-            # retrieving edge weights
-            weight_vec = np.array(list(
-                    nx.get_edge_attributes(graph, 'weight').values()))
-            warn_nan(weight_vec)
-
-            # adding position info to nodes (for visualization later)
-            for roi in centroids:
-                graph.nodes[roi]['x'] = float(centroids[roi][0])
-                graph.nodes[roi]['y'] = float(centroids[roi][1])
-                graph.nodes[roi]['z'] = float(centroids[roi][2])
-
-            if return_results:
-                edge_weights_all[(weight_method, subject)] = weight_vec
-
-            # saving to disk
-            try:
-                save(weight_vec, out_dir, subject, expt_id)
-                save_per_subject_graph(graph, out_dir, subject, expt_id)
-            except:
-                raise IOError('Unable to save the network or vectorized weights '
-                               'to:\n{}'.format(out_dir))
-
-        except (RuntimeError, RuntimeWarning) as runexc:
-            print(runexc)
-        except KeyboardInterrupt:
-            print('Exiting on keyboard interrupt! \n'
-                  'Abandoning the remaining processing for {} weights:\n'
-                  '{}.'.format(num_weights - ww, weight_method_list[ww:]))
-            sys.exit(1)
-        except:
-            print('Unable to extract {} features for {}'.format(weight_method, subject))
-            traceback.print_exc()
-
-
-    return edge_weights_all
-
-
-def roiwise_stats_indiv(subject_id_list, input_dir,
-                        base_feature=cfg.default_feature_single_edge,
-                        chosen_roi_stats=cfg.default_roi_statistic,
-                        atlas=cfg.default_atlas,
-                        smoothing_param=cfg.default_smoothing_param,
-                        node_size=cfg.default_node_size,
-                        out_dir=None, return_results=False):
-    """
-    Computes the chosen summary statistics within each ROI.
-    These summary stats (such as median) can help serve as a baseline for
-    network-level values produced by graynet.
-
-    Options for summary statistics include 'median', 'entropy', 'kurtosis' and
-    any other appropriate summary statistics listed under scipy.stats:
-    https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions
-
-    Parameters
-    ----------
-    subject_id_list : str or list
-        must be path to a file containing subject IDs, or a list of subject IDs
-
-    input_dir : str
-        Path to the input directory where features can be read.
-        For example, this can be Freesurfer's SUBJECTS_DIR, where output processing is stored.
-        Or another directory with a structure that graynet can parse.
-
-    base_feature : str
-        Specific type of feature to read for each subject from the input directory.
-
-    chosen_roi_stats : list of str or callable
-        If requested, graynet will compute chosen summary statistics (such as median)
-        within each ROI of the chosen parcellation (and network weight computation is skipped).
-        Default: 'median'. Supported summary statistics include 'median', 'mode',
-        'mean', 'std', 'gmean', 'hmean', 'variation', 'entropy', 'skew' and 'kurtosis'
-
-        Other appropriate summary statistics listed under scipy.stats could used
-        by passing in a callable with their parameters encapsulated:
-        https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-functions
-        For example, if you would like to compute 3rd k-statistic, you could
-        construct a callable and passing ``third_kstat`` as in the argument:
-
-        .. code-block:: python
-
-            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
-            roi_medians = roiwise_stats_indiv(subject_id_list, fs_dir, base_feature, chosen_measure = third_kstat,
-                atlas, fwhm, out_dir=None, return_results=True)
-
-        Other possible options could trimmed mean estimator with 5% outliers removed or 3rd k-statistic:
-        .. code-block:: python
-            trimmed_mean = lambda array: scipy.stats.trim_mean(array, proportiontocut = 0.05)
-            third_kstat  = lambda array: scipy.stats.kstat(array, n = 3)
-
-        Notes: 'hmean' requires all values be positive.
-
-    atlas : str
-        Name of the atlas whose parcellation to be used.
-        Available choices for cortical parcellation: ['fsaverage', 'glasser2016'].
-        Volumetric whole-brain atlases will be added soon.
-
-    smoothing_param : scalar
-        Smoothing parameter, which could be fwhm for Freesurfer cortical features,
-        or another relevant for the chosen base_feature.
-        Default: assumed as fwhm=10mm for the default feature choice 'thickness'
-
-    node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches,
-        depending on type of atlas or feature. NOT implemented yet.
-
-    out_dir : str, optional
-        Path to output directory to store results.
-        Default: None, results are returned, but not saved to disk.
-        If this is None, return_results must be true.
-
-    return_results : bool
-        Flag to indicating whether to keep the results to be returned to caller method.
-        Helps to save memory (as it doesn't retain results all subjects and weight
-        combinations), when running from command line interface (or HPC).
-        Default: False
-        If this is False, out_dir must be specified to save the results to disk.
-
-    Returns
-    -------
-    roi_stats_all : dict, None
-        If return_results is True, this will be a dictionary keyed in by subject_ID
-        The value of each key roi_summary_all[subject] is
-        a numpy array of length k, with k = number of nodes in the atlas parcellation.
-        If return_results is False, this will be None, which is the default.
-    """
-
-    check_params_single_edge(base_feature, input_dir, atlas, smoothing_param,
-                             node_size, out_dir, return_results)
-    subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
-    stat_func_list, stat_func_names, num_stats, \
-        max_stat_width, nd_st = check_stat_methods(chosen_roi_stats)
-
-
-    if base_feature in cfg.features_cortical:
-        uniq_rois, centroids, roi_labels = roi_labels_centroids(atlas)
-        null_roi_to_be_ignored = cfg.null_roi_name
-    elif base_feature in cfg.features_volumetric:
-        uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas)
-        null_roi_to_be_ignored = cfg.null_roi_index
-    else:
-        raise ValueError('Unrecognized type of base_feature: {}\n'
-                         ' Must be one of {}'
-                         ''.format(base_feature, cfg.base_feature_list))
-
-    out_dir = as_path(out_dir)
-    print('\nProcessing {} features resampled to {} atlas,'
-          ' smoothed at {} with node size {}'.format(base_feature, atlas,
-                                                     smoothing_param, node_size))
-
-    if return_results:
-        roi_stats_all = dict()
-    else:
-        roi_stats_all = None
-        if out_dir is None:
-            raise ValueError('When return_results=False, out_dir must be specified '
-                             'to be able to save the results.')
-        if not out_dir.exists():
-            out_dir.mkdir(exist_ok=True, parents=True)
-
-    for sub_idx, subject in enumerate(subject_id_list):
-
-        try:
-            features = import_features(input_dir, [subject, ], base_feature,
-                                       atlas=atlas,
-                                       fwhm=smoothing_param)
-        except:
-            raise IOError(
-                'Unable to read {} features for {}\n'
-                ' Skipping it.'.format(base_feature, subject))
-
-        data, rois = mask_background_roi(features[subject], roi_labels,
-                                         null_roi_to_be_ignored)
-
-        for ss, stat_func in enumerate(stat_func_list):
-            sys.stdout.write(
-                '\nProcessing id {sid:{id_width}} '
-                '({sidnum:{nd_id}}/{numsub:{nd_id}}) -- '
-                'statistic {stname:{stat_name_width}} '
-                '({statnum:{nd_st}}/{numst:{nd_st}})'
-                ' :'.format(sid=subject, sidnum=sub_idx + 1, numsub=num_subjects,
-                            stname=stat_func_names[ss], statnum=ss + 1, numst=num_stats,
-                            id_width=max_id_width, stat_name_width=max_stat_width,
-                            nd_id=nd_id, nd_st=nd_st))
-
-            try:
-                roi_stats = calc_roi_statistics(data, rois, uniq_rois, stat_func)
-                expt_id_no_network = stamp_experiment(base_feature, stat_func_names[ss],
-                                                      atlas, smoothing_param, node_size)
-                save_summary_stats(roi_stats, uniq_rois, stat_func_names[ss], out_dir,
-                                   subject, expt_id_no_network)
-                sys.stdout.write('Done.')
-            except KeyboardInterrupt:
-                print('Exiting on keyborad interrupt! \n'
-                      'Abandoning the remaining processing for {} stats:\n'
-                      '{}.'.format(num_stats - ss, stat_func_names[ss:]))
-                sys.exit(1)
-            except:
-                traceback.print_exc()
-                logging.debug(
-                    'Error : unable to compute roi-wise {} for {}.'
-                    ' Skipping it.'.format(stat_func_names[ss], subject))
-
-        if return_results:
-            roi_stats_all[subject] = roi_stats
-
-    return roi_stats_all
-
-
-def cli_run():
-    """command line interface!"""
-
-    print(f'Running graynet {__version__}\n')
-
-    subject_ids_path, input_dir, base_feature_list, \
-    weight_method, do_multi_edge, summary_stats, multi_edge_range, \
-    num_bins, edge_range, atlas, out_dir, node_size, smoothing_param, \
-    roi_stats, num_procs, overwrite_results = parse_args()
-
-    # save options to out folder for future ref
-    try:
-        user_opt = [subject_ids_path, input_dir, base_feature_list, weight_method,
-                    do_multi_edge, summary_stats, multi_edge_range, num_bins,
-                    edge_range, atlas, out_dir, node_size, smoothing_param,
-                    roi_stats, num_procs, overwrite_results]
-        out_dir = as_path(out_dir)
-        with (out_dir / 'user_options.pkl').open('wb') as of:
-            pickle.dump(user_opt, of)
-    except:
-        # ignore
-        traceback.print_exc()
-
-    # when run from CLI, results will not be received
-    # so no point in wasting memory maintaining a very big array
-    return_results = False
-
-    if do_multi_edge:
-        from graynet.multi_edge import extract_multiedge
-        print('Computing multiple edges ... ')
-        extract_multiedge(subject_ids_path, input_dir,
-                          base_feature_list=base_feature_list,
-                          weight_method_list=weight_method,
-                          summary_stats=summary_stats,
-                          num_bins=num_bins, edge_range_dict=multi_edge_range,
-                          atlas=atlas, smoothing_param=smoothing_param,
-                          node_size=node_size, out_dir=out_dir,
-                          return_results=return_results, num_procs=num_procs,
-                          overwrite_results=overwrite_results)
-    else:
-        base_feature = base_feature_list[0]
-        if weight_method is not None:
-            print('Computing single edge ... ')
-            extract(subject_ids_path, input_dir,
-                    base_feature=base_feature,
-                    weight_method_list=weight_method,
-                    num_bins=num_bins, edge_range=edge_range,
-                    atlas=atlas, smoothing_param=smoothing_param,
-                    node_size=node_size, out_dir=out_dir,
-                    return_results=return_results, num_procs=num_procs)
-        else:
-            print('Computing ROI summary stats --'
-                  ' skipping computation of any network weights.')
-            roiwise_stats_indiv(subject_ids_path, input_dir, base_feature,
-                                roi_stats, atlas, smoothing_param, node_size,
-                                out_dir, return_results)
-
-    return
-
-
-def get_parser():
-    """Method to specify arguments and defaults. """
-
-    help_text_subject_ids = "Path to file containing list of subject IDs " \
-                            "(one per line)"
-
-    help_text_input_dir = "Path to a folder containing input data. It could, " \
-                          "for example, be a Freesurfer SUBJECTS_DIR, if the " \
-                          "chosen feature is from Freesurfer output."
-
-    help_text_feature = "Type of feature to be used for analysis.\n\n" \
-                        "Default: ``{}`` \n\nChoices: {}" \
-                        "".format(cfg.default_feature_single_edge[0],
-                                  ', '.join(cfg.base_feature_list))
-
-    help_text_multi_edge = "Option to compute multiple edges between ROIs based on " \
-                           "different features. Default False. If True, two valid " \
-                           "features must be specified. Use --multi_edge_range to " \
-                           "specify edge ranges for each feature to be processed."
-
-    help_text_summary_stat = "Summary statistic [one or more] to compute on all " \
-                             "the weights from multiple edges.This must be a " \
-                             "string representing a method (like 'median', " \
-                             "'prod' or 'max'),  that is available as a member of " \
-                             "numpy or scipy.stats."
-
-    help_text_weight = "List of methods used to estimate the weight of the edge " \
-                       "between the pair of nodes.\n\nDefault : {}.\n\n" \
-                       "Available options:" \
-                       "\n\n **histogram**-based: {}" \
-                       "\n\n weights on **original** features : {}" \
-                       "".format(cfg.default_weight_method[0],
-                                 ', '.join(cfg.histogram_weights),
-                                 ', '.join(cfg.weights_on_original_features))
-
-    help_text_num_bins = "Number of bins used to construct the histogram within " \
-                         "each ROI or group. " \
-                         "Default : {}".format(cfg.default_num_bins)
-
-    help_text_edge_range = "The range of edges (two finite values) within which to " \
-                           "bin the given values e.g. ``--edge_range 0.0 5.0``. " \
-                           "Setting this is *crucial* to ensure correspondence " \
-                           "across multiple invocations of graynet, for different " \
-                           "subjects, in terms of range across all bins as well as " \
-                           "individual bin edges.\n\nDefault : {}, " \
-                           "to automatically compute from the given values.".format(cfg.default_edge_range)
-
-    help_text_multi_edge_range = """Set of edge ranges (for each of the features) 
-    within which to bin the given values - see above. For example, \n\n
-    ``-f freesurfer_thickness freesurfer_curv --edge_range 0.0 5.0 -0.3 +0.3``\n\n 
-    will set the a range of [0.0, 5.0] for thickness and [-0.3, 0.3] for curv.\n\n 
-    Default : {}.""".format(cfg.edge_range_predefined)
-
-    help_text_roi_stats = "Option to compute summary statistics within each ROI of " \
-                          "the chosen parcellation. These statistics (such as the " \
-                          "median) can serve as a baseline for network-level " \
-                          "values produced by graynet. Options for summary " \
-                          "statistics include 'median', 'entropy', 'kurtosis' and " \
-                          "any other appropriate summary statistics listed under " \
-                          "scipy.stats:  " \
-                          "https://docs.scipy.org/doc/scipy/reference/stats.html" \
-                          "#statistical-functions . When this option is chosen, " \
-                          "network computation is not allowed. You need to compute " \
-                          "networks and ROI stats separately."
-
-    help_text_atlas = "Name or path to atlas to containing the parcellation of " \
-                      "ROIs.\nFor cortical features, you can also specify the " \
-                      "absolute path for the Freesurfer parcellation of that " \
-                      "atlas. This directory must have the standard Freesurfer " \
-                      "structure, with the following key files that must exist: " \
-                      "``label/?h.aparc.annot`` and " \
-                      "``surf/?h.orig``.\n\n*Cortical* atlases supported: " \
-                      "``fsaverage`` and ``glasser2016``. In addition, you can " \
-                      "also specify an absolute path to the Freesurfer processing " \
-                      "of any arbitrary atlas. Read these instructions before " \
-                      "trying: https://raamana.github.io/graynet/cortical.html" \
-                      "#using-a-different-atlas\n\n\n*Volumetric* atlases " \
-                      "supported for CAT12 features: ``cat_aal``, ``cat_lpba40``, " \
-                      "and ``cat_ibsr``.In addition, you can also directly specify " \
-                      "an absolute path to a single 3D volume. Make sure name this " \
-                      "file properly as itwould be used to encode all the " \
-                      "processing i.e. make it clean as well as fully reflective " \
-                      "of the properties of the parcellation inside.\n\nDefault: " \
-                      "``{}``".format(cfg.default_atlas)
-
-    help_text_parc_size = "Size of individual patch for the atlas parcellation, " \
-                          "in terms of minimum number of vertices per patch. " \
-                          "This is *ONLY* valid for cortical version of graynet, " \
-                          "when using atlas fsaverage only, that has precomputed " \
-                          "parcellation for a set of predetermined patch sizes.\n" \
-                          "\nAllowed values: (None, 250, 500, 1000, 2000, 3000, " \
-                          "5000, 10000). \n" \
-                          "\nDefault : {}".format(cfg.default_node_size)
-
-    help_text_smoothing = "Smoothing parameter for feature. " \
-                          "Default: FWHM of {} for Freesurfer thickness." \
-                          "".format(cfg.default_smoothing_param)
-
-    help_text_num_procs = "Number of CPUs to use in parallel to speed up " \
-                          "processing. " \
-                          "Default : {}, capping at available number of CPUs in " \
-                          "the processing node.".format(cfg.default_num_procs)
-
-    help_text_overwrite_results = "Flag to request overwriting of existing " \
-                                  "results, in case of reruns/failed jobs. " \
-                                  "By default, if the expected output file exists " \
-                                  "and is of non-zero size, " \
-                                  "its computation is skipped (assuming the file " \
-                                  "is complete, usable and not corrupted)."
-
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graynet")
+    parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    parser.add_argument("-s", "--subject_ids_path", action="store",
-                        dest="subject_ids_path",
-                        required=False, default=None,
-                        help=help_text_subject_ids)
+    edges = subparsers.add_parser("edges", help="Compute single-feature edge networks.")
+    _add_common_args(edges)
+    edges.add_argument("-w", "--weight", dest="weight_methods", nargs="+", required=True)
+    edges.add_argument("-b", "--num-bins", dest="num_bins", type=int, default=cfg.default_num_bins)
+    edges.add_argument(
+        "-e",
+        "--edge-range",
+        dest="edge_range",
+        nargs=2,
+        type=float,
+        default=cfg.default_edge_range,
+        metavar=("MIN", "MAX"),
+    )
 
-    parser.add_argument("-i", "--input_dir", action="store", dest="input_dir",
-                        required=True, help=help_text_input_dir)
+    multiedge = subparsers.add_parser("multiedge", help="Compute multi-feature edge networks.")
+    _add_common_args(multiedge, allow_multi_feature=True)
+    multiedge.add_argument("-w", "--weight", dest="weight_methods", nargs="+", required=True)
+    multiedge.add_argument("-b", "--num-bins", dest="num_bins", type=int, default=cfg.default_num_bins)
+    multiedge.add_argument(
+        "-t",
+        "--summary-stat",
+        dest="summary_stats",
+        nargs="+",
+        default=list(cfg.multi_edge_summary_func_default),
+    )
+    multiedge.add_argument(
+        "-l",
+        "--multi-edge-range",
+        dest="multi_edge_range",
+        nargs="*",
+        type=float,
+        default=None,
+        help="Pairs of min/max values, one pair per feature.",
+    )
 
-    parser.add_argument("-f", "--feature", action="store",
-                        dest="features",
-                        nargs='*',
-                        default=cfg.default_feature_single_edge, required=False,
-                        help=help_text_feature)
+    roi_stats = subparsers.add_parser("roi-stats", help="Compute ROI summary statistics.")
+    _add_common_args(roi_stats)
+    roi_stats.add_argument("-r", "--roi-stat", dest="roi_stats", nargs="+", required=True)
 
-    parser.add_argument("-o", "--out_dir", action="store", dest="out_dir",
-                        default=None, required=False,
-                        help="Where to save the extracted features. ")
-
-    method_selector = parser.add_argument_group(
-            title='Type of computation',
-            description='Choose one among single edge, multiedge or simply ROI ' \
-                        'stats.')
-
-    # method_selector = parser.add_argument_group(required=True)
-    method_selector.add_argument("-w", "--weight_method", action="store",
-                                 dest="weight_methods",
-                                 nargs='*',
-                                 default=None, required=False, help=help_text_weight)
-
-    method_selector.add_argument("-r", "--roi_stats", action="store",
-                                 dest="roi_stats",
-                                 nargs='*', default=None, help=help_text_roi_stats)
-
-    method_selector.add_argument("-m", "--do_multi_edge", action="store_true",
-                                 dest="do_multi_edge",
-                                 default=False, required=False,
-                                 help=help_text_multi_edge)
-
-    method_params = parser.add_argument_group(title='Weight parameters',
-                                              description='Parameters relevant to '
-                                                          'histogram edge weight '
-                                                          'calculations')
-
-    method_params.add_argument("-b", "--num_bins", action="store", dest="num_bins",
-                               default=cfg.default_num_bins, required=False,
-                               help=help_text_num_bins)
-
-    method_params.add_argument("-e", "--edge_range", action="store",
-                               dest="edge_range",
-                               default=cfg.default_edge_range,
-                               required=False, #TODO perhaps make this required?
-                               # to ensure users compute it from the entire dataset!
-                               nargs=2, metavar=('min', 'max'),
-                               help=help_text_edge_range)
-
-    multiedge_args = parser.add_argument_group(title='Multi-edge',
-                                               description='Parameters related to '
-                                                           'computation of '
-                                                           'multiple edges')
-
-    multiedge_args.add_argument("-t", "--summary_stat", action="store",
-                                dest="summary_stat",
-                                nargs='*',
-                                default=cfg.multi_edge_summary_func_default,
-                                required=False,
-                                help=help_text_summary_stat)
-
-    multiedge_args.add_argument("-l", "--multi_edge_range", action="store",
-                                dest="multi_edge_range",
-                                default=None, required=False, metavar=('min max'),
-                                nargs='*', help=help_text_multi_edge_range)
-
-    atlas_params = parser.add_argument_group(title='Atlas',
-                                             description="Parameters describing "
-                                                         "the atlas, "
-                                                         "its parcellation and any "
-                                                         "smoothing of features.")
-    atlas_params.add_argument("-a", "--atlas", action="store", dest="atlas",
-                              default=cfg.default_atlas, required=False,
-                              help=help_text_atlas)
-
-    atlas_params.add_argument("-n", "--node_size", action="store", dest="node_size",
-                              default=cfg.default_node_size, required=False,
-                              help=help_text_parc_size)
-
-    atlas_params.add_argument("-p", "--smoothing_param", action="store",
-                              dest="smoothing_param",
-                              default=cfg.default_smoothing_param, required=False,
-                              help=help_text_smoothing)
-
-    computing_params = parser.add_argument_group(title='Computing',
-                                                 description='Options related to '
-                                                             'computing and '
-                                                             'parallelization.')
-
-    computing_params.add_argument('-c', '--num_procs', action='store',
-                                  dest='num_procs',
-                                  default=cfg.default_num_procs, required=False,
-                                  help=help_text_num_procs)
-    computing_params.add_argument('-d', '--overwrite_results', action='store_true',
-                                  dest='overwrite_results',
-                                  required=False, help=help_text_overwrite_results)
-
-    computing_params.add_argument('-v', '--version', action='version',
-                                  version='%(prog)s {version}'.format(
-                                      version=__version__))
+    export = subparsers.add_parser("export", help="Export canonical outputs to other formats.")
+    export_sub = export.add_subparsers(dest="export_command", required=True)
+    export_graphml_parser = export_sub.add_parser("graphml", help="Export GraphML files from a run.")
+    export_graphml_parser.add_argument("--run-dir", dest="run_dir", required=True)
+    export_graphml_parser.add_argument("--out-dir", dest="out_dir", default=None)
+    export_csv_parser = export_sub.add_parser("csv", help="Export CSV files from a run.")
+    export_csv_parser.add_argument("--run-dir", dest="run_dir", required=True)
+    export_csv_parser.add_argument("--out-dir", dest="out_dir", default=None)
 
     return parser
 
 
-def parse_args():
-    """Parser/validator for the cmd line args."""
-
+def cli_run(argv=None):
     parser = get_parser()
+    args = parser.parse_args(argv)
 
-    if len(sys.argv) < 2:
-        parser.print_help()
-        print('\nToo few arguments!')
-        parser.exit(1)
+    if args.command == "export":
+        run_dir = Path(args.run_dir).resolve()
+        if args.export_command == "graphml":
+            export_dir = export_graphml(run_dir, args.out_dir)
+        else:
+            export_dir = export_csv(run_dir, args.out_dir)
+        print(export_dir)
+        return export_dir
 
-    # parsing
-    try:
-        params = parser.parse_args()
-    except Exception as exc:
-        print(exc)
-        raise ValueError('Unable to parse command-line arguments.')
-
-    feature_list = utils.check_features(params.features)
-
-    input_dir = Path(params.input_dir).resolve()
+    features = tuple(check_features(args.features))
+    input_dir = Path(args.input_dir).resolve()
     if not input_dir.exists():
-        raise IOError("Given input directory doesn't exist!")
+        raise IOError(f"Given input directory does not exist: {input_dir}")
 
-    out_dir = params.out_dir
-    if out_dir is not None:
-        out_dir = Path(out_dir).resolve()
-    else:
-        out_dir = input_dir / "graynet"
+    out_dir = _default_out_dir(input_dir, args.out_dir)
+    subjects = _resolve_subject_arg(args.subject_ids_path, input_dir, features)
+    atlas_spec, _ = check_atlas(args.atlas)
+    node_size = args.node_size if args.node_size is not None else None
 
-    if not out_dir.exists():
-        out_dir.mkdir(exist_ok=True, parents=True)
-
-    # allowing auto population of subject IDs for freesurfer directory
-    sub_id_list_path = params.subject_ids_path
-    if sub_id_list_path is None:
-        # this is allowed only when all features are freesurfer-related only
-        for feat in feature_list:
-            if feat not in cfg.features_freesurfer:
-                raise ValueError("Path to subject ID list must be specified "
-                                 "when non-Freesurfer features are being processed!")
-
-        # get all IDs in Freesurfer $SUBJECTS_DIR that are folders with surf subdir
-        id_list = [sub_id for sub_id in input_dir.iterdir()
-                   if (sub_id.is_dir() and sub_id.joinpath('surf').is_dir() )]
-
-        if len(id_list) < 1:
-            raise ValueError('Freesurfer folder does not have any '
-                             'usable subjects: \n{}'.format(input_dir))
-
-        # write to a file in out folder
-        try:
-            sub_id_list_path = input_dir / 'id_list_freesurfer_graynet.txt'
-            with sub_id_list_path.open('w') as idlf:
-                idlf.write('\n'.join(sub_id.name for sub_id in id_list))
-        except:
-            raise IOError('Unable to write auto generated id list (n={}) to disk'
-                          ' to\n  {}'.format(len(id_list), sub_id_list_path))
-    else:
-        sub_id_list_path = Path(params.subject_ids_path).resolve()
-        if not sub_id_list_path.exists():
-            raise IOError("Given subject IDs file doesn't exist:\n"
-                          "\t{}".format(sub_id_list_path))
-
-    do_multi_edge = bool(params.do_multi_edge)
-    summary_stat = params.summary_stat
-    multi_edge_range = np.array(params.multi_edge_range, dtype=float)
-    multi_edge_range_out = None
-    if do_multi_edge:
-        # ensure atleast two features
-        num_features = len(feature_list)
-        if num_features < 2:
-            raise ValueError( 'To enable multi-edge computation, specify atleast '
-                              'two valid features.')
-
-        if multi_edge_range is not None:
-            nvals_per_feat = 2
-            if len(multi_edge_range) != nvals_per_feat * num_features:
+    if args.command == "edges":
+        weight_methods, _, _, _ = check_weights(args.weight_methods)
+        run_dir = run_edges(
+            subjects,
+            input_dir,
+            base_feature=features[0],
+            weight_method_list=tuple(weight_methods),
+            num_bins=args.num_bins,
+            edge_range=tuple(args.edge_range) if args.edge_range is not None else None,
+            atlas=atlas_spec,
+            smoothing_param=args.smoothing_param,
+            node_size=node_size,
+            out_dir=out_dir,
+            return_results=False,
+            num_procs=args.num_procs,
+        )
+    elif args.command == "multiedge":
+        weight_methods, _, _, _ = check_weights(args.weight_methods)
+        summary_stats, _, _, _, _ = check_stat_methods(args.summary_stats)
+        edge_range_dict = None
+        if args.multi_edge_range is not None:
+            expected = 2 * len(features)
+            if len(args.multi_edge_range) != expected:
                 raise ValueError(
-                    'Insufficient specification of edge ranges for multiple features!'
-                    '\nNeeded : {} exactly, given : {}'
-                    ''.format(nvals_per_feat *num_features, len(multi_edge_range)))
-            indiv_ranges = np.split(multi_edge_range,
-                                    range(nvals_per_feat, len(multi_edge_range),
-                                          nvals_per_feat))
+                    f"Expected {expected} values for --multi-edge-range, got {len(args.multi_edge_range)}."
+                )
+            edge_range_dict = {}
+            for index, feature in enumerate(features):
+                offset = 2 * index
+                edge_range_dict[feature] = tuple(args.multi_edge_range[offset : offset + 2])
 
-            multi_edge_range_out = dict()
-            for ix, feat in enumerate(feature_list):
-                multi_edge_range_out[feat] = indiv_ranges[ix]
-
-        utils.check_stat_methods(summary_stat)
+        run_dir = run_multiedge(
+            subjects,
+            input_dir,
+            base_feature_list=features,
+            weight_method_list=tuple(weight_methods),
+            summary_stats=tuple(summary_stats),
+            num_bins=args.num_bins,
+            edge_range_dict=edge_range_dict if edge_range_dict is not None else cfg.edge_range_predefined,
+            atlas=atlas_spec,
+            smoothing_param=args.smoothing_param,
+            node_size=node_size,
+            out_dir=out_dir,
+            return_results=False,
+            overwrite_results=True,
+            num_procs=args.num_procs,
+        )
     else:
-        summary_stat = None
-        if len(feature_list) > 1:
-            raise ValueError('For single edge computation, '
-                             'only one feature can be specified.')
+        run_dir = run_roi_stats(
+            subjects,
+            input_dir,
+            base_feature=features[0],
+            chosen_roi_stats=tuple(args.roi_stats),
+            atlas=atlas_spec,
+            smoothing_param=args.smoothing_param,
+            node_size=node_size,
+            out_dir=out_dir,
+            return_results=False,
+            num_procs=args.num_procs,
+        )
 
-    # validating choices and doing only one of the two
-    weight_methods = params.weight_methods
-    roi_stats = params.roi_stats
-    if weight_methods is not None:
-        weight_method_list, _, _, _ = check_weights(weight_methods)
-        if roi_stats is not None:
-            print('ROI stats requested with network weights computation - not allowed.')
-            sys.exit(1)
-        roi_stats = None
-    elif roi_stats is not None:
-        roi_stats, _, _, _, _ = check_stat_methods(roi_stats)
-        weight_method_list = None
-    else:
-        raise ValueError('One of weight_method and roi_stats must be chosen.')
-
-    if params.node_size is not None:
-        node_size = int(params.node_size)
-    else:
-        node_size = None
-
-    print('\nData resampled to {} atlas, '
-          ' smoothed at {} with node size {}'
-          ''.format(params.atlas, params.smoothing_param, params.node_size))
-
-    atlas_spec, _ = check_atlas(params.atlas)
-    # num_procs will be validated inside in the functions using it.
-
-    # TODO should we check atlas compatibility with data for two subjects randomly?
-    #  load data for subjects, check atlas parcellation is compatible in size with data
-
-    return sub_id_list_path, input_dir, \
-           feature_list, weight_method_list, \
-           do_multi_edge, summary_stat, multi_edge_range_out, \
-           params.num_bins, params.edge_range, \
-           atlas_spec, out_dir, node_size, params.smoothing_param, roi_stats, \
-           params.num_procs, params.overwrite_results
-
-
-if __name__ == '__main__':
-    cli_run()
+    print(run_dir)
+    return run_dir
