@@ -14,7 +14,6 @@ class AtlasInfo:
     centroids: dict[str, tuple[float, float, float]]
     roi_labels: Any
     ignore_label: Any
-    is_cortical: bool
 
 
 @dataclass(frozen=True)
@@ -37,9 +36,7 @@ class RunConfig:
     roi_stats: tuple[Any, ...] = ()
     roi_stat_names: tuple[str, ...] = ()
     return_results: bool = False
-    overwrite_results: bool = False
     num_procs: int = 1
-    export_graphml: bool = False
 
 
 @dataclass

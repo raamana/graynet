@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import logging
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import hiwenet
 import networkx as nx
@@ -591,7 +590,6 @@ def run_multiedge(
         summary_stats=tuple(stat_funcs),
         summary_stat_names=tuple(stat_names),
         return_results=return_results,
-        overwrite_results=overwrite_results,
         num_procs=num_procs,
     )
 

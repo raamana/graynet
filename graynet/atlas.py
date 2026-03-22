@@ -30,11 +30,9 @@ def resolve_atlas(base_feature: str, atlas_spec, node_size=None) -> AtlasInfo:
     if base_feature in cfg.features_cortical:
         uniq_rois, centroids, roi_labels = roi_labels_centroids(atlas_spec, node_size)
         ignore_label = cfg.null_roi_name
-        is_cortical = True
     elif base_feature in cfg.features_volumetric:
         uniq_rois, centroids, roi_labels = volumetric_roi_info(atlas_spec)
         ignore_label = cfg.null_roi_index
-        is_cortical = False
     else:
         raise ValueError(
             f"Unrecognized type of base_feature: {base_feature}. "
@@ -55,7 +53,6 @@ def resolve_atlas(base_feature: str, atlas_spec, node_size=None) -> AtlasInfo:
         centroids=formatted_centroids,
         roi_labels=roi_labels,
         ignore_label=ignore_label,
-        is_cortical=is_cortical,
     )
 
 
