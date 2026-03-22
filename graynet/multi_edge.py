@@ -5,30 +5,23 @@ import traceback
 import warnings
 from functools import partial
 from multiprocessing import Manager, Pool
-from os.path import getsize, isfile
-from sys import version_info
 
 import hiwenet
 import networkx as nx
 import numpy as np
 
-if version_info.major > 2:
-    from graynet.utils import (stamp_expt_multiedge, check_params_multiedge,
-                               make_output_path_graph,
-                               save_graph, check_subjects, check_stat_methods,
-                               check_num_bins,
-                               check_weights,
-                               check_num_procs, check_atlas, check_edge_range_dict,
-                               mask_background_roi,
-                               warn_nan,
-                               stamp_expt_weight, import_features,
-                               save_per_subject_graph)
-    from graynet import parcellate
-    from graynet import config_graynet as cfg
-else:
-    raise NotImplementedError(
-            'graynet supports only Python 3 or higher. '
-            'Upgrade to Python 3+ is highly recommended.')
+from graynet.utils import (stamp_expt_multiedge, check_params_multiedge,
+                           make_output_path_graph,
+                           save_graph, check_subjects, check_stat_methods,
+                           check_num_bins,
+                           check_weights,
+                           check_num_procs, check_atlas, check_edge_range_dict,
+                           mask_background_roi,
+                           warn_nan,
+                           stamp_expt_weight, import_features,
+                           save_per_subject_graph, as_path)
+from graynet import parcellate
+from graynet import config_graynet as cfg
 
 
 def extract_multiedge(subject_id_list,
@@ -230,6 +223,7 @@ def extract_multiedge(subject_id_list,
     # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
     uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
 
+    out_dir = as_path(out_dir)
     print('\nProcessing {} features resampled to {} atlas,'
           ' smoothed at {} with node size {}'.format(base_feature_list, atlas_name,
                                                      smoothing_param, node_size))
@@ -302,8 +296,7 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
         out_path_multigraph = make_output_path_graph(out_dir, subject,
                                                      [expt_id_multi, 'multigraph'])
         # skipping the computation if the file exists already
-        if not overwrite_results and isfile(out_path_multigraph) and getsize(
-                out_path_multigraph) > 0:
+        if not overwrite_results and out_path_multigraph.is_file() and out_path_multigraph.stat().st_size > 0:
             print('\nMultigraph exists already at\n\t{}\n'
                   ' skipping its computation!'.format(out_path_multigraph))
             multigraph = None  # signal to re-read
@@ -313,42 +306,27 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
             for base_feature in base_feature_list:
 
                 try:
-                    features = import_features(input_dir,
-                                               [subject, ],
-                                               base_feature,
-                                               fwhm=smoothing_param,
-                                               atlas=atlas)
-
+                    features = import_features(input_dir, [subject, ], base_feature, fwhm=smoothing_param, atlas=atlas)
                 except:
                     traceback.print_exc()
-                    warnings.warn('Unable to read {} features'
-                                  ' for {}\n Skipping it.'
-                                  ''.format(base_feature, subject), UserWarning)
+                    warnings.warn(f'Unable to read {base_feature} features for {subject}\n Skipping it.', UserWarning)
                     return
 
-                data, rois = mask_background_roi(features[subject], roi_labels,
-                                                               cfg.null_roi_name)
+                data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
 
                 # unique stamp for each subject and weight
-                expt_id_single = stamp_expt_weight(base_feature, atlas_name,
-                                                   smoothing_param, node_size,
-                                                   weight_method)
+                expt_id_single = stamp_expt_weight(base_feature, atlas_name, smoothing_param, node_size, weight_method)
                 sys.stdout.write('\nProcessing id {:{id_width}} --'
                                  ' weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
-                                 ' :'.format(subject, weight_method, ww + 1,
-                                             num_weights,
-                                             nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width,
+                                 ' :'.format(subject, weight_method, ww + 1, num_weights, 
+                                             nd_wm=nd_wm, id_width=max_id_width,
                                              wtname_width=max_wtname_width))
 
                 # actual computation of pair-wise features
                 try:
-                    unigraph = hiwenet.extract(data,
-                                               rois,
-                                               weight_method=weight_method,
-                                               num_bins=num_bins,
-                                               edge_range=edge_range_dict[base_feature],
+                    unigraph = hiwenet.extract(data, rois, weight_method=weight_method, 
+                                               num_bins=num_bins, edge_range=edge_range_dict[base_feature],
                                                return_networkx_graph=True)
-
                     # retrieving edge weights
                     weight_vec = np.array(list(nx.get_edge_attributes(unigraph, 'weight').values()))
                     warn_nan(weight_vec)
@@ -366,19 +344,18 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
                           ''.format(weight_method, base_feature, subject))
                     traceback.print_exc()
 
-                print('Done.')
+                else:
+                    print('Done.')
 
-                # TODO consider extracting some network features upon user request.
+                    # TODO consider extracting some network features upon user request.
 
-                add_nodal_positions(unigraph, centroids)
-                save_per_subject_graph(unigraph, out_dir, subject, expt_id_single)
+                    add_nodal_positions(unigraph, centroids)
+                    save_per_subject_graph(unigraph, out_dir, subject, expt_id_single)
 
-                # adding edges/weights from each feature to a multigraph
-                # this also encodes the sources
-                for u, v in unigraph.edges():
-                    multigraph.add_edge(u, v,
-                                        weight=unigraph[u][v]['weight'],
-                                        base_feature=base_feature)
+                    # adding edges/weights from each feature to a multigraph
+                    # this also encodes the sources
+                    for u, v in unigraph.edges():
+                        multigraph.add_edge(u, v, weight=unigraph[u][v]['weight'], base_feature=base_feature)
 
             # adding position info to nodes (for visualization later)
             add_nodal_positions(multigraph, centroids)
@@ -389,8 +366,8 @@ def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
             out_path_summary = make_output_path_graph(out_dir, subject,
                                                       [expt_id_multi, stat_name, 'multigraph'])
             if (not overwrite_results) and \
-                    isfile(out_path_summary) and \
-                    (getsize(out_path_summary) > 0):
+                    out_path_summary.is_file() and \
+                    (out_path_summary.stat().st_size > 0):
                 print('Summary {} of multigraph exists already at\n\t{}\n'
                       ' skipping its computation!'
                       ''.format(stat_name, out_path_summary))
@@ -446,7 +423,8 @@ def save_summary_graph(graph, out_dir, subject,
     if out_dir is not None:
         # get outpath returned from hiwenet based on dist name and all other params
         # choose out_dir name based on dist name and all other parameters
-        out_subject_dir = out_dir.joinpath(subject)
+        out_dir = as_path(out_dir)
+        out_subject_dir = out_dir / subject
         if not out_subject_dir.exists():
             out_subject_dir.mkdir(exist_ok=True, parents=True)
 

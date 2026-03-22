@@ -1,6 +1,7 @@
 __all__ = ['extract', 'roiwise_stats_indiv', 'cli_run']
 
 import argparse
+from importlib.metadata import PackageNotFoundError, version
 import logging
 import pickle
 import sys
@@ -9,7 +10,6 @@ import warnings
 from functools import partial
 from multiprocessing import Manager as MultiProcManager, Pool
 from pathlib import Path
-from sys import version_info
 
 import hiwenet
 import networkx as nx
@@ -20,17 +20,17 @@ from graynet.utils import (calc_roi_statistics, check_atlas, check_num_procs,
                            check_subjects, check_weight_params, check_weights,
                            import_features, mask_background_roi, save,
                            save_per_subject_graph, save_summary_stats,
-                           stamp_experiment, stamp_expt_weight, warn_nan)
+                           stamp_experiment, stamp_expt_weight, warn_nan, as_path)
 
-if version_info.major > 2:
-    from graynet import utils
-    from graynet.volumetric import extract_per_subject_volumetric, volumetric_roi_info
-    from graynet.parcellate import roi_labels_centroids
-    from graynet import config_graynet as cfg
-    from graynet._version import __version__
-else:
-    raise NotImplementedError('graynet supports only Python 3. '
-                              'Upgrade to Python 3.6 or higher is required.')
+from graynet import utils
+from graynet.volumetric import extract_per_subject_volumetric, volumetric_roi_info
+from graynet.parcellate import roi_labels_centroids
+from graynet import config_graynet as cfg
+
+try:
+    __version__ = version('graynet')
+except PackageNotFoundError:
+    __version__ = '0+unknown'
 
 def _configure_numpy_error_handling():
     """
@@ -227,6 +227,7 @@ def extract(subject_id_list,
     # roi_labels, ctx_annot = freesurfer_roi_labels(atlas)
     # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
 
+    out_dir = as_path(out_dir)
     print('\nProcessing {} features'.format(base_feature))
 
     if not return_results:
@@ -485,6 +486,7 @@ def roiwise_stats_indiv(subject_id_list, input_dir,
                          ' Must be one of {}'
                          ''.format(base_feature, cfg.base_feature_list))
 
+    out_dir = as_path(out_dir)
     print('\nProcessing {} features resampled to {} atlas,'
           ' smoothed at {} with node size {}'.format(base_feature, atlas,
                                                      smoothing_param, node_size))
@@ -564,7 +566,8 @@ def cli_run():
                     do_multi_edge, summary_stats, multi_edge_range, num_bins,
                     edge_range, atlas, out_dir, node_size, smoothing_param,
                     roi_stats, num_procs, overwrite_results]
-        with open(out_dir.joinpath('user_options.pkl'), 'wb') as of:
+        out_dir = as_path(out_dir)
+        with (out_dir / 'user_options.pkl').open('wb') as of:
             pickle.dump(user_opt, of)
     except:
         # ignore
@@ -881,8 +884,8 @@ def parse_args():
         # write to a file in out folder
         try:
             sub_id_list_path = input_dir / 'id_list_freesurfer_graynet.txt'
-            with open(sub_id_list_path, 'w') as idlf:
-                idlf.writelines('\n'.join(id_list))
+            with sub_id_list_path.open('w') as idlf:
+                idlf.write('\n'.join(sub_id.name for sub_id in id_list))
         except:
             raise IOError('Unable to write auto generated id list (n={}) to disk'
                           ' to\n  {}'.format(len(id_list), sub_id_list_path))
