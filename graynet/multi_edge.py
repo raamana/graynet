@@ -1,448 +1,52 @@
-__all__ = ['extract_multiedge', 'summarize_multigraph']
+__all__ = ["extract_multiedge", "summarize_multigraph"]
 
-import sys
-import traceback
-import warnings
-from functools import partial
-from multiprocessing import Manager, Pool
-
-import hiwenet
 import networkx as nx
 import numpy as np
 
-from graynet.utils import (stamp_expt_multiedge, check_params_multiedge,
-                           make_output_path_graph,
-                           save_graph, check_subjects, check_stat_methods,
-                           check_num_bins,
-                           check_weights,
-                           check_num_procs, check_atlas, check_edge_range_dict,
-                           mask_background_roi,
-                           warn_nan,
-                           stamp_expt_weight, import_features,
-                           save_per_subject_graph, as_path)
-from graynet import parcellate
 from graynet import config_graynet as cfg
+from graynet.pipeline import run_multiedge
 
 
-def extract_multiedge(subject_id_list,
-                      input_dir,
-                      base_feature_list=cfg.default_features_multi_edge,
-                      weight_method_list=cfg.default_weight_method,
-                      summary_stats=cfg.multi_edge_summary_func_default,
-                      num_bins=cfg.default_num_bins,
-                      edge_range_dict=cfg.edge_range_predefined,
-                      atlas=cfg.default_atlas,
-                      smoothing_param=cfg.default_smoothing_param,
-                      node_size=cfg.default_node_size,
-                      out_dir=None,
-                      return_results=False,
-                      overwrite_results=False,
-                      num_procs=cfg.default_num_procs):
-    """
-    Extracts weighted networks (matrix of pair-wise ROI distances)
-    based on multiple gray matter features based on Freesurfer processing.
-
-    Parameters
-    ----------
-    subject_id_list : str or list
-         must be path to a file containing subject IDs, or a list of subject IDs
-    input_dir : str
-        Path to the input directory where features can be read.
-        This can be Freesurfer's SUBJECTS_DIR, where output processing is stored.
-        Or another directory with a structure that graynet can parse.
-    base_feature_list : list
-        Set of features that drive the different edges between the pair of ROIs.
-
-        For example, if you choose thickness and pial_curv, each pair of ROIs will have two edges.
-
-        This multi-edge network can be turned into a single network based on
-        averaging weights from different individual networks,
-        or computing another summary statistic of your interest.
-
-    weight_method_list : string(s), optional
-        Type of distance (or metric) to compute between the pair of histograms.
-
-        It must be one of the following methods:
-
-        - 'chebyshev'
-        - 'chebyshev_neg'
-        - 'chi_square'
-        - 'correlate'
-        - 'correlate_1'
-        - 'cosine'
-        - 'cosine_1'
-        - 'cosine_2'
-        - 'cosine_alt'
-        - 'euclidean'
-        - 'fidelity_based'
-        - 'histogram_intersection'
-        - 'histogram_intersection_1'
-        - 'jensen_shannon'
-        - 'kullback_leibler'
-        - 'manhattan'
-        - 'minowski'
-        - 'noelle_1'
-        - 'noelle_2'
-        - 'noelle_3'
-        - 'noelle_4'
-        - 'noelle_5'
-        - 'relative_bin_deviation'
-        - 'relative_deviation'
-
-        Note only the following are *metrics*:
-
-        - 'manhattan'
-        - 'minowski'
-        - 'euclidean'
-        - 'noelle_2'
-        - 'noelle_4'
-        - 'noelle_5'
-
-        The following are *semi- or quasi-metrics*:
-
-        - 'kullback_leibler'
-        - 'jensen_shannon'
-        - 'chi_square'
-        - 'chebyshev'
-        - 'cosine_1'
-        - 'chebyshev_neg'
-        - 'correlate_1'
-        - 'histogram_intersection_1'
-        - 'relative_deviation'
-        - 'relative_bin_deviation'
-        - 'noelle_1'
-        - 'noelle_3'
-
-        The following are  classified to be similarity functions:
-
-        - 'histogram_intersection'
-        - 'correlate'
-        - 'cosine'
-        - 'cosine_2'
-        - 'cosine_alt'
-        - 'fidelity_based'
-
-        *Default* choice: 'manhattan'.
-
-    summary_stats : list of str
-        A string, or list of strings, each representing a method
-            (like 'median', 'prod' or 'max'),
-        to compute a summay statistic from the array of multiple weights computed.
-
-        This must be available as a member of numpy or scipy.stats.
-
-    num_bins : int
-        Number of histogram bins to use when computing pair-wise weights.
-        Default : 25
-
-    edge_range_dict : tuple or list
-        The range of edges (two finite values) within which to build the histogram
-            e.g. ``--edge_range 0 5``.
-        This can be helpful (and important) to ensure correspondence across multiple
-        invocations of graynet (e.g. for different subjects),
-        in terms of range across all bins as well as individual bin edges.
-
-        Default :
-
-            - ( 0.0, 5.0) for ``freesurfer_thickness`` and
-            - (-0.3, 0.3) for ``freesurfer_curv``.
-
-    atlas : str
-        Name of the atlas whose parcellation to be used.
-        Choices for parcellation: ['fsaverage', 'glasser2016'], which are primary cortical.
-        Volumetric whole-brain atlases will be added soon.
-
-    smoothing_param : scalar
-        Smoothing parameter, which could be fwhm for Freesurfer cortical features,
-        or another relevant for the chosen base_feature_list.
-        Default: assumed as fwhm=10mm for the default feature choice 'thickness'
-
-    node_size : scalar, optional
-        Parameter to indicate the size of the ROIs, subparcels or patches,
-        depending on type of atlas or feature. This feature is not implemented
-        yet, just a placeholder and to enable default computation.
-
-    out_dir : Path or str, optional
-        Path to output directory to store results.
-        Default: None, results are returned, but not saved to disk.
-        If this is None, return_results must be true.
-
-    return_results : bool
-        Flag to indicate whether to return the results to be returned. This flag
-        helps to reduce the memory requirements, when the number of nodes in a
-        parcellation or the number of subjects or weight methods are large,
-        as it doesn't retain results for all combinations, when running from
-        commmand line interface (or HPC). Default: False If this is False,
-        out_dir must be specified to save the results to disk.
-
-    overwrite_results : bool
-        Flag to request overwriting of existing results, in case of reruns/failed
-        jobs. By default, if the expected output file exists and is of non-zero
-        size, its computation is skipped (assuming the file is complete,
-        usable and not corrupted).
-
-    num_procs : int
-        Number of parallel processes to use to speed up computation.
-
-    Returns
-    -------
-    edge_weights_all : dict, None
-        If return_results is True, this will be a dictionary keyed in by a tuple:
-        (weight method, subject_ID) The value of each edge_weights_all[(weight
-        method, subject_ID)] is a numpy array of length p = k*(k-1)/2, with k =
-        number of nodes in the atlas parcellation. If return_results is False,
-        this will be None, which is the default.
-    """
-
-    # volumetric version is not fully tested yet!
-    for feat in base_feature_list:
-        if feat in cfg.features_volumetric:
-            raise NotImplementedError('MultiEdge networks are not yet supported '
-                                      'for volumetric features! '
-                                      'They are under development. Stay tuned.')
-
-    # All the checks must happen here, as this is key function in the API
-    check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
-                           node_size, out_dir, return_results)
-    atlas, atlas_name = check_atlas(atlas)
-
-    subject_id_list, num_subjects, max_id_width, nd_id = check_subjects(subject_id_list)
-
-    num_bins = check_num_bins(num_bins)
-    edge_range_dict = check_edge_range_dict(edge_range_dict, base_feature_list)
-    weight_method_list, num_weights, max_wtname_width, nd_wm = check_weights(
-        weight_method_list)
-
-    # validating the choice and getting a callable
-    summary_stats, summary_stat_names, _, _, _ = check_stat_methods(summary_stats)
-
-    num_procs = check_num_procs(num_procs)
-    pretty_print_options = (max_id_width, nd_id, num_weights, max_wtname_width, nd_wm)
-
-    # roi_labels, ctx_annot = parcellate.freesurfer_roi_labels(atlas)
-    # uniq_rois, roi_size, num_nodes = roi_info(roi_labels)
-    uniq_rois, centroids, roi_labels = parcellate.roi_labels_centroids(atlas)
-
-    out_dir = as_path(out_dir)
-    print('\nProcessing {} features resampled to {} atlas,'
-          ' smoothed at {} with node size {}'.format(base_feature_list, atlas_name,
-                                                     smoothing_param, node_size))
-
-    if not return_results:
-        if out_dir is None:
-            raise ValueError('When return_results=False, '
-                             'out_dir must be specified '
-                             'to be able to save the results.')
-        if not out_dir.exists():
-            out_dir.mkdir(exist_ok=True, parents=True)
-
-    partial_func_extract = partial(per_subject_multi_edge, input_dir,
-                                   base_feature_list, roi_labels, centroids,
-                                   weight_method_list, summary_stats,
-                                   summary_stat_names, atlas, atlas_name,
-                                   smoothing_param, node_size, num_bins,
-                                   edge_range_dict, out_dir, return_results,
-                                   overwrite_results, pretty_print_options)
-    if num_procs > 1:
-        chunk_size = int(np.ceil(num_subjects / num_procs))
-        with Manager():
-            with Pool(processes=num_procs) as pool:
-                edge_weights_list_dicts = pool.map(partial_func_extract,
-                                                   subject_id_list,
-                                                   chunk_size)
-    else:
-        # reverting to sequential processing
-        edge_weights_list_dicts = [partial_func_extract(subject=sub_id) for sub_id in
-                                   subject_id_list]
-
-    if return_results:
-        edge_weights_all = dict()
-        for combo in edge_weights_list_dicts:
-            # each element from output of parallel loop is a dict
-            #   keyed in by {subject, weight)
-            edge_weights_all.update(combo)
-    else:
-        edge_weights_all = None
-
-    print('\ngraynet computation done.')
-    return edge_weights_all
-
-
-def per_subject_multi_edge(input_dir, base_feature_list, roi_labels, centroids,
-                           weight_method_list, summary_stats, summary_stat_names,
-                           atlas, atlas_name, smoothing_param, node_size,
-                           num_bins, edge_range_dict,
-                           out_dir, return_results, overwrite_results, pretty_print_options,
-                           subject=None):  # purposefully leaving it last to enable partial function creation
-    """
-    Extracts give set of weights for one subject.
-    """
-
-    if subject is None:
-        return
-
-    if return_results:
-        edge_weights_all = dict()
-    else:
-        edge_weights_all = None
-
-    max_id_width, nd_id, num_weights, max_wtname_width, nd_wm = pretty_print_options
-
-    for ww, weight_method in enumerate(weight_method_list):
-
-        expt_id_multi = stamp_expt_multiedge(base_feature_list, atlas_name,
-                                             smoothing_param, node_size,
-                                             weight_method)
-        out_path_multigraph = make_output_path_graph(out_dir, subject,
-                                                     [expt_id_multi, 'multigraph'])
-        # skipping the computation if the file exists already
-        if not overwrite_results and out_path_multigraph.is_file() and out_path_multigraph.stat().st_size > 0:
-            print('\nMultigraph exists already at\n\t{}\n'
-                  ' skipping its computation!'.format(out_path_multigraph))
-            multigraph = None  # signal to re-read
-        else:
-            multigraph = nx.MultiGraph()
-
-            for base_feature in base_feature_list:
-
-                try:
-                    features = import_features(input_dir, [subject, ], base_feature, fwhm=smoothing_param, atlas=atlas)
-                except:
-                    traceback.print_exc()
-                    warnings.warn(f'Unable to read {base_feature} features for {subject}\n Skipping it.', UserWarning)
-                    return
-
-                data, rois = mask_background_roi(features[subject], roi_labels, cfg.null_roi_name)
-
-                # unique stamp for each subject and weight
-                expt_id_single = stamp_expt_weight(base_feature, atlas_name, smoothing_param, node_size, weight_method)
-                sys.stdout.write('\nProcessing id {:{id_width}} --'
-                                 ' weight {:{wtname_width}} ({:{nd_wm}}/{:{nd_wm}})'
-                                 ' :'.format(subject, weight_method, ww + 1, num_weights, 
-                                             nd_wm=nd_wm, id_width=max_id_width,
-                                             wtname_width=max_wtname_width))
-
-                # actual computation of pair-wise features
-                try:
-                    unigraph = hiwenet.extract(data, rois, weight_method=weight_method, 
-                                               num_bins=num_bins, edge_range=edge_range_dict[base_feature],
-                                               return_networkx_graph=True)
-                    # retrieving edge weights
-                    weight_vec = np.array(list(nx.get_edge_attributes(unigraph, 'weight').values()))
-                    warn_nan(weight_vec)
-                    if return_results:
-                        edge_weights_all[(weight_method, base_feature, subject)] = weight_vec
-
-                except (RuntimeError, RuntimeWarning) as runexc:
-                    print(runexc)
-                except KeyboardInterrupt:
-                    print('Exiting on keyborad interrupt! \n'
-                          'Abandoning the remaining processing ')
-                    sys.exit(1)
-                except:
-                    print('Unable to extract {} weights for {} for {}'
-                          ''.format(weight_method, base_feature, subject))
-                    traceback.print_exc()
-
-                else:
-                    print('Done.')
-
-                    # TODO consider extracting some network features upon user request.
-
-                    add_nodal_positions(unigraph, centroids)
-                    save_per_subject_graph(unigraph, out_dir, subject, expt_id_single)
-
-                    # adding edges/weights from each feature to a multigraph
-                    # this also encodes the sources
-                    for u, v in unigraph.edges():
-                        multigraph.add_edge(u, v, weight=unigraph[u][v]['weight'], base_feature=base_feature)
-
-            # adding position info to nodes (for visualization later)
-            add_nodal_positions(multigraph, centroids)
-            save_graph(multigraph, out_path_multigraph, 'multi-edge')
-
-        for stat_func, stat_name in zip(summary_stats, summary_stat_names):
-            # creating single graph with a summary edge weight (like median)
-            out_path_summary = make_output_path_graph(out_dir, subject,
-                                                      [expt_id_multi, stat_name, 'multigraph'])
-            if (not overwrite_results) and \
-                    out_path_summary.is_file() and \
-                    (out_path_summary.stat().st_size > 0):
-                print('Summary {} of multigraph exists already at\n\t{}\n'
-                      ' skipping its computation!'
-                      ''.format(stat_name, out_path_summary))
-            else:
-                if multigraph is None:
-                    multigraph = nx.read_graphml(out_path_multigraph)
-
-                try:
-                    summary_multigraph = summarize_multigraph(multigraph, stat_func)
-                    add_nodal_positions(summary_multigraph, centroids)
-                    save_graph(summary_multigraph, out_path_summary,
-                               '{} summary'.format(stat_name))
-                except:
-                    print('Summary {} could not be computed - skipping!'
-                          ''.format(stat_name))
-                    traceback.print_exc()
-
-    return edge_weights_all
+def extract_multiedge(
+    subject_id_list,
+    input_dir,
+    base_feature_list=cfg.default_features_multi_edge,
+    weight_method_list=cfg.default_weight_method,
+    summary_stats=cfg.multi_edge_summary_func_default,
+    num_bins=cfg.default_num_bins,
+    edge_range_dict=cfg.edge_range_predefined,
+    atlas=cfg.default_atlas,
+    smoothing_param=cfg.default_smoothing_param,
+    node_size=cfg.default_node_size,
+    out_dir=None,
+    return_results=False,
+    overwrite_results=False,
+    num_procs=cfg.default_num_procs,
+):
+    return run_multiedge(
+        subject_id_list,
+        input_dir,
+        base_feature_list=base_feature_list,
+        weight_method_list=weight_method_list,
+        summary_stats=summary_stats,
+        num_bins=num_bins,
+        edge_range_dict=edge_range_dict,
+        atlas=atlas,
+        smoothing_param=smoothing_param,
+        node_size=node_size,
+        out_dir=out_dir,
+        return_results=return_results,
+        overwrite_results=overwrite_results,
+        num_procs=num_procs,
+    )
 
 
 def summarize_multigraph(multigraph, func_summary):
-    """Creating single graph with a summary edge weight (like median)"""
-
     summary_multigraph = nx.Graph()
     for u, v in multigraph.edges():
-        # looping through parallel edges and obtaining their weights.
-        all_weights = np.array([edge_item['weight']
-                                for idx, edge_item in multigraph[u][v].items()])
-        # float() needed due to graphml limitation
-        summary_weight = float(func_summary(all_weights))
-        summary_multigraph.add_edge(u, v, weight=summary_weight)
-
+        all_weights = np.array(
+            [edge_item["weight"] for _, edge_item in multigraph[u][v].items()],
+            dtype=float,
+        )
+        summary_multigraph.add_edge(u, v, weight=float(func_summary(all_weights)))
     return summary_multigraph
-
-
-def add_nodal_positions(graph, centroids):
-    """Adds the x, y, z attributes to each node in graph."""
-
-    # adding position info to nodes (for visualization later)
-    for roi in centroids:
-        graph.nodes[roi]['x'] = float(centroids[roi][0])
-        graph.nodes[roi]['y'] = float(centroids[roi][1])
-        graph.nodes[roi]['z'] = float(centroids[roi][2])
-
-    return
-
-
-def save_summary_graph(graph, out_dir, subject,
-                       str_suffix=None,
-                       summary_descr='summary'):
-    """Saves the features to disk."""
-
-    if out_dir is not None:
-        # get outpath returned from hiwenet based on dist name and all other params
-        # choose out_dir name based on dist name and all other parameters
-        out_dir = as_path(out_dir)
-        out_subject_dir = out_dir / subject
-        if not out_subject_dir.exists():
-            out_subject_dir.mkdir(exist_ok=True, parents=True)
-
-        if str_suffix is not None:
-            out_file_name = '{}_{}_multigraph_graynet.graphml' \
-                            ''.format(str_suffix, summary_descr)
-        else:
-            out_file_name = '_{}_multigraph_graynet.graphml'.format(summary_descr)
-
-        out_weights_path = out_subject_dir / out_file_name
-
-        try:
-            print(graph)
-            nx.write_graphml(graph, out_weights_path, encoding='utf-8')
-            print('\nSaved the summary multi-graph to \n{}'.format(out_weights_path))
-        except:
-            print('\nUnable to save summary multi-graph to \n{}'
-                  ''.format(out_weights_path))
-            traceback.print_exc()
-
-    return
