@@ -8,6 +8,7 @@ dynamic = ["version"]
 description = "Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density. "
 readme = "README.md"
 license = "MIT"
+requires-python = ">=3.10"
 authors = [
     { name = "Pradeep Reddy Raamana", email = "raamana@gmail.com" },
 ]
@@ -18,10 +19,14 @@ classifiers = [
     "Operating System :: POSIX",
     "Operating System :: Unix",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development",
-    "License :: OSI Approved :: MIT License",    
+    "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
     "hiwenet",
@@ -33,6 +38,28 @@ dependencies = [
     "scipy",
 ]
 
+[project.optional-dependencies]
+test = [
+    "hypothesis",
+    "pytest",
+]
+docs = [
+    "hiwenet",
+    "networkx",
+    "nibabel",
+    "numpy",
+    "numpydoc",
+    "sphinx",
+    "sphinx-argparse",
+    "sphinx-rtd-theme",
+    "sphinx-theme-pd",
+]
+dev = [
+    "coverage[toml]",
+    "flake8",
+    "graynet[docs,test]",
+]
+
 [project.urls]
 Homepage = "https://github.com/raamana/graynet"
 
@@ -41,9 +68,9 @@ graynet = "graynet.__main__:main"
 
 [tool.hatch.build]
 include = [
-    "graynet/*.py",
-    "graynet/atlases/*",
-    "graynet/resources/*",
+    "graynet/**/*.py",
+    "graynet/atlases/**/*",
+    "graynet/resources/**/*",
 ]
 exclude = [
     "graynet/tests/*",
@@ -52,10 +79,15 @@ exclude = [
 [tool.hatch.version]
 source = "vcs"
 
-[tool.hatch.build.hooks.vcs]
-version-file = "graynet/_version.py"
-
 [tool.hatch.build.targets.sdist]
 include = [
+    "/docs",
+    "/example_data",
     "/graynet",
+    "/LICENSE",
+    "/Makefile",
+    "/README.md",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["graynet/tests"]

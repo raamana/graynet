@@ -1,6 +1,0 @@
-numpy
-nibabel
-networkx
-hiwenet
-plotly
-scipy
