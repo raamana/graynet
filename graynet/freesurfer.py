@@ -1,9 +1,7 @@
-from __future__ import print_function
-
 __all__ = ['import_features', 'get_data']
 
 from collections.abc import Iterable
-from os.path import exists as pexists
+from pathlib import Path
 from traceback import print_exc
 
 import nibabel
@@ -27,8 +25,9 @@ def import_features(fs_dir,
             raise ValueError('Empty subject list.')
         subjects_list = subject_list
     elif isinstance(subject_list, str):
-        if not pexists(subject_list):
-            raise IOError("subject list path doesn't exist: {}".format(subject_list))
+        subject_list = Path(subject_list)
+        if not subject_list.exists():
+            raise IOError(f"subject list path doesn't exist: {subject_list}")
         subjects_list = np.atleast_1d(np.genfromtxt(subject_list, dtype=str).astype(str))
     else:
         raise ValueError('Invalid value provided for subject list.'
@@ -38,13 +37,12 @@ def import_features(fs_dir,
     features = dict()
     for subj_id in subjects_list:
         try:
-            print('Reading {} for {} ... '.format(base_feature, subj_id), end='')
+            print(f'Reading {base_feature} for {subj_id} ... ', end='')
             features[subj_id] = get_data(fs_dir, subj_id, base_feature, fwhm, atlas)
             print(' Done.')
         except:
             print_exc()
-            raise ValueError('{} data for {} could not be read!'
-                             ''.format(base_feature, subj_id))
+            raise ValueError(f'{base_feature} data for {subj_id} could not be read!')
 
     return features
 
@@ -64,7 +62,7 @@ def get_data(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverage'):
         whole = np.hstack((left, right))
     else:
         raise ValueError('Invalid choice for freesurfer data.'
-                         ' Valid choices: {}'.format(cfg.features_freesurfer))
+                         f' Valid choices: {cfg.features_freesurfer}')
 
     return whole
 
@@ -75,14 +73,14 @@ def __all_data_exists(fs_dir, subject_id, base_feature, fwhm=10, atlas='fsaverag
     if base_feature.lower() in _base_feature_list:
         data_exists = True
         for hemi in ['lh', 'rh']:
-            if not pexists(path_to_vertex_data(fs_dir, subject_id,
-                                               feature=base_feature,
-                                               hemi=hemi,
-                                               atlas=atlas, fwhm=fwhm)):
+            if not path_to_vertex_data(fs_dir, subject_id,
+                                       feature=base_feature,
+                                       hemi=hemi,
+                                       atlas=atlas, fwhm=fwhm).exists():
                 return False
     else:
         raise ValueError('Invalid choice for freesurfer data. '
-                         'Valid choices: {}'.format(_base_feature_list))
+                         f'Valid choices: {_base_feature_list}')
 
     return data_exists
 
@@ -91,7 +89,8 @@ def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10,
                         atlas='fsaverage', feature='thickness'):
     """Returning the path to surface features. Using a smoothed version"""
 
-    return fsd / sid / 'surf' / '{}.{}.fwhm{}.{}.mgh'.format(hemi, feature, fwhm, atlas)
+    fsd = Path(fsd)
+    return fsd / sid / 'surf' / f'{hemi}.{feature}.fwhm{fwhm}.{atlas}.mgh'
 
 
 def __read_morph_feature(thk_path):

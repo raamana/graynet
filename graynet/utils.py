@@ -5,10 +5,8 @@ Common utilities
 """
 from collections.abc import Iterable, Sequence
 import logging
-import os
 import sys
 import traceback
-from genericpath import exists as pexists
 from multiprocessing import cpu_count
 from pathlib import Path
 
@@ -17,6 +15,15 @@ import nibabel
 import numpy as np
 
 from graynet import config_graynet as cfg, freesurfer
+
+
+def as_path(path_like):
+    """Normalize filesystem paths while preserving ``None``."""
+
+    if path_like is None:
+        return None
+
+    return Path(path_like)
 
 
 def check_features(base_feature_list):
@@ -69,21 +76,22 @@ def check_atlas(atlas_spec):
 
     # when its a name for pre-defined atlas
     if isinstance(atlas_spec, str):
-        if not pexists(atlas_spec):  # just a name
+        atlas_path = Path(atlas_spec)
+        if not atlas_path.exists():  # just a name
             atlas_spec = atlas_spec.lower()
             if atlas_spec not in cfg.atlas_list:
                 raise ValueError(
                         'Invalid choice of atlas {}.'
                         ' Accepted : {}'.format(atlas_spec, cfg.atlas_list))
             atlas_name = atlas_spec
-        elif os.path.isdir(atlas_spec):  # cortical atlas in Freesurfer org
+        elif atlas_path.is_dir():  # cortical atlas in Freesurfer org
             if not check_atlas_annot_exist(atlas_spec):
                 raise ValueError(
                         'Given atlas folder does not contain Freesurfer label '
                         'annot files. '
                         'Needed : given_atlas_dir/label/?h.aparc.annot')
             atlas_name = filename_without_ext(atlas_spec)
-        elif pexists(atlas_spec):  # may be a volumetric atlas?
+        elif atlas_path.exists():  # may be a volumetric atlas?
             atlas_name = filename_without_ext(atlas_spec)
             try:
                 atlas_spec = nibabel.load(atlas_spec)
@@ -144,7 +152,8 @@ def make_output_path_graph(out_dir, subject, str_prefixes):
     if out_dir is not None:
         # get outpath returned from hiwenet, based on dist name and all other params
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = out_dir.joinpath(subject)
+        out_dir = as_path(out_dir)
+        out_subject_dir = out_dir / subject
         if not out_subject_dir.exists():
             out_subject_dir.mkdir(exist_ok=True, parents=True)
 
@@ -152,7 +161,7 @@ def make_output_path_graph(out_dir, subject, str_prefixes):
             str_prefixes = [str_prefixes, ]
 
         out_file_name = '{}_graynet.graphml'.format('_'.join(str_prefixes))
-        out_weights_path = out_subject_dir.joinpath(out_file_name)
+        out_weights_path = out_subject_dir / out_file_name
     else:
         out_weights_path = None
 
@@ -261,10 +270,11 @@ def check_subjects(subjects_info):
 
     from pathlib import Path
     if isinstance(subjects_info, (Path, str)):
-        if not pexists(subjects_info):
+        subjects_path = as_path(subjects_info)
+        if not subjects_path.exists():
             raise IOError(
-                    'path to subject list does not exist: {}'.format(subjects_info))
-        subjects_list = np.genfromtxt(subjects_info, dtype=str)
+                    'path to subject list does not exist: {}'.format(subjects_path))
+        subjects_list = np.genfromtxt(subjects_path, dtype=str)
     elif isinstance(subjects_info, Iterable):
         if len(subjects_info) < 1:
             raise ValueError('Empty subject list.')
@@ -379,7 +389,7 @@ def check_edge_range_dict(edge_range_dict, base_feature_list,
     print('Setting given edge range ...')
     for feature in base_feature_list:
         sys.stdout.write('\n <---- {:20s} '.format(feature))
-        if feature in edge_range_dict:
+        if edge_range_dict is not None and feature in edge_range_dict:
             edge_range_dict[feature] = check_edge_range(edge_range_dict[feature])
             sys.stdout.write(': {} ----> \n'.format(edge_range_dict[feature]))
         elif feature in predefined_ranges:
@@ -391,6 +401,8 @@ def check_edge_range_dict(edge_range_dict, base_feature_list,
             # covers the case of edge_range_dict being None
             sys.stdout.write('edge range not given or predefined! '
                              'Setting it automatic (may change for each subject)')
+            if edge_range_dict is None:
+                edge_range_dict = dict()
             edge_range_dict[feature] = None
 
     return edge_range_dict
@@ -404,7 +416,9 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param,
 
     check_atlas(atlas)
 
-    if not pexists(in_dir):
+    in_dir = as_path(in_dir)
+    out_dir = as_path(out_dir)
+    if not in_dir.exists():
         raise IOError('Input directory at {} does not exist.'.format(in_dir))
 
     if out_dir is None and return_results is False:
@@ -412,8 +426,8 @@ def check_params_single_edge(base_features, in_dir, atlas, smoothing_param,
                          'nor being received when returned!\n'
                          'Specify out_dir (not None) or make return_results=True')
 
-    if out_dir is not None and not pexists(out_dir):
-        os.mkdir(out_dir)
+    if out_dir is not None and not out_dir.exists():
+        out_dir.mkdir(exist_ok=True, parents=True)
 
     if node_size not in cfg.allowed_mvpp:
         raise ValueError('Invalid min_vtx_per_patch. Choose one of {}'
@@ -427,7 +441,7 @@ def stamp_expt_multiedge(base_feature_list, atlas, smoothing_param, node_size,
     """Constructs a string to uniquely identify a given experiment."""
 
     import re
-    all_words = re.split('_|; |, |\*|\n| ', ' '.join(base_feature_list))
+    all_words = re.split('_|; |, |\n| ', ' '.join(base_feature_list))
     feat_repr = '_'.join(unique_order(all_words))
     expt_id = '{}_{}_smth{}_{}_{}'.format(feat_repr, atlas, smoothing_param,
                                           node_size,
@@ -444,7 +458,9 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
 
     check_atlas(atlas)
 
-    if not pexists(input_dir):
+    input_dir = as_path(input_dir)
+    out_dir = as_path(out_dir)
+    if not input_dir.exists():
         raise IOError('Input directory at {} does not exist.'.format(input_dir))
 
     if out_dir is None and return_results is False:
@@ -452,8 +468,8 @@ def check_params_multiedge(base_feature_list, input_dir, atlas, smoothing_param,
                          'nor being received when returned.\n'
                          'Specify out_dir (not None) or make return_results=True')
 
-    if out_dir is not None and not pexists(out_dir):
-        os.mkdir(out_dir)
+    if out_dir is not None and not out_dir.exists():
+        out_dir.mkdir(exist_ok=True, parents=True)
 
     # no checks on subdivison size yet, as its not implemented
 
@@ -534,7 +550,7 @@ def check_atlas_annot_exist(atlas_dir, hemi_list=None):
     atlas_dir = Path(atlas_dir).resolve()
     for hemi in hemi_list:
         annot_path = atlas_dir / 'label' / '{}.aparc.annot'.format(hemi)
-        if not annot_path.exists() or os.path.getsize(annot_path) == 0:
+        if not annot_path.exists() or annot_path.stat().st_size == 0:
             return False
 
     return True
@@ -601,7 +617,8 @@ def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject,
         # get outpath returned from hiwenet, based on dist name and all other
         # parameters
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = out_dir.joinpath(subject)
+        out_dir = as_path(out_dir)
+        out_subject_dir = out_dir / subject
         if not out_subject_dir.exists():
             out_subject_dir.mkdir(exist_ok=True, parents=True)
 
@@ -610,10 +627,10 @@ def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject,
         else:
             out_file_name = 'roi_stats.csv'
 
-        out_weights_path = out_subject_dir.joinpath(out_file_name)
+        out_weights_path = out_subject_dir / out_file_name
 
         try:
-            with open(out_weights_path, 'w') as of:
+            with out_weights_path.open('w') as of:
                 of.write('#roi,{}\n'.format(stat_name))
                 for name, value in zip(roi_labels, roi_values):
                     of.write('{},{}\n'.format(name, value))
@@ -634,7 +651,8 @@ def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
         # get outpath returned from hiwenet, based on dist name and all other
         # parameters
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = out_dir.joinpath(subject)
+        out_dir = as_path(out_dir)
+        out_subject_dir = out_dir / subject
         if not out_subject_dir.exists():
             out_subject_dir.mkdir(exist_ok=True, parents=True)
 
@@ -643,7 +661,7 @@ def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
         else:
             out_file_name = 'graynet.graphml'
 
-        out_weights_path = out_subject_dir.joinpath(out_file_name)
+        out_weights_path = out_subject_dir / out_file_name
 
         try:
             print(graph_nx)
@@ -663,7 +681,8 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
         # get outpath returned from hiwenet, based on dist name and all other
         # parameters
         # choose out_dir name  based on dist name and all other parameters
-        out_subject_dir = out_dir.joinpath(subject)
+        out_dir = as_path(out_dir)
+        out_subject_dir = out_dir / subject
         if not out_subject_dir.exists():
             out_subject_dir.mkdir(exist_ok=True, parents=True)
 
@@ -672,7 +691,7 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
         else:
             out_file_name = 'graynet.csv'
 
-        out_weights_path = out_subject_dir.joinpath(out_file_name)
+        out_weights_path = out_subject_dir / out_file_name
 
         try:
             np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
@@ -716,6 +735,7 @@ def get_CAT_data(input_dir, sid, base_feature):
 def get_SPM_CAT_img_path(input_dir, sid, base_feature):
     """Constructs the path for a given subject ID and feature"""
 
+    input_dir = as_path(input_dir)
     return input_dir / 'mri' / '{}{}.nii'.format(
             cfg.features_spm_cat_prefixes[base_feature], sid)
 

@@ -3,9 +3,6 @@ Module with handling the parcellation of different cortical atlases.
 
 """
 
-import os
-import os.path
-from os.path import isdir
 from pathlib import Path
 
 import nibabel as nib
@@ -38,10 +35,10 @@ def get_atlas_path(atlas_name=None):
             atlas_path = this_dir / 'atlases' /  atlas_name / 'atlas.nii'
         else:
             raise NotImplementedError(
-                'Atlas {} is not implemented / unreadable.'.format(atlas_name))
+                f'Atlas {atlas_name} is not implemented / unreadable.')
 
     # cortical atlas in Freesurfer org
-    elif os.path.isdir(atlas_name) and check_atlas_annot_exist(atlas_name):
+    elif Path(atlas_name).is_dir() and check_atlas_annot_exist(atlas_name):
         dir_path_atlas = Path(atlas_name).resolve()
         atlas_path = dir_path_atlas.parent
         atlas_name = dir_path_atlas.name
@@ -79,7 +76,7 @@ def freesurfer_roi_labels(atlas_name, node_size=None):
                 numbered.append(cfg.null_roi_name)
                 # as there is no subdivision in a Null ROI
             else:
-                numbered.append('{}_p{}'.format(rl, int(pi)))
+                numbered.append(f'{rl}_p{int(pi)}')
         # results --> 'lh_precuneus_p9' indicating patch 9 of left precuneus
         #   except when the ROI was labelled cfg.null_roi_name / 'null_roi_ignore'
 
@@ -93,7 +90,7 @@ def __combine_annotations(annot, atlas_name):
 
     max_len = 1 + max(max(map(len, annot['lh']['names'] + annot['rh']['names'])),
                       len(cfg.null_roi_name))
-    str_dtype = np.dtype('U{}'.format(max_len))
+    str_dtype = np.dtype(f'U{max_len}')
 
     named_labels = dict()
     for hemi in ['lh', 'rh']:
@@ -105,7 +102,7 @@ def __combine_annotations(annot, atlas_name):
                 idx_roi = np.nonzero(annot[hemi]['ctab'][:, 4] == label)[0][0]
                 mask_label = annot[hemi]['labels'] == label
                 named_labels[hemi][mask_label] = \
-                    '{}_{}'.format(hemi, annot[hemi]['names'][idx_roi])
+                    f"{hemi}_{annot[hemi]['names'][idx_roi]}"
 
         # setting the non-accessed vertices (part of non-cortex)
         # to a specific label to ignore later
@@ -134,7 +131,7 @@ def read_atlas_annot(atlas_dir, hemi_list=None):
     annot = dict()
     for hemi in hemi_list:
         annot[hemi] = dict()
-        annot_path = atlas_dir / 'label' / '{}.aparc.annot'.format(hemi)
+        annot_path = atlas_dir / 'label' / f'{hemi}.aparc.annot'
         annot[hemi]['labels'], annot[hemi]['ctab'], \
             annot[hemi]['names'] = nib.freesurfer.io.read_annot(annot_path, orig_ids=True)
 
@@ -152,7 +149,7 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     if hemi_list is None:
         hemi_list = ['lh', 'rh']
 
-    if isdir(atlas_spec):
+    if Path(atlas_spec).is_dir():
         atlas_dir = Path(atlas_spec).resolve()
     else:
         atlas_dir, atlas_name = get_atlas_path(atlas_spec)
@@ -160,7 +157,7 @@ def read_freesurfer_atlas(atlas_spec, hemi_list=None):
     coords, faces, info = dict(), dict(), dict()
 
     for hemi in hemi_list:
-        hemi_path = os.path.join(atlas_dir, 'surf', '{}.orig'.format(hemi))
+        hemi_path = atlas_dir / 'surf' / f'{hemi}.orig'
         coords[hemi], faces[hemi], info[hemi] = \
             nib.freesurfer.io.read_geometry(hemi_path, read_metadata=True)
 
@@ -233,15 +230,12 @@ def load_subdivision_patchwise(atlas_name, min_vtx_per_patch=100):
         raise ValueError('Only fsaverage is supported at the moment!')
 
     if min_vtx_per_patch not in cfg.allowed_mvpp:
-        raise ValueError('Invalid min_vtx_per_patch. Choose one of {}'
-                         ''.format(cfg.allowed_mvpp))
+        raise ValueError(f'Invalid min_vtx_per_patch. Choose one of {cfg.allowed_mvpp}')
 
     this_dir = Path(__file__).resolve().parent
     parc_dir = this_dir / 'resources' / 'CorticalSubdivisionIntoPatches' / atlas_name
 
-    file_name = lambda mvp: 'CortexSubdivision_Kmeans_' \
-                           'MinVertexCountPerPartition{}.npy' \
-                           ''.format(mvp)
+    file_name = lambda mvp: f'CortexSubdivision_Kmeans_MinVertexCountPerPartition{mvp}.npy'
     parc = np.load((parc_dir / file_name(min_vtx_per_patch)))
 
     return parc

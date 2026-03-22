@@ -15,10 +15,17 @@ import numpy as np
 
 from graynet import config_graynet as cfg
 from graynet.parcellate import get_atlas_path
-from graynet.utils import (import_features, is_image, is_image_3D,
-                           mask_background_roi, roi_info, save,
-                           save_per_subject_graph, stamp_expt_weight,
-                           warn_nan)
+from graynet.utils import (
+    import_features,
+    is_image,
+    is_image_3D,
+    mask_background_roi,
+    roi_info,
+    save,
+    save_per_subject_graph,
+    stamp_expt_weight,
+    warn_nan,
+)
 
 
 def extract_per_subject_volumetric(input_dir, base_feature, roi_labels, centroids,
@@ -42,8 +49,7 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels, centroid
                                    atlas=atlas_spec)
     except:
         traceback.print_exc()
-        warnings.warn('Unable to read {} features for {}\n Skipping it.'.format(
-                base_feature, subject), UserWarning)
+        warnings.warn(f'Unable to read {base_feature} features for {subject}\n Skipping it.', UserWarning)
         return
 
     data, rois = mask_background_roi(features[subject], roi_labels,
@@ -66,16 +72,12 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels, centroid
             '\nProcessing {sid:{id_width}} -- weight {wm:{wtname_width}} '
             '({wc:{nd_wm}}/{nw:{nd_wm}}) :\n'
             ''.format(sid=subject, wm=weight_method, wc=ww + 1, nw=num_weights,
-                      nd_id=nd_id, nd_wm=nd_wm, id_width=max_id_width,
-                      wtname_width=max_wtname_width))
+                      nd_wm=nd_wm, id_width=max_id_width, wtname_width=max_wtname_width))
 
         # actual computation of pair-wise features
         try:
-            graph = hiwenet.extract(data,
-                                    rois,
-                                    weight_method=weight_method,
-                                    num_bins=num_bins,
-                                    edge_range=edge_range,
+            graph = hiwenet.extract(data, rois, weight_method=weight_method, 
+                                    num_bins=num_bins, edge_range=edge_range, 
                                     return_networkx_graph=True)
 
             # retrieving edge weights
