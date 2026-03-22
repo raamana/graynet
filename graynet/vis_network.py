@@ -28,9 +28,7 @@ def draw3Dnx(graph=None,
 
     marker_size = 7
     marker_edge_width = 2
-    link_width = 2
     colorbar_title = 'Node Connections'
-    hover_description = '# connections: '
 
     position_attr = ['x', 'y', 'z']
     if positions_array is not None:
@@ -40,7 +38,7 @@ def draw3Dnx(graph=None,
     elif positions_dict is not None:
         for node in graph.nodes():
             for attr in position_attr:
-                graph.nodes[node][attr] = positions_array[node][attr]
+                graph.nodes[node][attr] = positions_dict[node][attr]
 
     for attr in position_attr:
         if not nx.get_node_attributes(graph, attr):
