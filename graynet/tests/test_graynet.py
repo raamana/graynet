@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import pyarrow.parquet as pq
+import pyarrow.parquet as pyarrow_parquet
 
 from graynet.multi_edge import extract_multiedge
 from graynet.run_workflow import cli_run, extract, roiwise_stats_indiv
@@ -46,7 +46,7 @@ def test_edges_api_writes_run_level_parquet_and_returns_vectors(tmp_path):
     assert results[("manhattan", "subject12345")].size == _links_for("fsaverage")
 
     run_dir = _single_run_dir(tmp_path)
-    raw_table = pq.read_table(run_dir / "edges_raw.parquet")
+    raw_table = pyarrow_parquet.read_table(run_dir / "edges_raw.parquet")
     assert raw_table.num_rows == _links_for("fsaverage")
     assert set(raw_table.column_names) == {
         "subject_id",
@@ -81,8 +81,8 @@ def test_multiedge_api_writes_raw_and_summary_tables(tmp_path):
         assert value.size == _links_for("fsaverage")
 
     run_dir = _single_run_dir(tmp_path)
-    raw_table = pq.read_table(run_dir / "edges_raw.parquet")
-    summary_table = pq.read_table(run_dir / "edges_summary.parquet")
+    raw_table = pyarrow_parquet.read_table(run_dir / "edges_raw.parquet")
+    summary_table = pyarrow_parquet.read_table(run_dir / "edges_summary.parquet")
     assert raw_table.num_rows == 2 * _links_for("fsaverage")
     assert summary_table.num_rows == _links_for("fsaverage")
 
@@ -104,7 +104,7 @@ def test_roi_stats_api_writes_run_level_parquet_and_returns_vector(tmp_path):
     assert results["subject12345"].size == NUM_ROI_ATLAS["fsaverage"]
 
     run_dir = _single_run_dir(tmp_path)
-    roi_table = pq.read_table(run_dir / "roi_stats.parquet")
+    roi_table = pyarrow_parquet.read_table(run_dir / "roi_stats.parquet")
     assert roi_table.num_rows == NUM_ROI_ATLAS["fsaverage"]
 
 

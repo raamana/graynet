@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import pyarrow.parquet as pq
+import pyarrow.parquet as pyarrow_parquet
 
 from graynet.run_workflow import cli_run, extract, roiwise_stats_indiv
 
@@ -45,7 +45,7 @@ def test_volumetric_edges_api_returns_expected_link_count(tmp_path):
     assert sorted(results) == [("manhattan", "CAM_0002_01")]
     assert results[("manhattan", "CAM_0002_01")].size == _links_for("cat_aal")
     run_dir = _run_dir(tmp_path)
-    assert pq.read_table(run_dir / "edges_raw.parquet").num_rows == _links_for("cat_aal")
+    assert pyarrow_parquet.read_table(run_dir / "edges_raw.parquet").num_rows == _links_for("cat_aal")
 
 
 def test_volumetric_roi_stats_api_returns_expected_node_count(tmp_path):

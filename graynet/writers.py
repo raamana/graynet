@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pyarrow as pa
-import pyarrow.parquet as pq
+import pyarrow as pyarrow
+import pyarrow.parquet as pyarrow_parquet
 
 from graynet.domain import RunConfig
 
@@ -14,30 +14,30 @@ SUMMARY_EDGE_FILE_NAME = "edges_summary.parquet"
 ROI_STATS_FILE_NAME = "roi_stats.parquet"
 METADATA_FILE_NAME = "run_metadata.json"
 
-RAW_EDGE_SCHEMA = pa.schema([
-    ("subject_id", pa.string()),
-    ("base_feature", pa.string()),
-    ("weight_method", pa.string()),
-    ("u", pa.string()),
-    ("v", pa.string()),
-    ("weight", pa.float64()),
+RAW_EDGE_SCHEMA = pyarrow.schema([
+    ("subject_id", pyarrow.string()),
+    ("base_feature", pyarrow.string()),
+    ("weight_method", pyarrow.string()),
+    ("u", pyarrow.string()),
+    ("v", pyarrow.string()),
+    ("weight", pyarrow.float64()),
 ])
 
-SUMMARY_EDGE_SCHEMA = pa.schema([
-    ("subject_id", pa.string()),
-    ("weight_method", pa.string()),
-    ("summary_stat", pa.string()),
-    ("u", pa.string()),
-    ("v", pa.string()),
-    ("weight", pa.float64()),
+SUMMARY_EDGE_SCHEMA = pyarrow.schema([
+    ("subject_id", pyarrow.string()),
+    ("weight_method", pyarrow.string()),
+    ("summary_stat", pyarrow.string()),
+    ("u", pyarrow.string()),
+    ("v", pyarrow.string()),
+    ("weight", pyarrow.float64()),
 ])
 
-ROI_STATS_SCHEMA = pa.schema([
-    ("subject_id", pa.string()),
-    ("base_feature", pa.string()),
-    ("stat_name", pa.string()),
-    ("roi", pa.string()),
-    ("value", pa.float64()),
+ROI_STATS_SCHEMA = pyarrow.schema([
+    ("subject_id", pyarrow.string()),
+    ("base_feature", pyarrow.string()),
+    ("stat_name", pyarrow.string()),
+    ("roi", pyarrow.string()),
+    ("value", pyarrow.float64()),
 ])
 
 
@@ -85,18 +85,18 @@ def build_run_dir(config: RunConfig) -> Path | None:
 
 
 class ParquetBatchWriter:
-    def __init__(self, path: Path, schema: pa.Schema):
+    def __init__(self, path: Path, schema: pyarrow.Schema):
         self.path = Path(path)
         self.schema = schema
-        self._writer: pq.ParquetWriter | None = None
+        self._writer: pyarrow_parquet.ParquetWriter | None = None
 
     def write_rows(self, rows: list[dict[str, Any]]) -> None:
         if not rows:
             return
 
-        table = pa.Table.from_pylist(rows, schema=self.schema)
+        table = pyarrow.Table.from_pylist(rows, schema=self.schema)
         if self._writer is None:
-            self._writer = pq.ParquetWriter(str(self.path), self.schema)
+            self._writer = pyarrow_parquet.ParquetWriter(str(self.path), self.schema)
         self._writer.write_table(table)
 
     def close(self) -> None:

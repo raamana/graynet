@@ -5,7 +5,7 @@ from pathlib import Path
 
 import networkx as nx
 import pyarrow.csv as pacsv
-import pyarrow.parquet as pq
+import pyarrow.parquet as pyarrow_parquet
 
 from graynet.writers import (
     RAW_EDGE_FILE_NAME,
@@ -39,7 +39,7 @@ def export_graphml(run_dir, out_dir=None) -> Path:
 
     raw_path = run_dir / RAW_EDGE_FILE_NAME
     if raw_path.exists():
-        raw_rows = pq.read_table(raw_path).to_pylist()
+        raw_rows = pyarrow_parquet.read_table(raw_path).to_pylist()
         for (subject_id, base_feature, weight_method), rows in _group_graph_rows(
             raw_rows, ["subject_id", "base_feature", "weight_method"]
         ).items():
@@ -54,7 +54,7 @@ def export_graphml(run_dir, out_dir=None) -> Path:
 
     summary_path = run_dir / SUMMARY_EDGE_FILE_NAME
     if summary_path.exists():
-        summary_rows = pq.read_table(summary_path).to_pylist()
+        summary_rows = pyarrow_parquet.read_table(summary_path).to_pylist()
         for (subject_id, weight_method, summary_stat), rows in _group_graph_rows(
             summary_rows, ["subject_id", "weight_method", "summary_stat"]
         ).items():
@@ -78,7 +78,7 @@ def export_csv(run_dir, out_dir=None) -> Path:
     for file_name in (RAW_EDGE_FILE_NAME, SUMMARY_EDGE_FILE_NAME, ROI_STATS_FILE_NAME):
         source = run_dir / file_name
         if source.exists():
-            table = pq.read_table(source)
+            table = pyarrow_parquet.read_table(source)
             pacsv.write_csv(table, export_dir / file_name.replace(".parquet", ".csv"))
 
     return export_dir
