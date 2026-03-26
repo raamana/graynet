@@ -96,6 +96,15 @@ def path_to_vertex_data(fsd, sid, hemi='lh', fwhm=10,
 def __read_morph_feature(thk_path):
     """Assumes mgh format: lh.thickness.fwhm10.fsaverage.mgh"""
 
-    vec = nibabel.load(thk_path).get_fdata() #typically of shape: (163842, 1, 1)
+    img = nibabel.load(thk_path)
+    try:
+        vec = img.get_fdata()  # typically of shape: (163842, 1, 1)
+    finally:
+        img.uncache()
+        if hasattr(img, "file_map"):
+            for file_holder in img.file_map.values():
+                fileobj = getattr(file_holder, "fileobj", None)
+                if fileobj is not None and not fileobj.closed:
+                    fileobj.close()
 
     return np.squeeze(vec)  # becomes (163842, )

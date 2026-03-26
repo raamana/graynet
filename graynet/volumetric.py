@@ -129,7 +129,16 @@ def volumetric_roi_info(atlas_spec):
             atlas_labels = np.array(atlas_spec)
     elif isinstance(atlas_spec, str):
         atlas_path, atlas_name = get_atlas_path(atlas_spec)
-        atlas_labels = nibabel.load(atlas_path).get_fdata()
+        atlas_img = nibabel.load(atlas_path)
+        try:
+            atlas_labels = atlas_img.get_fdata()
+        finally:
+            atlas_img.uncache()
+            if hasattr(atlas_img, "file_map"):
+                for file_holder in atlas_img.file_map.values():
+                    fileobj = getattr(file_holder, "fileobj", None)
+                    if fileobj is not None and not fileobj.closed:
+                        fileobj.close()
     else:
         raise ValueError('Unrecognized atlas specification!'
                          'Must be a predefined name, or'

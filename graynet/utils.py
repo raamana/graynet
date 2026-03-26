@@ -727,7 +727,16 @@ def get_CAT_data(input_dir, sid, base_feature):
     """Returns the values in a specified image!"""
 
     img_path = get_SPM_CAT_img_path(input_dir, sid, base_feature)
-    img = nibabel.load(img_path).get_fdata()
+    image = nibabel.load(img_path)
+    try:
+        img = image.get_fdata()
+    finally:
+        image.uncache()
+        if hasattr(image, "file_map"):
+            for file_holder in image.file_map.values():
+                fileobj = getattr(file_holder, "fileobj", None)
+                if fileobj is not None and not fileobj.closed:
+                    fileobj.close()
 
     return img
 
