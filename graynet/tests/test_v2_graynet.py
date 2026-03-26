@@ -7,9 +7,8 @@ import pyarrow.parquet as pyarrow_parquet
 import pytest
 from scipy.stats import trim_mean
 
-from graynet import export_to_nx, get_edge_values, load_run
-from graynet.multi_edge import extract_multiedge
-from graynet.run_workflow import cli_run, extract, roiwise_stats_indiv
+from graynet import export_to_nx, extract, extract_multiedge, get_edge_values, load_run, roiwise_stats_indiv
+from graynet.cli import main as cli_main
 
 
 REPO_DIR = Path(__file__).resolve().parents[2]
@@ -140,7 +139,7 @@ def test_v2_roi_stats_api_supports_multiple_stats_and_callable(tmp_path):
 
 
 def test_v2_edges_cli_auto_discovers_freesurfer_subjects(tmp_path):
-    run_dir = cli_run(
+    run_dir = cli_main(
         [
             "edges",
             "-i",
@@ -165,7 +164,7 @@ def test_v2_edges_cli_auto_discovers_freesurfer_subjects(tmp_path):
 
 
 def test_v2_multiedge_cli_accepts_explicit_ranges_and_summary_stats(tmp_path):
-    run_dir = cli_run(
+    run_dir = cli_main(
         [
             "multiedge",
             "-i",
@@ -203,7 +202,7 @@ def test_v2_multiedge_cli_accepts_explicit_ranges_and_summary_stats(tmp_path):
 
 
 def test_v2_export_cli_creates_graphml_and_csv_from_run_outputs(tmp_path):
-    run_dir = cli_run(
+    run_dir = cli_main(
         [
             "edges",
             "-i",
@@ -223,8 +222,8 @@ def test_v2_export_cli_creates_graphml_and_csv_from_run_outputs(tmp_path):
         ]
     )
 
-    graphml_dir = Path(cli_run(["export", "graphml", "--run-dir", str(run_dir)]))
-    csv_dir = Path(cli_run(["export", "csv", "--run-dir", str(run_dir)]))
+    graphml_dir = Path(cli_main(["export", "graphml", "--run-dir", str(run_dir)]))
+    csv_dir = Path(cli_main(["export", "csv", "--run-dir", str(run_dir)]))
 
     assert next(graphml_dir.rglob("*.graphml")).exists()
     assert next(csv_dir.glob("*.csv")).exists()
@@ -259,7 +258,7 @@ def test_v2_load_run_helpers_support_filtering_and_graph_export(tmp_path):
 
 
 def test_v2_edge_data_iter_subjects_yields_subject_scoped_views(tmp_path):
-    run_dir = cli_run(
+    run_dir = cli_main(
         [
             "edges",
             "-i",
@@ -288,7 +287,7 @@ def test_v2_edge_data_iter_subjects_yields_subject_scoped_views(tmp_path):
 
 
 def test_v2_get_edge_values_accepts_multiple_subject_ids_and_preserves_requested_order(tmp_path):
-    run_dir = cli_run(
+    run_dir = cli_main(
         [
             "edges",
             "-i",
@@ -371,7 +370,7 @@ def test_v2_empty_subject_list_raises_value_error():
 
 def test_v2_non_freesurfer_cli_requires_subject_list(tmp_path):
     with pytest.raises(ValueError):
-        cli_run(
+        cli_main(
             [
                 "edges",
                 "-i",

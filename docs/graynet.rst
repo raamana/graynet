@@ -20,10 +20,18 @@ graynet.parcellate module
     :undoc-members:
     :show-inheritance:
 
-graynet.run_workflow module
----------------------------
+graynet.api module
+------------------
 
-.. automodule:: graynet.run_workflow
+.. automodule:: graynet.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+graynet.cli module
+------------------
+
+.. automodule:: graynet.cli
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,10 +1,4 @@
-from graynet import cli_run
-
-
-def main():
-    """Entry point."""
-
-    cli_run()
+from graynet.cli import main
 
 
 if __name__ == '__main__':

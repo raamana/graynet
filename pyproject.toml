@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "graynet"
-dynamic = ["version"]
+version = "2.0.0"
 description = "Individualized single-subject networks from T1 mri features such as cortical thickness and gray matter density. "
 readme = "README.md"
 license = "MIT"
@@ -30,12 +30,10 @@ classifiers = [
 ]
 dependencies = [
     "hiwenet",
-    "medpy",
     "networkx",
     "nibabel",
     "numpy",
     "pyarrow",
-    "pyradigm",
     "scipy",
 ]
 
@@ -65,7 +63,7 @@ dev = [
 Homepage = "https://github.com/raamana/graynet"
 
 [project.scripts]
-graynet = "graynet.__main__:main"
+graynet = "graynet.cli:main"
 
 [tool.hatch.build]
 include = [
@@ -76,9 +74,6 @@ include = [
 exclude = [
     "graynet/tests/*",
 ]
-
-[tool.hatch.version]
-source = "vcs"
 
 [tool.hatch.build.targets.sdist]
 include = [

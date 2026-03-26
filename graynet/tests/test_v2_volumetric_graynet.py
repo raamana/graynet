@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pyarrow.parquet as pyarrow_parquet
 
-from graynet.run_workflow import cli_run, extract, roiwise_stats_indiv
+from graynet import extract, roiwise_stats_indiv
+from graynet.cli import main as cli_main
 
 
 REPO_DIR = Path(__file__).resolve().parents[2]
@@ -78,7 +79,7 @@ def test_v2_volumetric_roi_stats_api_matches_node_count(tmp_path):
 
 
 def test_v2_volumetric_cli_supports_builtin_atlas_names_and_metadata(tmp_path):
-    run_dir = cli_run(
+    run_dir = cli_main(
         [
             "edges",
             "-i",
@@ -105,7 +106,7 @@ def test_v2_volumetric_cli_supports_builtin_atlas_names_and_metadata(tmp_path):
 
 
 def test_v2_volumetric_cli_default_export_path_is_graynet_runs(tmp_path):
-    run_dir = cli_run(
+    run_dir = cli_main(
         [
             "edges",
             "-i",

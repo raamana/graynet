@@ -1,81 +1,22 @@
-__all__ = ["extract", "roiwise_stats_indiv", "cli_run"]
-
 import argparse
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from graynet import config_graynet as cfg
+from graynet.domain import GraynetJobConfig
 from graynet.exporters import export_csv, export_graphml
-from graynet.pipeline import run_edges, run_multiedge, run_roi_stats
+from graynet.pipeline import run_graynet
 from graynet.utils import (
     as_path,
     check_atlas,
     check_features,
-    check_stat_methods,
     check_subjects,
-    check_weights,
 )
 
 try:
     __version__ = version("graynet")
 except PackageNotFoundError:
-    __version__ = "0+unknown"
-
-
-def extract(
-    subject_id_list,
-    input_dir,
-    base_feature=cfg.default_feature_single_edge,
-    weight_method_list=cfg.default_weight_method,
-    num_bins=cfg.default_num_bins,
-    edge_range=cfg.default_edge_range,
-    atlas=cfg.default_atlas,
-    smoothing_param=cfg.default_smoothing_param,
-    node_size=cfg.default_node_size,
-    out_dir=None,
-    return_results=False,
-    num_procs=cfg.default_num_procs,
-):
-    return run_edges(
-        subject_id_list,
-        input_dir,
-        base_feature=base_feature,
-        weight_method_list=weight_method_list,
-        num_bins=num_bins,
-        edge_range=edge_range,
-        atlas=atlas,
-        smoothing_param=smoothing_param,
-        node_size=node_size,
-        out_dir=out_dir,
-        return_results=return_results,
-        num_procs=num_procs,
-    )
-
-
-def roiwise_stats_indiv(
-    subject_id_list,
-    input_dir,
-    base_feature=cfg.default_feature_single_edge,
-    chosen_roi_stats=cfg.default_roi_statistic,
-    atlas=cfg.default_atlas,
-    smoothing_param=cfg.default_smoothing_param,
-    node_size=cfg.default_node_size,
-    out_dir=None,
-    return_results=False,
-    num_procs=cfg.default_num_procs,
-):
-    return run_roi_stats(
-        subject_id_list,
-        input_dir,
-        base_feature=base_feature,
-        chosen_roi_stats=chosen_roi_stats,
-        atlas=atlas,
-        smoothing_param=smoothing_param,
-        node_size=node_size,
-        out_dir=out_dir,
-        return_results=return_results,
-        num_procs=num_procs,
-    )
+    __version__ = "2.0.0"
 
 
 def _add_common_args(parser: argparse.ArgumentParser, allow_multi_feature=False) -> None:
@@ -129,7 +70,7 @@ def _default_out_dir(input_dir: Path, out_dir) -> Path:
     return resolved
 
 
-def get_parser() -> argparse.ArgumentParser:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graynet")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -185,8 +126,8 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def cli_run(argv=None):
-    parser = get_parser()
+def main(argv=None):
+    parser = build_parser()
     args = parser.parse_args(argv)
 
     if args.command == "export":
@@ -209,24 +150,22 @@ def cli_run(argv=None):
     node_size = args.node_size if args.node_size is not None else None
 
     if args.command == "edges":
-        weight_methods, _, _, _ = check_weights(args.weight_methods)
-        run_dir = run_edges(
-            subjects,
-            input_dir,
-            base_feature=features[0],
-            weight_method_list=tuple(weight_methods),
-            num_bins=args.num_bins,
-            edge_range=tuple(args.edge_range) if args.edge_range is not None else None,
+        config = GraynetJobConfig(
+            mode="edges",
+            input_dir=input_dir,
+            out_dir=out_dir,
+            subject_ids=subjects,
             atlas=atlas_spec,
             smoothing_param=args.smoothing_param,
             node_size=node_size,
-            out_dir=out_dir,
+            base_features=(features[0],),
+            weight_methods=tuple(args.weight_methods),
+            num_bins=args.num_bins,
+            edge_range=tuple(args.edge_range) if args.edge_range is not None else None,
             return_results=False,
             num_procs=args.num_procs,
         )
     elif args.command == "multiedge":
-        weight_methods, _, _, _ = check_weights(args.weight_methods)
-        summary_stats, _, _, _, _ = check_stat_methods(args.summary_stats)
         edge_range_dict = None
         if args.multi_edge_range is not None:
             expected = 2 * len(features)
@@ -239,35 +178,38 @@ def cli_run(argv=None):
                 offset = 2 * index
                 edge_range_dict[feature] = tuple(args.multi_edge_range[offset : offset + 2])
 
-        run_dir = run_multiedge(
-            subjects,
-            input_dir,
-            base_feature_list=features,
-            weight_method_list=tuple(weight_methods),
-            summary_stats=tuple(summary_stats),
+        config = GraynetJobConfig(
+            mode="multiedge",
+            input_dir=input_dir,
+            out_dir=out_dir,
+            subject_ids=subjects,
+            atlas=atlas_spec,
+            smoothing_param=args.smoothing_param,
+            node_size=node_size,
+            base_features=features,
+            weight_methods=tuple(args.weight_methods),
             num_bins=args.num_bins,
             edge_range_dict=edge_range_dict if edge_range_dict is not None else cfg.edge_range_predefined,
-            atlas=atlas_spec,
-            smoothing_param=args.smoothing_param,
-            node_size=node_size,
-            out_dir=out_dir,
+            summary_stats=tuple(args.summary_stats),
             return_results=False,
-            overwrite_results=True,
             num_procs=args.num_procs,
+            overwrite_results=True,
         )
     else:
-        run_dir = run_roi_stats(
-            subjects,
-            input_dir,
-            base_feature=features[0],
-            chosen_roi_stats=tuple(args.roi_stats),
+        config = GraynetJobConfig(
+            mode="roi-stats",
+            input_dir=input_dir,
+            out_dir=out_dir,
+            subject_ids=subjects,
             atlas=atlas_spec,
             smoothing_param=args.smoothing_param,
             node_size=node_size,
-            out_dir=out_dir,
+            base_features=(features[0],),
+            roi_stats=tuple(args.roi_stats),
             return_results=False,
             num_procs=args.num_procs,
         )
 
+    run_dir = run_graynet(config)
     print(run_dir)
     return run_dir
