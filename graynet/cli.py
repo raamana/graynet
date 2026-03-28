@@ -3,15 +3,10 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from graynet import config_graynet as cfg
-from graynet.domain import GraynetJobConfig
+from graynet.domain import RunConfig
 from graynet.exporters import export_csv, export_graphml
-from graynet.pipeline import run_graynet
-from graynet.utils import (
-    as_path,
-    check_atlas,
-    check_features,
-    check_subjects,
-)
+from graynet.pipeline import run
+from graynet.utils import as_path, check_atlas, check_features, check_subjects
 
 try:
     __version__ = version("graynet")
@@ -19,7 +14,7 @@ except PackageNotFoundError:
     __version__ = "2.0.0"
 
 
-def _add_common_args(parser: argparse.ArgumentParser, allow_multi_feature=False) -> None:
+def _add_common_args(parser: argparse.ArgumentParser, allow_multi_feature: bool = False) -> None:
     parser.add_argument("-i", "--input-dir", dest="input_dir", required=True)
     parser.add_argument("-s", "--subjects", dest="subject_ids_path", required=False)
     parser.add_argument("-a", "--atlas", dest="atlas", default=cfg.default_atlas)
@@ -43,7 +38,7 @@ def _add_common_args(parser: argparse.ArgumentParser, allow_multi_feature=False)
     parser.add_argument("-c", "--num-procs", dest="num_procs", type=int, default=cfg.default_num_procs)
 
 
-def _resolve_subject_arg(subject_ids_path, input_dir: Path, features: tuple[str, ...]) -> tuple[str, ...]:
+def _resolve_subject_ids(subject_ids_path, input_dir: Path, features: tuple[str, ...]) -> tuple[str, ...]:
     if subject_ids_path is not None:
         subject_ids, _, _, _ = check_subjects(subject_ids_path)
         return tuple(str(subject_id) for subject_id in subject_ids)
@@ -62,12 +57,86 @@ def _resolve_subject_arg(subject_ids_path, input_dir: Path, features: tuple[str,
     return subject_ids
 
 
-def _default_out_dir(input_dir: Path, out_dir) -> Path:
+def _resolve_out_dir(input_dir: Path, out_dir) -> Path:
     resolved = as_path(out_dir)
     if resolved is None:
         resolved = input_dir / "graynet_runs"
     resolved.mkdir(exist_ok=True, parents=True)
     return resolved
+
+
+def _build_run_config(args) -> RunConfig:
+    input_dir = Path(args.input_dir).resolve()
+    if not input_dir.exists():
+        raise IOError(f"Given input directory does not exist: {input_dir}")
+
+    features = tuple(check_features(args.features))
+    subject_ids = _resolve_subject_ids(args.subject_ids_path, input_dir, features)
+    out_dir = _resolve_out_dir(input_dir, args.out_dir)
+    atlas_spec, _ = check_atlas(args.atlas)
+    node_size = args.node_size if args.node_size is not None else None
+
+    if args.command == "edges":
+        return RunConfig(
+            mode="edges",
+            input_dir=input_dir,
+            out_dir=out_dir,
+            subject_ids=subject_ids,
+            atlas=atlas_spec,
+            smoothing_param=args.smoothing_param,
+            node_size=node_size,
+            base_features=(features[0],),
+            weight_methods=tuple(args.weight_methods),
+            num_bins=args.num_bins,
+            edge_range=tuple(args.edge_range) if args.edge_range is not None else None,
+            return_results=False,
+            num_procs=args.num_procs,
+        )
+
+    if args.command == "multiedge":
+        edge_range_dict = None
+        if args.multi_edge_range is not None:
+            expected = 2 * len(features)
+            if len(args.multi_edge_range) != expected:
+                raise ValueError(
+                    f"Expected {expected} values for --multi-edge-range, got {len(args.multi_edge_range)}."
+                )
+            edge_range_dict = {}
+            for index, feature in enumerate(features):
+                offset = 2 * index
+                edge_range_dict[feature] = tuple(args.multi_edge_range[offset : offset + 2])
+
+        return RunConfig(
+            mode="multiedge",
+            input_dir=input_dir,
+            out_dir=out_dir,
+            subject_ids=subject_ids,
+            atlas=atlas_spec,
+            smoothing_param=args.smoothing_param,
+            node_size=node_size,
+            base_features=features,
+            weight_methods=tuple(args.weight_methods),
+            num_bins=args.num_bins,
+            edge_range_dict=edge_range_dict if edge_range_dict is not None else cfg.edge_range_predefined,
+            summary_stats=tuple(args.summary_stats),
+            return_results=False,
+            num_procs=args.num_procs,
+            overwrite_results=True,
+        )
+
+    return RunConfig(
+        mode="roi-stats",
+        input_dir=input_dir,
+        out_dir=out_dir,
+        subject_ids=subject_ids,
+        atlas=atlas_spec,
+        smoothing_param=args.smoothing_param,
+        node_size=node_size,
+        base_features=(features[0],),
+        roi_stats=tuple(args.roi_stats),
+        return_results=False,
+        num_procs=args.num_procs,
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -132,84 +201,12 @@ def main(argv=None):
 
     if args.command == "export":
         run_dir = Path(args.run_dir).resolve()
-        if args.export_command == "graphml":
-            export_dir = export_graphml(run_dir, args.out_dir)
-        else:
-            export_dir = export_csv(run_dir, args.out_dir)
+        export_dir = export_graphml(run_dir, args.out_dir) if args.export_command == "graphml" else export_csv(
+            run_dir, args.out_dir
+        )
         print(export_dir)
         return export_dir
 
-    features = tuple(check_features(args.features))
-    input_dir = Path(args.input_dir).resolve()
-    if not input_dir.exists():
-        raise IOError(f"Given input directory does not exist: {input_dir}")
-
-    out_dir = _default_out_dir(input_dir, args.out_dir)
-    subjects = _resolve_subject_arg(args.subject_ids_path, input_dir, features)
-    atlas_spec, _ = check_atlas(args.atlas)
-    node_size = args.node_size if args.node_size is not None else None
-
-    if args.command == "edges":
-        config = GraynetJobConfig(
-            mode="edges",
-            input_dir=input_dir,
-            out_dir=out_dir,
-            subject_ids=subjects,
-            atlas=atlas_spec,
-            smoothing_param=args.smoothing_param,
-            node_size=node_size,
-            base_features=(features[0],),
-            weight_methods=tuple(args.weight_methods),
-            num_bins=args.num_bins,
-            edge_range=tuple(args.edge_range) if args.edge_range is not None else None,
-            return_results=False,
-            num_procs=args.num_procs,
-        )
-    elif args.command == "multiedge":
-        edge_range_dict = None
-        if args.multi_edge_range is not None:
-            expected = 2 * len(features)
-            if len(args.multi_edge_range) != expected:
-                raise ValueError(
-                    f"Expected {expected} values for --multi-edge-range, got {len(args.multi_edge_range)}."
-                )
-            edge_range_dict = {}
-            for index, feature in enumerate(features):
-                offset = 2 * index
-                edge_range_dict[feature] = tuple(args.multi_edge_range[offset : offset + 2])
-
-        config = GraynetJobConfig(
-            mode="multiedge",
-            input_dir=input_dir,
-            out_dir=out_dir,
-            subject_ids=subjects,
-            atlas=atlas_spec,
-            smoothing_param=args.smoothing_param,
-            node_size=node_size,
-            base_features=features,
-            weight_methods=tuple(args.weight_methods),
-            num_bins=args.num_bins,
-            edge_range_dict=edge_range_dict if edge_range_dict is not None else cfg.edge_range_predefined,
-            summary_stats=tuple(args.summary_stats),
-            return_results=False,
-            num_procs=args.num_procs,
-            overwrite_results=True,
-        )
-    else:
-        config = GraynetJobConfig(
-            mode="roi-stats",
-            input_dir=input_dir,
-            out_dir=out_dir,
-            subject_ids=subjects,
-            atlas=atlas_spec,
-            smoothing_param=args.smoothing_param,
-            node_size=node_size,
-            base_features=(features[0],),
-            roi_stats=tuple(args.roi_stats),
-            return_results=False,
-            num_procs=args.num_procs,
-        )
-
-    run_dir = run_graynet(config)
+    run_dir = run(_build_run_config(args))
     print(run_dir)
     return run_dir

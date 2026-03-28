@@ -1,6 +1,6 @@
 from graynet import config_graynet as cfg
-from graynet.domain import GraynetJobConfig
-from graynet.pipeline import run_graynet
+from graynet.domain import RunConfig
+from graynet.pipeline import run
 
 __all__ = ["extract", "extract_multiedge", "roiwise_stats_indiv"]
 
@@ -19,8 +19,8 @@ def extract(
     return_results=False,
     num_procs=cfg.default_num_procs,
 ):
-    return run_graynet(
-        GraynetJobConfig(
+    return run(
+        RunConfig(
             mode="edges",
             input_dir=input_dir,
             out_dir=out_dir,
@@ -54,8 +54,8 @@ def extract_multiedge(
     overwrite_results=False,
     num_procs=cfg.default_num_procs,
 ):
-    return run_graynet(
-        GraynetJobConfig(
+    return run(
+        RunConfig(
             mode="multiedge",
             input_dir=input_dir,
             out_dir=out_dir,
@@ -87,8 +87,8 @@ def roiwise_stats_indiv(
     return_results=False,
     num_procs=cfg.default_num_procs,
 ):
-    return run_graynet(
-        GraynetJobConfig(
+    return run(
+        RunConfig(
             mode="roi-stats",
             input_dir=input_dir,
             out_dir=out_dir,
