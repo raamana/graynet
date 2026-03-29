@@ -11,7 +11,7 @@ import networkx as nx
 import numpy as np
 
 from graynet import config_graynet as cfg
-from graynet.atlas import atlas_identifier, resolve_atlas
+from graynet.atlas import atlas_identifier, format_node_label, resolve_atlas
 from graynet.domain import AtlasInfo, RunConfig, SubjectJob, SubjectResult
 from graynet.utils import (
     calc_roi_statistics,
@@ -46,18 +46,6 @@ from graynet.writers import (
 __all__ = ["run", "run_edges", "run_multiedge", "run_roi_stats"]
 
 
-def _node_label(node) -> str:
-    if isinstance(node, str):
-        return node
-    try:
-        value = float(node)
-    except (TypeError, ValueError):
-        return str(node)
-    if value.is_integer():
-        return str(int(value))
-    return str(value)
-
-
 def _vector_from_rows(rows: list[dict[str, Any]], node_order: tuple[str, ...]) -> np.ndarray:
     node_index = {node: idx for idx, node in enumerate(node_order)}
     sorted_rows = sorted(rows, key=lambda row: (node_index[row["u"]], node_index[row["v"]]))
@@ -74,8 +62,8 @@ def _rows_from_graph(
     node_index = {node: idx for idx, node in enumerate(node_order)}
     rows: list[dict[str, Any]] = []
     for u, v, attrs in graph.edges(data=True):
-        u_label = _node_label(u)
-        v_label = _node_label(v)
+        u_label = format_node_label(u)
+        v_label = format_node_label(v)
         if node_index[u_label] > node_index[v_label]:
             u_label, v_label = v_label, u_label
         rows.append(
@@ -303,7 +291,7 @@ def _write_results(config: RunConfig, atlas_info: AtlasInfo, jobs: tuple[Subject
     return payload, run_dir
 
 
-def _normalize_common(config: RunConfig) -> tuple[RunConfig, tuple[str, ...], int]:
+def _normalize_common(config: RunConfig) -> tuple[RunConfig, tuple[str, ...]]:
     subject_ids, _, _, _ = check_subjects(config.subject_ids)
     return (
         replace(
@@ -314,12 +302,11 @@ def _normalize_common(config: RunConfig) -> tuple[RunConfig, tuple[str, ...], in
             num_procs=check_num_procs(config.num_procs),
         ),
         tuple(str(subject) for subject in subject_ids),
-        check_num_procs(config.num_procs),
     )
 
 
 def _resolve_run(config: RunConfig) -> tuple[RunConfig, AtlasInfo]:
-    config, subject_ids, num_procs = _normalize_common(config)
+    config, subject_ids = _normalize_common(config)
 
     if config.mode == "edges":
         base_feature = check_features(config.base_features[0])[0]
@@ -344,7 +331,7 @@ def _resolve_run(config: RunConfig) -> tuple[RunConfig, AtlasInfo]:
                 atlas_name=atlas_info.atlas_name,
                 num_bins=num_bins,
                 edge_range=edge_range,
-                num_procs=num_procs,
+                num_procs=config.num_procs,
             ),
             atlas_info,
         )
@@ -370,7 +357,7 @@ def _resolve_run(config: RunConfig) -> tuple[RunConfig, AtlasInfo]:
                 atlas_name=atlas_info.atlas_name,
                 roi_stats=tuple(stat_funcs),
                 roi_stat_names=tuple(stat_names),
-                num_procs=num_procs,
+                num_procs=config.num_procs,
             ),
             atlas_info,
         )
@@ -409,7 +396,7 @@ def _resolve_run(config: RunConfig) -> tuple[RunConfig, AtlasInfo]:
                 edge_range_dict=edge_range_dict,
                 summary_stats=tuple(summary_stats),
                 summary_stat_names=tuple(summary_names),
-                num_procs=num_procs,
+                num_procs=config.num_procs,
             ),
             atlas_info,
         )

@@ -9,7 +9,7 @@ from graynet.utils import check_atlas
 from graynet.volumetric import volumetric_roi_info
 
 
-def _format_node_label(node) -> str:
+def format_node_label(node) -> str:
     if isinstance(node, str):
         return node
 
@@ -39,9 +39,9 @@ def resolve_atlas(base_feature: str, atlas_spec, node_size=None) -> AtlasInfo:
             f"Choose one of {cfg.base_feature_list}"
         )
 
-    node_labels = tuple(_format_node_label(roi) for roi in uniq_rois)
+    node_labels = tuple(format_node_label(roi) for roi in uniq_rois)
     formatted_centroids = {
-        _format_node_label(roi): tuple(float(coord) for coord in value)
+        format_node_label(roi): tuple(float(coord) for coord in value)
         for roi, value in centroids.items()
     }
 

@@ -187,7 +187,7 @@ def check_num_procs(num_procs=cfg.default_num_procs):
 
     num_procs = int(num_procs)
     avail_cpu_count = cpu_count()
-    if num_procs < 1 or not np.isfinite(num_procs) or num_procs is None:
+    if num_procs < 1 or not np.isfinite(num_procs):
         num_procs = 1
         print('Invalid value for num_procs. Using num_procs=1')
     elif num_procs > avail_cpu_count:
