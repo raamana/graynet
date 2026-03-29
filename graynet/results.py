@@ -70,22 +70,36 @@ class EdgeData:
     def to_rows(self) -> list[dict[str, Any]]:
         return self.table.to_pylist()
 
-    def subject_ids(self) -> list[str]:
+    def stable_subject_ids(self) -> list[str]:
+        """Subject IDs present in this table, in a defined (stabilized) order.
+
+        Order is **not** arbitrary Parquet row order: IDs from run metadata
+        ``subject_ids`` come first when they appear in the table (preserving
+        that list's order), then any IDs found only in the table, in first-seen
+        column order.
+
+        .. note::
+
+            This ordering is intentional for iteration and analysis, but it is
+            **not** yet guaranteed as a stable public contract across graynet
+            releases or if on-disk layout / metadata conventions change.
+        """
         configured_order = list(self.metadata.get("subject_ids", []))
         present = set(self.table.column("subject_id").to_pylist())
         ordered = [subject_id for subject_id in configured_order if subject_id in present]
 
-        extras = []
-        for subject_id in self.table.column("subject_id").to_pylist():
-            if subject_id not in present:
-                continue
-            if subject_id not in configured_order and subject_id not in extras:
-                extras.append(subject_id)
+        configured_set = set(configured_order)
+        extras = [
+            subject_id
+            for subject_id in dict.fromkeys(self.table.column("subject_id").to_pylist())
+            if subject_id not in configured_set
+        ]
 
         return ordered + extras
 
     def iter_subjects(self) -> Iterator[tuple[str, "EdgeData"]]:
-        for subject_id in self.subject_ids():
+        """Yield ``(subject_id, edge_rows_for_subject)`` using :meth:`stable_subject_ids` order."""
+        for subject_id in self.stable_subject_ids():
             yield subject_id, self.filter(subject_id=subject_id)
 
     def to_ndarray(
