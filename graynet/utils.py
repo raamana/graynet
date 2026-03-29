@@ -238,7 +238,7 @@ def check_stat_methods(stat_list=None):
     for func in stat_callable_list:
         try:
             method_name = func.__name__
-        except:
+        except AttributeError:
             if isinstance(func, partial):
                 method_name = func.func.__name__
             else:

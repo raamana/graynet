@@ -50,7 +50,7 @@ def draw3Dnx(graph=None,
         eval_distr = np.array(list(nx.get_edge_attributes(graph, 'weight').values()))
         try:
             edge_threshold = np.percentile(eval_distr, perc_threshold)
-        except:
+        except Exception:
             print('threshold to prune edges can not be determined.')
             traceback.print_exc()
             return
