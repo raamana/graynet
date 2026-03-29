@@ -47,7 +47,7 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels, centroid
                                    base_feature,
                                    fwhm=smoothing_param,
                                    atlas=atlas_spec)
-    except:
+    except Exception:
         traceback.print_exc()
         warnings.warn(f'Unable to read {base_feature} features for {subject}\n Skipping it.', UserWarning)
         return
@@ -98,7 +98,7 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels, centroid
             try:
                 save(weight_vec, out_dir, subject, expt_id)
                 save_per_subject_graph(graph, out_dir, subject, expt_id)
-            except:
+            except Exception:
                 raise IOError('Unable to save the network or vectorized weights '
                                'to:\n{}'.format(out_dir))
 
@@ -109,7 +109,7 @@ def extract_per_subject_volumetric(input_dir, base_feature, roi_labels, centroid
                   'Abandoning the remaining processing for {} weights:\n'
                   '{}.'.format(num_weights - ww, weight_method_list[ww:]))
             sys.exit(1)
-        except:
+        except Exception:
             print('Unable to extract {} features for {}'
                   ''.format(weight_method, subject))
             traceback.print_exc()

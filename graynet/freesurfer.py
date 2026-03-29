@@ -40,7 +40,7 @@ def import_features(fs_dir,
             print(f'Reading {base_feature} for {subj_id} ... ', end='')
             features[subj_id] = get_data(fs_dir, subj_id, base_feature, fwhm, atlas)
             print(' Done.')
-        except:
+        except Exception:
             print_exc()
             raise ValueError(f'{base_feature} data for {subj_id} could not be read!')
 

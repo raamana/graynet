@@ -95,7 +95,7 @@ def check_atlas(atlas_spec):
             atlas_name = filename_without_ext(atlas_spec)
             try:
                 atlas_spec = nibabel.load(atlas_spec)
-            except:
+            except Exception:
                 traceback.print_exc()
                 raise ValueError('Unable to read the provided image volume. '
                                  'Must be a nifti 2d volume, readable by nibabel.')
@@ -175,7 +175,7 @@ def save_graph(graph, out_path, identifier=''):
         try:
             nx.write_graphml(graph, out_path, encoding='utf-8')
             print('\nSaved the {} graph to \n{}'.format(identifier, out_path))
-        except:
+        except Exception:
             print('\nUnable to save {} graph to \n{}'.format(identifier, out_path))
             traceback.print_exc()
 
@@ -636,7 +636,7 @@ def save_summary_stats(roi_values, roi_labels, stat_name, out_dir, subject,
                     of.write('{},{}\n'.format(name, value))
             # np.savetxt(out_weights_path, roi_values, fmt='%.5f')
             print('\nSaved roi stats to \n{}'.format(out_weights_path))
-        except:
+        except Exception:
             print('\nUnable to save extracted features to {}'
                   ''.format(out_weights_path))
             traceback.print_exc()
@@ -667,7 +667,7 @@ def save_per_subject_graph(graph_nx, out_dir, subject, str_suffix=None):
             print(graph_nx)
             nx.write_graphml(graph_nx, out_weights_path, encoding='utf-8')
             print('\nSaved the graph to \n{}'.format(out_weights_path))
-        except:
+        except Exception:
             print('\nUnable to save graph to \n{}'.format(out_weights_path))
             traceback.print_exc()
 
@@ -696,7 +696,7 @@ def save(weight_vec, out_dir, subject, str_suffix=None):
         try:
             np.savetxt(out_weights_path, weight_vec, fmt='%.5f')
             print('\nSaved the weights to \n{}'.format(out_weights_path))
-        except:
+        except Exception:
             print('\nUnable to save to {}'.format(out_weights_path))
             traceback.print_exc()
 
@@ -715,7 +715,7 @@ def spm_cat_import(input_dir,
             print('Reading {} for {} ... '.format(base_feature, sid), end='')
             features[sid] = get_CAT_data(input_dir, sid, base_feature)
             print(' Done.')
-        except:
+        except Exception:
             traceback.print_exc()
             raise ValueError('{} data for {} could not be read!'
                              ''.format(base_feature, sid))
