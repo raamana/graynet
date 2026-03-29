@@ -383,29 +383,28 @@ def check_edge_range_dict(edge_range_dict, base_feature_list,
                           predefined_ranges=cfg.edge_range_predefined):
     """
     Ensures ranges were specified for each feature, and
-    they are valid or; automatic(None)
+    they are valid or automatic (``None`` for per-subject defaults).
     """
+    out = dict(edge_range_dict) if edge_range_dict is not None else {}
 
     print('Setting given edge range ...')
     for feature in base_feature_list:
         sys.stdout.write('\n <---- {:20s} '.format(feature))
-        if edge_range_dict is not None and feature in edge_range_dict:
-            edge_range_dict[feature] = check_edge_range(edge_range_dict[feature])
-            sys.stdout.write(': {} ----> \n'.format(edge_range_dict[feature]))
+        if feature in out:
+            out[feature] = check_edge_range(out[feature])
+            sys.stdout.write(': {} ----> \n'.format(out[feature]))
         elif feature in predefined_ranges:
             sys.stdout.write(
-                    'edge range not given! Using predefined: {}'.format(
-                            predefined_ranges[feature]))
-            edge_range_dict[feature] = predefined_ranges[feature]
+                'edge range not given! Using predefined: {}'.format(
+                    predefined_ranges[feature]))
+            out[feature] = predefined_ranges[feature]
         else:
-            # covers the case of edge_range_dict being None
-            sys.stdout.write('edge range not given or predefined! '
-                             'Setting it automatic (may change for each subject)')
-            if edge_range_dict is None:
-                edge_range_dict = dict()
-            edge_range_dict[feature] = None
+            sys.stdout.write(
+                'edge range not given or predefined! '
+                'Setting it automatic (may change for each subject)')
+            out[feature] = None
 
-    return edge_range_dict
+    return out
 
 
 def check_params_single_edge(base_features, in_dir, atlas, smoothing_param,
