@@ -57,7 +57,7 @@ def is_image_3D(input_obj):
 
     if len(input_obj.shape) == 3 and all(np.array(input_obj.shape) > 1):
         return True
-    elif not len(input_obj.shape) == 4 \
+    elif len(input_obj.shape) == 4 \
             and all(np.array(input_obj.shape[:3]) > 1) \
             and input_obj.shape[3] == 1:
         return True
