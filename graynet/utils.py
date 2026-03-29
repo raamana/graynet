@@ -361,7 +361,7 @@ def check_num_bins(num_bins):
     # rounding it to ensure it is int
     num_bins = int(num_bins)
 
-    if np.isnan(num_bins) or np.isinf(num_bins):
+    if np.isnan(num_bins) or np.isinf(num_bins) or num_bins < cfg.default_minimum_num_bins:
         raise ValueError('Invalid value for number of bins! '
                          'Choose a natural number >= {}'
                          ''.format(cfg.default_minimum_num_bins))
