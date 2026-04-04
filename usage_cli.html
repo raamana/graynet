@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Command line interface &#8212; graynet 2.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=51b770b3"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples using API" href="usage_api.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="command-line-interface">
+<h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">¶</a></h1>
+<p>graynet 2.0 exposes subcommands for the main run modes and for optional exports.
+Each successful command writes one run directory containing canonical outputs.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">graynet</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">{</span><span class="n">edges</span><span class="p">,</span><span class="n">multiedge</span><span class="p">,</span><span class="n">roi</span><span class="o">-</span><span class="n">stats</span><span class="p">,</span><span class="n">export</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="graynet.cli-build_parser-positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#graynet.cli-build_parser-positional-arguments" title="Link to this heading">¶</a></h2>
+<dl class="option-list">
+<dt><kbd>command</kbd></dt>
+<dd><p>Possible choices: edges, multiedge, roi-stats, export</p>
+</dd>
+</dl>
+</section>
+<section id="graynet.cli-build_parser-named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#graynet.cli-build_parser-named-arguments" title="Link to this heading">¶</a></h2>
+<dl class="option-list">
+<dt><kbd>-v, --version</kbd></dt>
+<dd><p>show program’s version number and exit</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands">
+<h2>Sub-commands<a class="headerlink" href="#Sub-commands" title="Link to this heading">¶</a></h2>
+<section id="edges">
+<h3>edges<a class="headerlink" href="#edges" title="Link to this heading">¶</a></h3>
+<p>Compute single-feature edge networks.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">graynet</span> <span class="n">edges</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ATLAS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span>
+              <span class="o">-</span><span class="n">f</span> <span class="n">FEATURES</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">SMOOTHING_PARAM</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">NODE_SIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">NUM_PROCS</span><span class="p">]</span>
+              <span class="o">-</span><span class="n">w</span> <span class="n">WEIGHT_METHODS</span> <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span> <span class="n">NUM_BINS</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="n">MIN</span> <span class="n">MAX</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>-i, --input-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>-s, --subjects</kbd></dt>
+<dd></dd>
+<dt><kbd>-a, --atlas</kbd></dt>
+<dd></dd>
+<dt><kbd>-o, --out-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>-f, --feature</kbd></dt>
+<dd><p>Feature name(s) to process.</p>
+</dd>
+<dt><kbd>-p, --smoothing-param</kbd></dt>
+<dd></dd>
+<dt><kbd>-n, --node-size</kbd></dt>
+<dd></dd>
+<dt><kbd>-c, --num-procs</kbd></dt>
+<dd></dd>
+<dt><kbd>-w, --weight</kbd></dt>
+<dd></dd>
+<dt><kbd>-b, --num-bins</kbd></dt>
+<dd></dd>
+<dt><kbd>-e, --edge-range</kbd></dt>
+<dd></dd>
+</dl>
+</section>
+</section>
+<section id="multiedge">
+<h3>multiedge<a class="headerlink" href="#multiedge" title="Link to this heading">¶</a></h3>
+<p>Compute multi-feature edge networks.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">graynet</span> <span class="n">multiedge</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ATLAS</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span> <span class="o">-</span><span class="n">f</span> <span class="n">FEATURES</span> <span class="p">[</span><span class="n">FEATURES</span> <span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">SMOOTHING_PARAM</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">NODE_SIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">NUM_PROCS</span><span class="p">]</span> <span class="o">-</span><span class="n">w</span> <span class="n">WEIGHT_METHODS</span>
+                  <span class="p">[</span><span class="n">WEIGHT_METHODS</span> <span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span> <span class="n">NUM_BINS</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">SUMMARY_STATS</span> <span class="p">[</span><span class="n">SUMMARY_STATS</span> <span class="o">...</span><span class="p">]]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="p">[</span><span class="n">MULTI_EDGE_RANGE</span> <span class="o">...</span><span class="p">]]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat1">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments_repeat1" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>-i, --input-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>-s, --subjects</kbd></dt>
+<dd></dd>
+<dt><kbd>-a, --atlas</kbd></dt>
+<dd></dd>
+<dt><kbd>-o, --out-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>-f, --feature</kbd></dt>
+<dd><p>Feature name(s) to process.</p>
+</dd>
+<dt><kbd>-p, --smoothing-param</kbd></dt>
+<dd></dd>
+<dt><kbd>-n, --node-size</kbd></dt>
+<dd></dd>
+<dt><kbd>-c, --num-procs</kbd></dt>
+<dd></dd>
+<dt><kbd>-w, --weight</kbd></dt>
+<dd></dd>
+<dt><kbd>-b, --num-bins</kbd></dt>
+<dd></dd>
+<dt><kbd>-t, --summary-stat</kbd></dt>
+<dd></dd>
+<dt><kbd>-l, --multi-edge-range</kbd></dt>
+<dd><p>Pairs of min/max values, one pair per feature.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="roi-stats">
+<h3>roi-stats<a class="headerlink" href="#roi-stats" title="Link to this heading">¶</a></h3>
+<p>Compute ROI summary statistics.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">graynet</span> <span class="n">roi</span><span class="o">-</span><span class="n">stats</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">i</span> <span class="n">INPUT_DIR</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SUBJECT_IDS_PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ATLAS</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_DIR</span><span class="p">]</span> <span class="o">-</span><span class="n">f</span> <span class="n">FEATURES</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">SMOOTHING_PARAM</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">NODE_SIZE</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">NUM_PROCS</span><span class="p">]</span> <span class="o">-</span><span class="n">r</span> <span class="n">ROI_STATS</span> <span class="p">[</span><span class="n">ROI_STATS</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat2">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments_repeat2" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>-i, --input-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>-s, --subjects</kbd></dt>
+<dd></dd>
+<dt><kbd>-a, --atlas</kbd></dt>
+<dd></dd>
+<dt><kbd>-o, --out-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>-f, --feature</kbd></dt>
+<dd><p>Feature name(s) to process.</p>
+</dd>
+<dt><kbd>-p, --smoothing-param</kbd></dt>
+<dd></dd>
+<dt><kbd>-n, --node-size</kbd></dt>
+<dd></dd>
+<dt><kbd>-c, --num-procs</kbd></dt>
+<dd></dd>
+<dt><kbd>-r, --roi-stat</kbd></dt>
+<dd></dd>
+</dl>
+</section>
+</section>
+<section id="export">
+<h3>export<a class="headerlink" href="#export" title="Link to this heading">¶</a></h3>
+<p>Export canonical outputs to other formats.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">graynet</span> <span class="n">export</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">graphml</span><span class="p">,</span><span class="n">csv</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>export_command</kbd></dt>
+<dd><p>Possible choices: graphml, csv</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands_repeat1">
+<h4>Sub-commands<a class="headerlink" href="#Sub-commands_repeat1" title="Link to this heading">¶</a></h4>
+<section id="graphml">
+<h5>graphml<a class="headerlink" href="#graphml" title="Link to this heading">¶</a></h5>
+<p>Export GraphML files from a run.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">graynet</span> <span class="n">export</span> <span class="n">graphml</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">run</span><span class="o">-</span><span class="nb">dir</span> <span class="n">RUN_DIR</span> <span class="p">[</span><span class="o">--</span><span class="n">out</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUT_DIR</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat3">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat3" title="Link to this heading">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--run-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>--out-dir</kbd></dt>
+<dd></dd>
+</dl>
+</section>
+</section>
+<section id="csv">
+<h5>csv<a class="headerlink" href="#csv" title="Link to this heading">¶</a></h5>
+<p>Export CSV files from a run.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">graynet</span> <span class="n">export</span> <span class="n">csv</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">run</span><span class="o">-</span><span class="nb">dir</span> <span class="n">RUN_DIR</span> <span class="p">[</span><span class="o">--</span><span class="n">out</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUT_DIR</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat4">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat4" title="Link to this heading">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--run-dir</kbd></dt>
+<dd></dd>
+<dt><kbd>--out-dir</kbd></dt>
+<dd></dd>
+</dl>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+<section id="single-feature-edge-extraction">
+<h1>Single-feature edge extraction<a class="headerlink" href="#single-feature-edge-extraction" title="Link to this heading">¶</a></h1>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>graynet<span class="w"> </span>edges<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-i<span class="w"> </span>/work/project/freesurfer_reconall<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-s<span class="w"> </span>subject_ids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>freesurfer_thickness<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-w<span class="w"> </span>manhattan<span class="w"> </span>euclidean<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-a<span class="w"> </span>fsaverage<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>/work/project/graynet_runs<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-c<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+</section>
+<section id="multi-edge-extraction">
+<h1>Multi-edge extraction<a class="headerlink" href="#multi-edge-extraction" title="Link to this heading">¶</a></h1>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>graynet<span class="w"> </span>multiedge<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-i<span class="w"> </span>/work/project/freesurfer_reconall<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-s<span class="w"> </span>subject_ids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>freesurfer_thickness<span class="w"> </span>freesurfer_curv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-w<span class="w"> </span>manhattan<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-t<span class="w"> </span>median<span class="w"> </span>prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-a<span class="w"> </span>fsaverage<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>/work/project/graynet_runs
+</pre></div>
+</div>
+</section>
+<section id="roi-wise-statistics">
+<h1>ROI-wise statistics<a class="headerlink" href="#roi-wise-statistics" title="Link to this heading">¶</a></h1>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>graynet<span class="w"> </span>roi-stats<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-i<span class="w"> </span>/work/project/freesurfer_reconall<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-s<span class="w"> </span>subject_ids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>freesurfer_thickness<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-r<span class="w"> </span>median<span class="w"> </span>mean<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-a<span class="w"> </span>fsaverage<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>/work/project/graynet_runs
+</pre></div>
+</div>
+</section>
+<section id="exporting-graphml-or-csv">
+<h1>Exporting GraphML or CSV<a class="headerlink" href="#exporting-graphml-or-csv" title="Link to this heading">¶</a></h1>
+<p>Canonical outputs are Parquet plus JSON metadata. Export GraphML or CSV only
+when you need those downstream formats.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>graynet<span class="w"> </span><span class="nb">export</span><span class="w"> </span>graphml<span class="w"> </span>--run-dir<span class="w"> </span>/work/project/graynet_runs/edges__atlas-fsaverage__features-freesurfer_thickness__weights-manhattan__smth-10__node-none
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>graynet<span class="w"> </span><span class="nb">export</span><span class="w"> </span>csv<span class="w"> </span>--run-dir<span class="w"> </span>/work/project/graynet_runs/edges__atlas-fsaverage__features-freesurfer_thickness__weights-manhattan__smth-10__node-none
+</pre></div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">graynet</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command line interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#graynet.cli-build_parser-positional-arguments">Positional Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#graynet.cli-build_parser-named-arguments">Named Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Sub-commands">Sub-commands</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#single-feature-edge-extraction">Single-feature edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#multi-edge-extraction">Multi-edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#roi-wise-statistics">ROI-wise statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#exporting-graphml-or-csv">Exporting GraphML or CSV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#loading-a-run">Loading a run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#filtering-raw-edges">Filtering raw edges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#converting-to-an-ml-matrix">Converting to an ML matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#reconstructing-a-networkx-graph">Reconstructing a NetworkX graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#iterating-subject-by-subject">Iterating subject by subject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#optional-exports">Optional exports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="usage_api.html" title="next chapter">Examples using API</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2017, Pradeep Reddy Raamana.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/usage_cli.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

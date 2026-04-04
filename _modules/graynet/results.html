@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>graynet.results &#8212; graynet 2.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=51b770b3"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for graynet.results</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pyarrow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.compute</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pyarrow_compute</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.parquet</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pyarrow_parquet</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">graynet.writers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RAW_EDGE_FILE_NAME</span><span class="p">,</span>
+    <span class="n">ROI_STATS_FILE_NAME</span><span class="p">,</span>
+    <span class="n">SUMMARY_EDGE_FILE_NAME</span><span class="p">,</span>
+    <span class="n">read_run_metadata</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_filter_table</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">Table</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+            <span class="n">this_mask</span> <span class="o">=</span> <span class="n">pyarrow_compute</span><span class="o">.</span><span class="n">is_in</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">this_mask</span> <span class="o">=</span> <span class="n">pyarrow_compute</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">this_mask</span> <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pyarrow_compute</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">this_mask</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">table</span> <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_centroids</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;centroids&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="EdgeData">
+<a class="viewcode-back" href="../../API.html#graynet.results.EdgeData">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EdgeData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Canonical edge table plus run metadata.</span>
+
+<span class="sd">    ``EdgeData`` is the primary read-side helper for graynet 2.0 results. It</span>
+<span class="sd">    wraps a Parquet-backed table and provides convenient filtering, subject-wise</span>
+<span class="sd">    iteration, graph reconstruction, and conversion to dense subject-by-edge</span>
+<span class="sd">    matrices for downstream analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">Table</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+<div class="viewcode-block" id="EdgeData.filter">
+<a class="viewcode-back" href="../../API.html#graynet.results.EdgeData.filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">weight_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">summary_stat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EdgeData&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a filtered view of the edge table.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">EdgeData</span><span class="p">(</span>
+            <span class="n">table</span><span class="o">=</span><span class="n">_filter_table</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+                <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">base_feature</span><span class="o">=</span><span class="n">base_feature</span><span class="p">,</span>
+                <span class="n">weight_method</span><span class="o">=</span><span class="n">weight_method</span><span class="p">,</span>
+                <span class="n">summary_stat</span><span class="o">=</span><span class="n">summary_stat</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EdgeData.to_pandas">
+<a class="viewcode-back" href="../../API.html#graynet.results.EdgeData.to_pandas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Materialize the current table view as a pandas ``DataFrame``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EdgeData.to_rows">
+<a class="viewcode-back" href="../../API.html#graynet.results.EdgeData.to_rows">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Materialize the current table view as a list of row dictionaries.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EdgeData.stable_subject_ids">
+<a class="viewcode-back" href="../../API.html#graynet.results.EdgeData.stable_subject_ids">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stable_subject_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subject IDs present in this table, in a defined (stabilized) order.</span>
+
+<span class="sd">        Order is **not** arbitrary Parquet row order: IDs from run metadata</span>
+<span class="sd">        ``subject_ids`` come first when they appear in the table (preserving</span>
+<span class="sd">        that list&#39;s order), then any IDs found only in the table, in first-seen</span>
+<span class="sd">        column order.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            This ordering is intentional for iteration and analysis, but it is</span>
+<span class="sd">            **not** yet guaranteed as a stable public contract across graynet</span>
+<span class="sd">            releases or if on-disk layout / metadata conventions change.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">configured_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subject_ids&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">present</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s2">&quot;subject_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">())</span>
+        <span class="n">ordered</span> <span class="o">=</span> <span class="p">[</span><span class="n">subject_id</span> <span class="k">for</span> <span class="n">subject_id</span> <span class="ow">in</span> <span class="n">configured_order</span> <span class="k">if</span> <span class="n">subject_id</span> <span class="ow">in</span> <span class="n">present</span><span class="p">]</span>
+
+        <span class="n">configured_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">configured_order</span><span class="p">)</span>
+        <span class="n">extras</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">subject_id</span>
+            <span class="k">for</span> <span class="n">subject_id</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s2">&quot;subject_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">subject_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">configured_set</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ordered</span> <span class="o">+</span> <span class="n">extras</span></div>
+
+
+<div class="viewcode-block" id="EdgeData.iter_subjects">
+<a class="viewcode-back" href="../../API.html#graynet.results.EdgeData.iter_subjects">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter_subjects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;EdgeData&quot;</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Yield ``(subject_id, edge_rows_for_subject)`` using :meth:`stable_subject_ids` order.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">subject_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_subject_ids</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">subject_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EdgeData.to_ndarray">
+<a class="viewcode-back" href="../../API.html#graynet.results.EdgeData.to_ndarray">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_ndarray</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">base_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">weight_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">summary_stat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fill_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert edge rows into a dense ``X`` matrix.</span>
+
+<span class="sd">        Rows follow the exact order of ``subject_ids``. Columns follow the run&#39;s</span>
+<span class="sd">        ``node_labels`` metadata order, using the upper-triangular edge ordering</span>
+<span class="sd">        implied by ``(u, v)`` pairs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;subject_ids must be a sequence of subject identifiers, not a string&quot;</span><span class="p">)</span>
+
+        <span class="n">filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">base_feature</span><span class="o">=</span><span class="n">base_feature</span><span class="p">,</span>
+            <span class="n">weight_method</span><span class="o">=</span><span class="n">weight_method</span><span class="p">,</span>
+            <span class="n">summary_stat</span><span class="o">=</span><span class="n">summary_stat</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">filtered</span><span class="o">.</span><span class="n">to_rows</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">node_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;node_labels&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">node_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_order</span><span class="p">)}</span>
+
+        <span class="n">edge_keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seen_edges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">edge_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">edge_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen_edges</span><span class="p">:</span>
+                <span class="n">seen_edges</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">edge_key</span><span class="p">)</span>
+                <span class="n">edge_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge_key</span><span class="p">)</span>
+
+        <span class="n">edge_keys</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">edge</span><span class="p">:</span> <span class="p">(</span><span class="n">node_index</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)),</span>
+                                         <span class="n">node_index</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))))</span>
+        <span class="n">edge_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">edge</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edge_keys</span><span class="p">)}</span>
+        <span class="n">subject_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">subject_id</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">subject_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">)}</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge_keys</span><span class="p">)),</span> <span class="n">fill_value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">sid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;subject_id&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">sid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subject_index</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="n">subject_index</span><span class="p">[</span><span class="n">sid</span><span class="p">],</span> <span class="n">edge_index</span><span class="p">[(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">])]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">matrix</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RoiStatsData">
+<a class="viewcode-back" href="../../API.html#graynet.results.RoiStatsData">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RoiStatsData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Canonical ROI-statistics table plus run metadata.&quot;&quot;&quot;</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">Table</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+<div class="viewcode-block" id="RoiStatsData.filter">
+<a class="viewcode-back" href="../../API.html#graynet.results.RoiStatsData.filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RoiStatsData&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RoiStatsData</span><span class="p">(</span>
+            <span class="n">table</span><span class="o">=</span><span class="n">_filter_table</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+                <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">base_feature</span><span class="o">=</span><span class="n">base_feature</span><span class="p">,</span>
+                <span class="n">stat_name</span><span class="o">=</span><span class="n">stat_name</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RoiStatsData.to_pandas">
+<a class="viewcode-back" href="../../API.html#graynet.results.RoiStatsData.to_pandas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Materialize the current table view as a pandas ``DataFrame``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RunData">
+<a class="viewcode-back" href="../../API.html#graynet.results.RunData">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loaded graynet run directory.</span>
+
+<span class="sd">    ``RunData`` contains run metadata plus any available canonical result</span>
+<span class="sd">    tables: raw edges, summary edges, and ROI statistics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">run_dir</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">raw_edges</span><span class="p">:</span> <span class="n">EdgeData</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">summary_edges</span><span class="p">:</span> <span class="n">EdgeData</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">roi_stats</span><span class="p">:</span> <span class="n">RoiStatsData</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_edges</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span></div>
+
+
+
+<div class="viewcode-block" id="load_run">
+<a class="viewcode-back" href="../../API.html#graynet.results.load_run">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_run</span><span class="p">(</span><span class="n">run_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RunData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a graynet 2.0 run directory from disk.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    run_dir : str or pathlib.Path</span>
+<span class="sd">        Path to a run directory containing ``run_metadata.json`` and one or</span>
+<span class="sd">        more canonical Parquet tables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">run_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">run_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">read_run_metadata</span><span class="p">(</span><span class="n">run_dir</span><span class="p">)</span>
+
+    <span class="n">raw_edges</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">raw_path</span> <span class="o">=</span> <span class="n">run_dir</span> <span class="o">/</span> <span class="n">RAW_EDGE_FILE_NAME</span>
+    <span class="k">if</span> <span class="n">raw_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">raw_edges</span> <span class="o">=</span> <span class="n">EdgeData</span><span class="p">(</span><span class="n">pyarrow_parquet</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">raw_path</span><span class="p">),</span> <span class="n">metadata</span><span class="p">)</span>
+
+    <span class="n">summary_edges</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">summary_path</span> <span class="o">=</span> <span class="n">run_dir</span> <span class="o">/</span> <span class="n">SUMMARY_EDGE_FILE_NAME</span>
+    <span class="k">if</span> <span class="n">summary_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">summary_edges</span> <span class="o">=</span> <span class="n">EdgeData</span><span class="p">(</span><span class="n">pyarrow_parquet</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">summary_path</span><span class="p">),</span> <span class="n">metadata</span><span class="p">)</span>
+
+    <span class="n">roi_stats</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">roi_path</span> <span class="o">=</span> <span class="n">run_dir</span> <span class="o">/</span> <span class="n">ROI_STATS_FILE_NAME</span>
+    <span class="k">if</span> <span class="n">roi_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">roi_stats</span> <span class="o">=</span> <span class="n">RoiStatsData</span><span class="p">(</span><span class="n">pyarrow_parquet</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">roi_path</span><span class="p">),</span> <span class="n">metadata</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">RunData</span><span class="p">(</span>
+        <span class="n">run_dir</span><span class="o">=</span><span class="n">run_dir</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+        <span class="n">raw_edges</span><span class="o">=</span><span class="n">raw_edges</span><span class="p">,</span>
+        <span class="n">summary_edges</span><span class="o">=</span><span class="n">summary_edges</span><span class="p">,</span>
+        <span class="n">roi_stats</span><span class="o">=</span><span class="n">roi_stats</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_edge_values">
+<a class="viewcode-back" href="../../API.html#graynet.results.get_edge_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_edge_values</span><span class="p">(</span>
+    <span class="n">edge_data</span><span class="p">:</span> <span class="n">EdgeData</span><span class="p">,</span>
+    <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">base_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">weight_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">summary_stat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EdgeData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience wrapper around :meth:`EdgeData.filter`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">edge_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+        <span class="n">base_feature</span><span class="o">=</span><span class="n">base_feature</span><span class="p">,</span>
+        <span class="n">weight_method</span><span class="o">=</span><span class="n">weight_method</span><span class="p">,</span>
+        <span class="n">summary_stat</span><span class="o">=</span><span class="n">summary_stat</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="export_to_nx">
+<a class="viewcode-back" href="../../API.html#graynet.results.export_to_nx">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export_to_nx</span><span class="p">(</span><span class="n">edge_data</span><span class="p">:</span> <span class="n">EdgeData</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reconstruct a ``networkx.Graph`` from an edge table view.</span>
+
+<span class="sd">    Centroid metadata is added to nodes when available in run metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span> <span class="ow">or</span> <span class="n">edge_data</span><span class="o">.</span><span class="n">metadata</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+    <span class="n">_add_centroids</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">edge_data</span><span class="o">.</span><span class="n">to_rows</span><span class="p">():</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">],</span> <span class="n">weight</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">graph</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">graynet</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_cli.html#single-feature-edge-extraction">Single-feature edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_cli.html#multi-edge-extraction">Multi-edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_cli.html#roi-wise-statistics">ROI-wise statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_cli.html#exporting-graphml-or-csv">Exporting GraphML or CSV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html#loading-a-run">Loading a run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html#filtering-raw-edges">Filtering raw edges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html#converting-to-an-ml-matrix">Converting to an ML matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html#reconstructing-a-networkx-graph">Reconstructing a NetworkX graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html#iterating-subject-by-subject">Iterating subject by subject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_howto.html#optional-exports">Optional exports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citation.html">Citation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2017, Pradeep Reddy Raamana.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

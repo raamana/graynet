@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API &#8212; graynet 2.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=51b770b3"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Citation" href="citation.html" />
+    <link rel="prev" title="Volumetric graynet" href="volumetric.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="api">
+<h1>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h1>
+<p>A tutorial-like presentation is available at <a class="reference internal" href="usage_api.html"><span class="doc">Examples using API</span></a>.</p>
+<p>The core public API is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">graynet.extract</span></code> for single-feature edge runs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">graynet.extract_multiedge</span></code> for multi-feature runs with summary edges</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">graynet.roiwise_stats_indiv</span></code> for ROI-wise summary statistics</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">graynet.load_run</span></code> and related helpers for reading canonical run outputs</p></li>
+</ul>
+<p>graynet 2.0 writes canonical run-level outputs in Parquet plus JSON metadata.
+GraphML and CSV are now optional exports derived from those canonical tables.</p>
+<section id="module-graynet.api">
+<span id="api-reference"></span><h2>API Reference<a class="headerlink" href="#module-graynet.api" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.api.extract">
+<span class="sig-prename descclassname"><span class="pre">graynet.api.</span></span><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('freesurfer_thickness',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('manhattan',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_procs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/api.html#extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.api.extract" title="Link to this definition">¶</a></dt>
+<dd><p>Compute single-feature edge weights for one or more subjects.</p>
+<p>Parameters mirror the classic graynet API, but outputs now follow the 2.0
+run-level layout. When <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> is provided, graynet writes a canonical
+run directory containing <code class="docutils literal notranslate"><span class="pre">run_metadata.json</span></code> and <code class="docutils literal notranslate"><span class="pre">edges_raw.parquet</span></code>.
+When <code class="docutils literal notranslate"><span class="pre">return_results</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, a mapping of
+<code class="docutils literal notranslate"><span class="pre">(weight_method,</span> <span class="pre">subject_id)</span> <span class="pre">-&gt;</span> <span class="pre">edge_vector</span></code> is returned in addition to
+writing the run outputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.api.extract_multiedge">
+<span class="sig-prename descclassname"><span class="pre">graynet.api.</span></span><span class="sig-name descname"><span class="pre">extract_multiedge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('freesurfer_thickness',</span> <span class="pre">'freesurfer_curv')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('manhattan',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('prod',</span> <span class="pre">'median')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_range_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'freesurfer_area':</span> <span class="pre">(0.0,</span> <span class="pre">1.5),</span> <span class="pre">'freesurfer_curv':</span> <span class="pre">(-0.3,</span> <span class="pre">0.3),</span> <span class="pre">'freesurfer_sulc':</span> <span class="pre">(-1.5,</span> <span class="pre">1.5),</span> <span class="pre">'freesurfer_thickness':</span> <span class="pre">(0.0,</span> <span class="pre">5.0)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_procs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/api.html#extract_multiedge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.api.extract_multiedge" title="Link to this definition">¶</a></dt>
+<dd><p>Compute multi-feature edge tables and summary edges for one or more subjects.</p>
+<p>Raw multi-edge rows are written to <code class="docutils literal notranslate"><span class="pre">edges_raw.parquet</span></code> with one row per
+<code class="docutils literal notranslate"><span class="pre">(subject,</span> <span class="pre">base_feature,</span> <span class="pre">weight_method,</span> <span class="pre">u,</span> <span class="pre">v)</span></code> combination. Requested
+summary statistics across features are written to <code class="docutils literal notranslate"><span class="pre">edges_summary.parquet</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">return_results</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the returned mapping uses keys of the
+form <code class="docutils literal notranslate"><span class="pre">(weight_method,</span> <span class="pre">base_feature,</span> <span class="pre">subject_id)</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.api.roiwise_stats_indiv">
+<span class="sig-prename descclassname"><span class="pre">graynet.api.</span></span><span class="sig-name descname"><span class="pre">roiwise_stats_indiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('freesurfer_thickness',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen_roi_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atlas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsaverage'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_procs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/api.html#roiwise_stats_indiv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.api.roiwise_stats_indiv" title="Link to this definition">¶</a></dt>
+<dd><p>Compute ROI-wise summary statistics for one or more subjects.</p>
+<p>Canonical outputs are written to <code class="docutils literal notranslate"><span class="pre">roi_stats.parquet</span></code> in a run directory.
+When <code class="docutils literal notranslate"><span class="pre">return_results</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the returned mapping is keyed by
+<code class="docutils literal notranslate"><span class="pre">(stat_name,</span> <span class="pre">subject_id)</span></code> when multiple statistics are requested, or by
+<code class="docutils literal notranslate"><span class="pre">subject_id</span></code> when only one statistic is requested.</p>
+</dd></dl>
+
+<dl class="py class" id="module-graynet.results">
+<dt class="sig sig-object py" id="graynet.results.EdgeData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">graynet.results.</span></span><span class="sig-name descname"><span class="pre">EdgeData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/results.html#EdgeData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.EdgeData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Canonical edge table plus run metadata.</p>
+<p><code class="docutils literal notranslate"><span class="pre">EdgeData</span></code> is the primary read-side helper for graynet 2.0 results. It
+wraps a Parquet-backed table and provides convenient filtering, subject-wise
+iteration, graph reconstruction, and conversion to dense subject-by-edge
+matrices for downstream analysis.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary_stat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a></span></span><a class="reference internal" href="_modules/graynet/results.html#EdgeData.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.EdgeData.filter" title="Link to this definition">¶</a></dt>
+<dd><p>Return a filtered view of the edge table.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.iter_subjects">
+<span class="sig-name descname"><span class="pre">iter_subjects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.14)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/graynet/results.html#EdgeData.iter_subjects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.EdgeData.iter_subjects" title="Link to this definition">¶</a></dt>
+<dd><p>Yield <code class="docutils literal notranslate"><span class="pre">(subject_id,</span> <span class="pre">edge_rows_for_subject)</span></code> using <a class="reference internal" href="#graynet.results.EdgeData.stable_subject_ids" title="graynet.results.EdgeData.stable_subject_ids"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stable_subject_ids()</span></code></a> order.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#graynet.results.EdgeData.metadata" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.stable_subject_ids">
+<span class="sig-name descname"><span class="pre">stable_subject_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/graynet/results.html#EdgeData.stable_subject_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.EdgeData.stable_subject_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Subject IDs present in this table, in a defined (stabilized) order.</p>
+<p>Order is <strong>not</strong> arbitrary Parquet row order: IDs from run metadata
+<code class="docutils literal notranslate"><span class="pre">subject_ids</span></code> come first when they appear in the table (preserving
+that list’s order), then any IDs found only in the table, in first-seen
+column order.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This ordering is intentional for iteration and analysis, but it is
+<strong>not</strong> yet guaranteed as a stable public contract across graynet
+releases or if on-disk layout / metadata conventions change.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.table">
+<span class="sig-name descname"><span class="pre">table</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Table</span></span><a class="headerlink" href="#graynet.results.EdgeData.table" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.to_ndarray">
+<span class="sig-name descname"><span class="pre">to_ndarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary_stat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">nan</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/graynet/results.html#EdgeData.to_ndarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.EdgeData.to_ndarray" title="Link to this definition">¶</a></dt>
+<dd><p>Convert edge rows into a dense <code class="docutils literal notranslate"><span class="pre">X</span></code> matrix.</p>
+<p>Rows follow the exact order of <code class="docutils literal notranslate"><span class="pre">subject_ids</span></code>. Columns follow the run’s
+<code class="docutils literal notranslate"><span class="pre">node_labels</span></code> metadata order, using the upper-triangular edge ordering
+implied by <code class="docutils literal notranslate"><span class="pre">(u,</span> <span class="pre">v)</span></code> pairs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.to_pandas">
+<span class="sig-name descname"><span class="pre">to_pandas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/results.html#EdgeData.to_pandas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.EdgeData.to_pandas" title="Link to this definition">¶</a></dt>
+<dd><p>Materialize the current table view as a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.EdgeData.to_rows">
+<span class="sig-name descname"><span class="pre">to_rows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/graynet/results.html#EdgeData.to_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.EdgeData.to_rows" title="Link to this definition">¶</a></dt>
+<dd><p>Materialize the current table view as a list of row dictionaries.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="graynet.results.RoiStatsData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">graynet.results.</span></span><span class="sig-name descname"><span class="pre">RoiStatsData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/results.html#RoiStatsData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.RoiStatsData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Canonical ROI-statistics table plus run metadata.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.RoiStatsData.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#graynet.results.RoiStatsData" title="graynet.results.RoiStatsData"><span class="pre">RoiStatsData</span></a></span></span><a class="reference internal" href="_modules/graynet/results.html#RoiStatsData.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.RoiStatsData.filter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.RoiStatsData.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#graynet.results.RoiStatsData.metadata" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.RoiStatsData.table">
+<span class="sig-name descname"><span class="pre">table</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Table</span></span><a class="headerlink" href="#graynet.results.RoiStatsData.table" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graynet.results.RoiStatsData.to_pandas">
+<span class="sig-name descname"><span class="pre">to_pandas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/results.html#RoiStatsData.to_pandas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.RoiStatsData.to_pandas" title="Link to this definition">¶</a></dt>
+<dd><p>Materialize the current table view as a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="graynet.results.RunData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">graynet.results.</span></span><span class="sig-name descname"><span class="pre">RunData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roi_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#graynet.results.RoiStatsData" title="graynet.results.RoiStatsData"><span class="pre">RoiStatsData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graynet/results.html#RunData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.RunData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Loaded graynet run directory.</p>
+<p><code class="docutils literal notranslate"><span class="pre">RunData</span></code> contains run metadata plus any available canonical result
+tables: raw edges, summary edges, and ROI statistics.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.RunData.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#graynet.results.RunData.metadata" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.RunData.raw_edges">
+<span class="sig-name descname"><span class="pre">raw_edges</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#graynet.results.RunData.raw_edges" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.RunData.roi_stats">
+<span class="sig-name descname"><span class="pre">roi_stats</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#graynet.results.RoiStatsData" title="graynet.results.RoiStatsData"><span class="pre">RoiStatsData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#graynet.results.RunData.roi_stats" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.RunData.run_dir">
+<span class="sig-name descname"><span class="pre">run_dir</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><a class="headerlink" href="#graynet.results.RunData.run_dir" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="graynet.results.RunData.summary_edges">
+<span class="sig-name descname"><span class="pre">summary_edges</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#graynet.results.RunData.summary_edges" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.results.export_to_nx">
+<span class="sig-prename descclassname"><span class="pre">graynet.results.</span></span><span class="sig-name descname"><span class="pre">export_to_nx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span></span></span><a class="reference internal" href="_modules/graynet/results.html#export_to_nx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.export_to_nx" title="Link to this definition">¶</a></dt>
+<dd><p>Reconstruct a <code class="docutils literal notranslate"><span class="pre">networkx.Graph</span></code> from an edge table view.</p>
+<p>Centroid metadata is added to nodes when available in run metadata.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.results.get_edge_values">
+<span class="sig-prename descclassname"><span class="pre">graynet.results.</span></span><span class="sig-name descname"><span class="pre">get_edge_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary_stat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#graynet.results.EdgeData" title="graynet.results.EdgeData"><span class="pre">EdgeData</span></a></span></span><a class="reference internal" href="_modules/graynet/results.html#get_edge_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.get_edge_values" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience wrapper around <a class="reference internal" href="#graynet.results.EdgeData.filter" title="graynet.results.EdgeData.filter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">EdgeData.filter()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="graynet.results.load_run">
+<span class="sig-prename descclassname"><span class="pre">graynet.results.</span></span><span class="sig-name descname"><span class="pre">load_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#graynet.results.RunData" title="graynet.results.RunData"><span class="pre">RunData</span></a></span></span><a class="reference internal" href="_modules/graynet/results.html#load_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graynet.results.load_run" title="Link to this definition">¶</a></dt>
+<dd><p>Load a graynet 2.0 run directory from disk.</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>run_dir<span class="classifier">str or pathlib.Path</span></dt><dd><p>Path to a run directory containing <code class="docutils literal notranslate"><span class="pre">run_metadata.json</span></code> and one or
+more canonical Parquet tables.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">graynet</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#single-feature-edge-extraction">Single-feature edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#multi-edge-extraction">Multi-edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#roi-wise-statistics">ROI-wise statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#exporting-graphml-or-csv">Exporting GraphML or CSV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#loading-a-run">Loading a run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#filtering-raw-edges">Filtering raw edges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#converting-to-an-ml-matrix">Converting to an ML matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#reconstructing-a-networkx-graph">Reconstructing a NetworkX graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#iterating-subject-by-subject">Iterating subject by subject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#optional-exports">Optional exports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="volumetric.html">Volumetric graynet</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-graynet.api">API Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="volumetric.html" title="previous chapter">Volumetric graynet</a></li>
+      <li>Next: <a href="citation.html" title="next chapter">Citation</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2017, Pradeep Reddy Raamana.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/API.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

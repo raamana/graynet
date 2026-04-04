@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Volumetric graynet &#8212; graynet 2.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=51b770b3"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="API.html" />
+    <link rel="prev" title="Cortical graynet" href="cortical.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="volumetric-graynet">
+<h1>Volumetric graynet<a class="headerlink" href="#volumetric-graynet" title="Link to this heading">¶</a></h1>
+<p>For the volumetric stream of processing, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> relies on outputs from <a class="reference external" href="http://www.neuro.uni-jena.de/cat/">CAT12 toolbox</a> within the SPM ecosystem. <em>We plan to support various other VBM toolboxes soon</em> - make your suggestions by <a class="reference external" href="https://github.com/raamana/graynet/issues/new">opening an issue</a>.</p>
+<p>The following steps should help you get started and going quickly:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Install <a class="reference external" href="http://www.neuro.uni-jena.de/cat/">CAT12 toolbox</a> and read the <a class="reference external" href="http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf">manual</a></p></li>
+<li><p>Ensure you produce the outputs in <em>normalized</em> atlas space, by selecting the output option to be either <code class="docutils literal notranslate"><span class="pre">Modulated</span> <span class="pre">normalized</span></code> or <code class="docutils literal notranslate"><span class="pre">normalized</span></code> depending on your analyses plan. Correct processing would produce images of size 121 x 145 x 121, which must be the same as the atlases included in the CAT12 toolbox</p></li>
+<li><dl class="simple">
+<dt>Run the CAT12 processing and ensure it is complete</dt><dd><ul>
+<li><p>Perform the QA as suggested in their <a class="reference external" href="http://www.neuro.uni-jena.de/cat12/CAT12-Manual.pdf">manual</a> e.g. “SECOND MODULE: DISPLAY ONE SLICE FOR ALL IMAGES”.</p></li>
+<li><p>For a more comprehensive QC of segmentation accuracy, you can employ <a class="reference external" href="https://raamana.github.io/visualqc/readme.html">visualqc</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>If everything went well, you would have an <code class="docutils literal notranslate"><span class="pre">mri</span></code> folder created in the output folder you chose. This folder would have several files, for each subject you processed e.g. <code class="docutils literal notranslate"><span class="pre">mwp1SUBJECTID.nii</span></code> contains the voxel-wise gray matter densities for SUBJECTID in the modulated (prefix <code class="docutils literal notranslate"><span class="pre">m</span></code> ) normalized (<code class="docutils literal notranslate"><span class="pre">w</span></code> ) atlas space. Similarly <code class="docutils literal notranslate"><span class="pre">mwp2*.nii</span></code> files would contain voxel-wise white matter densities.</p></li>
+</ul>
+</div></blockquote>
+<p>If graynet is installed without error, you should have <code class="docutils literal notranslate"><span class="pre">graynet</span></code> command in your path. Just type <code class="docutils literal notranslate"><span class="pre">graynet</span></code> and you should see it display options and usage instructions, as presented in <a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a> page.</p>
+<p>Suppose say</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>you already have CAT12 processing done at <code class="docutils literal notranslate"><span class="pre">/work/project/cat12_vbm</span></code></p></li>
+<li><p>for 5 subjects with identifiers are stored in subject_ids.txt (one per line)</p></li>
+<li><p>you want to analyze network features based on GM density values (identified in <code class="docutils literal notranslate"><span class="pre">graynet</span></code> by <code class="docutils literal notranslate"><span class="pre">spm_cat_gmdensity</span></code> ), which have been resampled to the space of AAL atlas (identified in <code class="docutils literal notranslate"><span class="pre">graynet</span></code> by <code class="docutils literal notranslate"><span class="pre">cat_aal</span></code> ) provided in CAT12 (dimensions: 121 x 145 x 121, with voxel sizes: 1.5000, 1.5000, 1.5000)</p></li>
+<li><p>use the <code class="docutils literal notranslate"><span class="pre">manhattan</span></code> method to compute histogram distance between two cortical ROIs (assuming all subjects resampled to same atlas)</p></li>
+<li><p>and store the networks extracted in <code class="docutils literal notranslate"><span class="pre">/work/project/cat12_vbm/graynet_volumetric</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>You could achieve it all with a single command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/work/project
+graynet<span class="w"> </span>edges<span class="w"> </span>-s<span class="w"> </span>subject_ids.txt<span class="w"> </span>-f<span class="w"> </span>spm_cat_gmdensity<span class="w"> </span>-i<span class="w"> </span>/work/project/cat12_vbm<span class="w"> </span>-w<span class="w"> </span>manhattan<span class="w"> </span>-a<span class="w"> </span>cat_aal<span class="w"> </span>-o<span class="w"> </span>/work/project/cat12_vbm/graynet_volumetric
+</pre></div>
+</div>
+<p>That’s it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.</p>
+<p>Suppose, you prefer to analyze ROIs as defined by other atlases, graynet also supports the IBSR and LPBA40 as supplied by the CAT12 toolbox. If you are also curious to try multiple weight metrics -  <code class="docutils literal notranslate"><span class="pre">chebyshev</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine</span></code>, you can achieve it via the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/work/project
+graynet<span class="w"> </span>edges<span class="w"> </span>-s<span class="w"> </span>subject_ids.txt<span class="w"> </span>-f<span class="w"> </span>spm_cat_gmdensity<span class="w"> </span>-i<span class="w"> </span>/work/project/cat12_vbm<span class="w"> </span>-w<span class="w"> </span>chebyshev<span class="w"> </span>cosine<span class="w"> </span>manhattan<span class="w"> </span>-a<span class="w"> </span>cat_LPBA40<span class="w"> </span>-o<span class="w"> </span>/work/project/cat12_vbm/graynet_volumetric
+</pre></div>
+</div>
+<p>You could also study other features by simply adding more features to the <code class="docutils literal notranslate"><span class="pre">-f</span></code>, such as <code class="docutils literal notranslate"><span class="pre">spm_cat_wmdensity</span></code> (white matter density).</p>
+<p>However, if you have 100s of subjects or your atlas has a large number of ROIs (like the AAL atlas which has 120), this computation can take a long time. It is advisable to move the processing to a larger server or computer cluster, by delegating few subjects to a single job. You could leverage this <a class="reference external" href="https://github.com/raamana/graynet/blob/master/scripts/generate_hpc_jobs.py">script</a> to process any large dataset at once (produce jobs for processing on a cluster).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If you have access to a computer cluster, you can submit the generated jobs to the cluster.</p></li>
+<li><p>If you don’t have access to a cluster, you could still use the generated job/script files to run them locally - few at a time.</p></li>
+</ul>
+</div></blockquote>
+<p>After processing is done, graynet 2.0 writes one run directory per parameter
+combination. Each run directory contains canonical outputs such as
+<code class="docutils literal notranslate"><span class="pre">run_metadata.json</span></code> and <code class="docutils literal notranslate"><span class="pre">edges_raw.parquet</span></code>. If you need older GraphML or
+CSV exports, use the <code class="docutils literal notranslate"><span class="pre">graynet</span> <span class="pre">export</span></code> subcommands described in
+<a class="reference internal" href="usage_cli.html"><span class="doc">Command line interface</span></a>.</p>
+<p>The output folder will be graynet within <code class="docutils literal notranslate"><span class="pre">proc_dir</span></code> you choose in the script - determined by this statement in the above script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">proc_dir</span><span class="p">,</span> <span class="s1">&#39;graynet&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_range</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_nbins</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_feature</span><span class="p">,</span> <span class="n">atlas</span><span class="p">,</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_bins</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>which after expansion looks something like based on your choices: <code class="docutils literal notranslate"><span class="pre">/your_proc_dir/graynet/spm_cat_gmdensity_cat_aal_range_0_1_nbins25/</span></code></p>
+<section id="computing-roi-wise-statistics">
+<span id="roi-stats-volumetric"></span><h2>Computing ROI-wise statistics<a class="headerlink" href="#computing-roi-wise-statistics" title="Link to this heading">¶</a></h2>
+<p>When available, <code class="docutils literal notranslate"><span class="pre">graynet</span></code> will help compute ROI-wise statistics (individual,
+not pair-wise) for visualization (e.g. mean and variance of GM density within
+amygdala), as well as to serve as a baseline for network-level features. Use
+the <code class="docutils literal notranslate"><span class="pre">roi-stats</span></code> subcommand to do this. Only one type of processing (ROI
+stats, or network-level features) can be done at a time.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">graynet</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#single-feature-edge-extraction">Single-feature edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#multi-edge-extraction">Multi-edge extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#roi-wise-statistics">ROI-wise statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_cli.html#exporting-graphml-or-csv">Exporting GraphML or CSV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_api.html">Examples using API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html">How to use <cite>graynet</cite> results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#loading-a-run">Loading a run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#filtering-raw-edges">Filtering raw edges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#converting-to-an-ml-matrix">Converting to an ML matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#reconstructing-a-networkx-graph">Reconstructing a NetworkX graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#iterating-subject-by-subject">Iterating subject by subject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results_howto.html#optional-exports">Optional exports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cortical.html">Cortical graynet</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Volumetric graynet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#computing-roi-wise-statistics">Computing ROI-wise statistics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="cortical.html" title="previous chapter">Cortical graynet</a></li>
+      <li>Next: <a href="API.html" title="next chapter">API</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2017, Pradeep Reddy Raamana.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/volumetric.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
