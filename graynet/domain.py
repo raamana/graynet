@@ -7,6 +7,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class AtlasInfo:
+    """Resolved atlas information shared by all subject jobs in a run."""
     atlas_spec: Any
     atlas_name: str
     roi_values: tuple[Any, ...]
@@ -18,6 +19,13 @@ class AtlasInfo:
 
 @dataclass(frozen=True)
 class RunConfig:
+    """Run-level configuration for a graynet execution.
+
+    ``RunConfig`` is the single source of truth shared by the API, CLI, and
+    execution pipeline. It describes one coherent run, including subjects,
+    feature choices, atlas settings, and whether the run computes edges,
+    multiedge summaries, or ROI statistics.
+    """
     mode: str
     input_dir: str | Path
     out_dir: str | Path | None
@@ -42,6 +50,7 @@ class RunConfig:
 
 @dataclass(frozen=True)
 class SubjectJob:
+    """Subject-scoped unit of work derived from a :class:`RunConfig`."""
     subject_id: str
     config: RunConfig
     atlas_info: AtlasInfo
@@ -49,6 +58,7 @@ class SubjectJob:
 
 @dataclass
 class SubjectResult:
+    """Per-subject result batch returned by the execution workers."""
     raw_edge_rows: list[dict[str, Any]]
     summary_edge_rows: list[dict[str, Any]]
     roi_stat_rows: list[dict[str, Any]]

@@ -25,7 +25,7 @@ You could achieve it all with a single command:
 .. code-block:: bash
 
     cd /work/project
-    graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan -a fsaverage -p 10 -o /work/project/graynet
+    graynet edges -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan -a fsaverage -p 10 -o /work/project/graynet
 
 That's it! By the time you can get your coffee or stretch your legs, you should have graynet processing done.
 
@@ -34,7 +34,7 @@ Suppose, you prefer to analyze ROIs as defined by a multimodal parcellation publ
 .. code-block:: bash
 
     cd /work/project
-    graynet -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p 10 -o /work/project/graynet
+    graynet edges -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan chebyshev cosine -a Glasser2016 -p 10 -o /work/project/graynet
 
 You could also study curvature and sulcal depth features by simply adding more features to the ``-f``, such as ``freesurfer_curv`` and ``freesurfer_sulc``.
 
@@ -43,7 +43,11 @@ However, if you have 100s of subjects or your atlas has a large number of ROIs (
     - If you have access to a computer cluster, you can submit the generated jobs to the cluster.
     - If you don't have access to a cluster, you could still use the generated job/script files to run them locally - few at a time.
 
-After processing is done (on the cluster or locally), and assuming no other errors, you should see a CSV file for each subject, with ``n*(n-1)/2`` values corresponding to the upper-triangular part of the connectivity matrix, where n is the number of ROIs in a atlas you chose (68 for fsaverage or 360 for Glasser2016).
+After processing is done, graynet 2.0 writes one run directory per parameter
+combination. Each run directory contains canonical outputs such as
+``run_metadata.json`` and ``edges_raw.parquet``. If you need older GraphML or
+CSV exports, use the ``graynet export`` subcommands described in
+:doc:`usage_cli`.
 
 The output folder will be graynet within ``proc_dir`` you choose in the script - determined by this statement in the above script:
 
@@ -56,12 +60,16 @@ which after expansion looks something like based on your choices: ``/your_proc_d
 
 
 
-.. _roi_stats:
+.. _roi_stats_cortical:
 
 Computing ROI-wise statistics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``graynet`` also helps you compute ROI-wise statistics (individual, not pair-wise) for visualization (median thickness in PCG), as well as to serve as a baseline for network-level features. Use the ``-r`` or ``--roi_stats`` flag to achieve it. Only one type of processing (ROI stats, or network-level features) can be done at a time.
+``graynet`` also helps you compute ROI-wise statistics (individual, not
+pair-wise) for visualization (median thickness in PCG), as well as to serve as
+a baseline for network-level features. Use the ``roi-stats`` subcommand to do
+this. Only one type of processing (ROI stats, or network-level features) can be
+done at a time.
 
 
 .. _run_fs:

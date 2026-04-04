@@ -412,6 +412,12 @@ def _build_jobs(config: RunConfig, atlas_info: AtlasInfo) -> tuple[SubjectJob, .
 
 
 def run(config: RunConfig):
+    """Execute one graynet run from a normalized run configuration.
+
+    The run resolves atlas and parameter choices, expands them into
+    subject-level jobs, executes those jobs serially or in parallel, and writes
+    canonical run-level outputs to disk.
+    """
     resolved_config, atlas_info = _resolve_run(config)
     jobs = _build_jobs(resolved_config, atlas_info)
     payload, run_dir = _write_results(resolved_config, atlas_info, jobs)

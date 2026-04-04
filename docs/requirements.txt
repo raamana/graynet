@@ -1,4 +1,2 @@
-networkx
-numpy
-nibabel
-hiwenet
+Sphinx>=8
+sphinx-argparse>=0.5

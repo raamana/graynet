@@ -43,6 +43,13 @@ def _add_centroids(graph: nx.Graph, metadata: dict[str, Any]) -> None:
 
 @dataclass(frozen=True)
 class EdgeData:
+    """Canonical edge table plus run metadata.
+
+    ``EdgeData`` is the primary read-side helper for graynet 2.0 results. It
+    wraps a Parquet-backed table and provides convenient filtering, subject-wise
+    iteration, graph reconstruction, and conversion to dense subject-by-edge
+    matrices for downstream analysis.
+    """
     table: pyarrow.Table
     metadata: dict[str, Any]
 
@@ -53,6 +60,7 @@ class EdgeData:
         weight_method: str | None = None,
         summary_stat: str | None = None,
     ) -> "EdgeData":
+        """Return a filtered view of the edge table."""
         return EdgeData(
             table=_filter_table(
                 self.table,
@@ -65,9 +73,11 @@ class EdgeData:
         )
 
     def to_pandas(self):
+        """Materialize the current table view as a pandas ``DataFrame``."""
         return self.table.to_pandas()
 
     def to_rows(self) -> list[dict[str, Any]]:
+        """Materialize the current table view as a list of row dictionaries."""
         return self.table.to_pylist()
 
     def stable_subject_ids(self) -> list[str]:
@@ -110,6 +120,12 @@ class EdgeData:
         summary_stat: str | None = None,
         fill_value: float = np.nan,
     ) -> np.ndarray:
+        """Convert edge rows into a dense ``X`` matrix.
+
+        Rows follow the exact order of ``subject_ids``. Columns follow the run's
+        ``node_labels`` metadata order, using the upper-triangular edge ordering
+        implied by ``(u, v)`` pairs.
+        """
         if isinstance(subject_ids, (str, bytes)):
             raise TypeError("subject_ids must be a sequence of subject identifiers, not a string")
 
@@ -150,6 +166,7 @@ class EdgeData:
 
 @dataclass(frozen=True)
 class RoiStatsData:
+    """Canonical ROI-statistics table plus run metadata."""
     table: pyarrow.Table
     metadata: dict[str, Any]
 
@@ -170,11 +187,17 @@ class RoiStatsData:
         )
 
     def to_pandas(self):
+        """Materialize the current table view as a pandas ``DataFrame``."""
         return self.table.to_pandas()
 
 
 @dataclass(frozen=True)
 class RunData:
+    """Loaded graynet run directory.
+
+    ``RunData`` contains run metadata plus any available canonical result
+    tables: raw edges, summary edges, and ROI statistics.
+    """
     run_dir: Path
     metadata: dict[str, Any]
     raw_edges: EdgeData | None = None
@@ -187,6 +210,14 @@ class RunData:
 
 
 def load_run(run_dir) -> RunData:
+    """Load a graynet 2.0 run directory from disk.
+
+    Parameters
+    ----------
+    run_dir : str or pathlib.Path
+        Path to a run directory containing ``run_metadata.json`` and one or
+        more canonical Parquet tables.
+    """
     run_dir = Path(run_dir).resolve()
     metadata = read_run_metadata(run_dir)
 
@@ -221,6 +252,7 @@ def get_edge_values(
     weight_method: str | None = None,
     summary_stat: str | None = None,
 ) -> EdgeData:
+    """Convenience wrapper around :meth:`EdgeData.filter`."""
     return edge_data.filter(
         subject_id=subject_id,
         base_feature=base_feature,
@@ -230,6 +262,10 @@ def get_edge_values(
 
 
 def export_to_nx(edge_data: EdgeData, metadata: dict[str, Any] | None = None) -> nx.Graph:
+    """Reconstruct a ``networkx.Graph`` from an edge table view.
+
+    Centroid metadata is added to nodes when available in run metadata.
+    """
     metadata = metadata or edge_data.metadata
     graph = nx.Graph()
     _add_centroids(graph, metadata)

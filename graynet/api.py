@@ -19,6 +19,15 @@ def extract(
     return_results=False,
     num_procs=cfg.default_num_procs,
 ):
+    """Compute single-feature edge weights for one or more subjects.
+
+    Parameters mirror the classic graynet API, but outputs now follow the 2.0
+    run-level layout. When ``out_dir`` is provided, graynet writes a canonical
+    run directory containing ``run_metadata.json`` and ``edges_raw.parquet``.
+    When ``return_results`` is ``True``, a mapping of
+    ``(weight_method, subject_id) -> edge_vector`` is returned in addition to
+    writing the run outputs.
+    """
     return run(
         RunConfig(
             mode="edges",
@@ -54,6 +63,15 @@ def extract_multiedge(
     overwrite_results=False,
     num_procs=cfg.default_num_procs,
 ):
+    """Compute multi-feature edge tables and summary edges for one or more subjects.
+
+    Raw multi-edge rows are written to ``edges_raw.parquet`` with one row per
+    ``(subject, base_feature, weight_method, u, v)`` combination. Requested
+    summary statistics across features are written to ``edges_summary.parquet``.
+
+    When ``return_results`` is ``True``, the returned mapping uses keys of the
+    form ``(weight_method, base_feature, subject_id)``.
+    """
     return run(
         RunConfig(
             mode="multiedge",
@@ -87,6 +105,13 @@ def roiwise_stats_indiv(
     return_results=False,
     num_procs=cfg.default_num_procs,
 ):
+    """Compute ROI-wise summary statistics for one or more subjects.
+
+    Canonical outputs are written to ``roi_stats.parquet`` in a run directory.
+    When ``return_results`` is ``True``, the returned mapping is keyed by
+    ``(stat_name, subject_id)`` when multiple statistics are requested, or by
+    ``subject_id`` when only one statistic is requested.
+    """
     return run(
         RunConfig(
             mode="roi-stats",

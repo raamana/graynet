@@ -2,20 +2,74 @@
 How to use `graynet` results
 ----------------------------
 
+graynet 2.0 stores results as run-level Parquet tables plus JSON metadata.
+GraphML and CSV are optional export formats, not the canonical on-disk layout.
 
-For each combination of the parameters chosen, such as edge metric, atlas etc, ``graynet`` produces one network for each subject. The output format is in ``GraphML`` format, which can be easily read with ``networkx``:
+Loading a run
+-------------
 
 .. code-block:: python
 
-    import networkx as nx
-    graph = nx.read_graphml(path_to_graphml_file)
+    from graynet import load_run
 
+    run = load_run("/path/to/run_dir")
+    print(run.metadata.keys())
+    print(run.raw_edges)
 
-More info can be found `here <https://networkx.github.io/documentation/stable/reference/readwrite/generated/networkx.readwrite.graphml.read_graphml.html>`_.
+Filtering raw edges
+-------------------
 
+.. code-block:: python
 
-The graph inside the ``graphML`` file is essentially a pair-wise distance matrix (measured by the metric chosen). There are many ways you can use it - easiest among them is to extract the upper triangular part of the connectivity matrix (as it is symmetric) and treat it a single-subject feature vector for that subject.
+    from graynet import get_edge_values
 
-These subject-wise feature vectors can be used in many applications, including in the study of brain-behaviour relationships and as a biomarker candidate (e.g. see `this study on ADNI and ABIDE <https://www.biorxiv.org/content/early/2017/07/31/170381>`_). If you are interested in evaluating their predictive utility (out of sample prediction via cross-validation), it's quite simple via `neuropredict <https://github.com/raamana/neuropredict>`_.
+    edge_rows = get_edge_values(
+        run.raw_edges,
+        subject_id="sub-001",
+        base_feature="freesurfer_thickness",
+        weight_method="manhattan",
+    )
 
-We plan to include additional scripts and convenience methods into ``graynet`` to gather the results into readily usable data structures such as `pyradigm <https://github.com/raamana/pyradigm>`_ (or CSV files) for further analysis. Stay tuned!
+Converting to an ML matrix
+--------------------------
+
+.. code-block:: python
+
+    X = run.raw_edges.to_ndarray(
+        ["sub-001", "sub-002", "sub-003"],
+        base_feature="freesurfer_thickness",
+        weight_method="manhattan",
+    )
+
+Reconstructing a NetworkX graph
+-------------------------------
+
+.. code-block:: python
+
+    from graynet import export_to_nx
+
+    graph = export_to_nx(edge_rows)
+
+    # centroid coordinates are added to node attributes when available
+    print(graph.nodes["lh_bankssts"])
+
+Iterating subject by subject
+----------------------------
+
+.. code-block:: python
+
+    for subject_id, subject_edges in run.raw_edges.iter_subjects():
+        print(subject_id, subject_edges.to_pandas().shape)
+
+Optional exports
+----------------
+
+If you need GraphML or CSV, use the CLI export subcommands documented in
+:doc:`usage_cli`.
+
+Canonical tables are a better starting point for:
+
+- machine-learning matrices
+- subject-wise filtering
+- tabular analysis in Python or R
+- reproducible export to GraphML or CSV later

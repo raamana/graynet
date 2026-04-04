@@ -2,7 +2,8 @@
 Command line interface
 -----------------------
 
-The command line interface for graynet (preferred interface, given its target is HPC) is shown below. Check the bottom of this page for examples.
+graynet 2.0 exposes subcommands for the main run modes and for optional exports.
+Each successful command writes one run directory containing canonical outputs.
 
 .. argparse::
    :ref: graynet.cli.build_parser
@@ -11,14 +12,60 @@ The command line interface for graynet (preferred interface, given its target is
    :nodefaultconst:
 
 
-A rough example of usage can be:
+Single-feature edge extraction
+------------------------------
 
 .. code-block:: bash
 
-    #!/bin/bash
-    #$ -l mf=2G -q queue_name.q -wd /work/project
-    cd /work/project
-    graynet edges -s subject_ids.txt -f freesurfer_thickness -i /work/project/freesurfer_reconall -w manhattan euclidean chebyshev -a glasser2016 -p 10 -o /work/project/graynet_processing
+    graynet edges \
+      -i /work/project/freesurfer_reconall \
+      -s subject_ids.txt \
+      -f freesurfer_thickness \
+      -w manhattan euclidean \
+      -a fsaverage \
+      -p 10 \
+      -o /work/project/graynet_runs \
+      -c 2
 
+Multi-edge extraction
+---------------------
 
-Note you can specify mulitple weight metrics to save on I/O activity and walltime on HPC.
+.. code-block:: bash
+
+    graynet multiedge \
+      -i /work/project/freesurfer_reconall \
+      -s subject_ids.txt \
+      -f freesurfer_thickness freesurfer_curv \
+      -w manhattan \
+      -t median prod \
+      -a fsaverage \
+      -p 10 \
+      -o /work/project/graynet_runs
+
+ROI-wise statistics
+-------------------
+
+.. code-block:: bash
+
+    graynet roi-stats \
+      -i /work/project/freesurfer_reconall \
+      -s subject_ids.txt \
+      -f freesurfer_thickness \
+      -r median mean \
+      -a fsaverage \
+      -p 10 \
+      -o /work/project/graynet_runs
+
+Exporting GraphML or CSV
+------------------------
+
+Canonical outputs are Parquet plus JSON metadata. Export GraphML or CSV only
+when you need those downstream formats.
+
+.. code-block:: bash
+
+    graynet export graphml --run-dir /work/project/graynet_runs/edges__atlas-fsaverage__features-freesurfer_thickness__weights-manhattan__smth-10__node-none
+
+.. code-block:: bash
+
+    graynet export csv --run-dir /work/project/graynet_runs/edges__atlas-fsaverage__features-freesurfer_thickness__weights-manhattan__smth-10__node-none

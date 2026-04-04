@@ -217,12 +217,10 @@ def subdivide_cortex(atlas_dir, hemi_list=None):
 
 
 def load_subdivision_patchwise(atlas_name, min_vtx_per_patch=100):
-    """
-    Loads a precomputed subdivision of the cortex
-    Originally generated in Matlab based on k-means clustering (Raamana PhD thesis);
-     adaptive subdivision ensuring a specified minimum number of vertices per patch
+    """Load a precomputed cortical subdivision for ``fsaverage``.
 
-    more details --> graynet/scripts/export_precomputed_ctx_parc_in_numpy_format.py
+    The subdivision was originally generated in Matlab using k-means clustering
+    with a minimum-vertices-per-patch constraint.
     """
 
     atlas_name = atlas_name.lower()

@@ -140,6 +140,7 @@ def _build_run_config(args) -> RunConfig:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the command-line parser for graynet 2.0."""
     parser = argparse.ArgumentParser(prog="graynet")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -196,6 +197,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None):
+    """Run the graynet CLI and return the output run or export directory."""
     parser = build_parser()
     args = parser.parse_args(argv)
 
